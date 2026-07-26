@@ -1,15 +1,16 @@
 import { rdbTopics, type RdbTopic } from "./topics.rdb-index";
 import { dataModelingTopics, type DataModelingTopic } from "./topics.data-modeling";
+import { whyNeedRdbTopics, type WhyNeedRdbTopic } from "./topics.why-need-rdb";
 import type { SectionKey } from "./sections";
 
 export type TopicLevel = "basic" | "advanced";
 
-export type { RdbTopic, DataModelingTopic };
-export type Topic = RdbTopic | DataModelingTopic;
+export type { RdbTopic, DataModelingTopic, WhyNeedRdbTopic };
+export type Topic = RdbTopic | DataModelingTopic | WhyNeedRdbTopic;
 
-export { rdbTopics, dataModelingTopics };
+export { rdbTopics, dataModelingTopics, whyNeedRdbTopics };
 
-export const topics: Topic[] = [...rdbTopics, ...dataModelingTopics];
+export const topics: Topic[] = [...rdbTopics, ...dataModelingTopics, ...whyNeedRdbTopics];
 
 export function findTopic(section: SectionKey, slug: string): Topic | undefined {
   return topics.find((t) => t.section === section && t.slug === slug);

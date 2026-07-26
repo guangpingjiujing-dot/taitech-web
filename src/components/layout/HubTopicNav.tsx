@@ -4,22 +4,18 @@ import { sections } from "@/content/sections";
 
 /**
  * トップページ (Hub) 用のサイドバー。
- * RDB インデックス / データモデリング の両セクションのトピックを縦に並べて表示する。
+ * 全セクションのトピックを sections の宣言順で縦に並べて表示する。
  */
 export function HubTopicNav() {
+  const list = Object.values(sections);
   return (
     <div className="text-sm">
-      <SectionHeading href={sections["rdb-index"].path}>
-        {sections["rdb-index"].label}
-      </SectionHeading>
-      <TopicNav section="rdb-index" hideOtherSection />
-
-      <div className="mt-10">
-        <SectionHeading href={sections["data-modeling"].path}>
-          {sections["data-modeling"].label}
-        </SectionHeading>
-        <TopicNav section="data-modeling" hideOtherSection />
-      </div>
+      {list.map((section, i) => (
+        <div key={section.key} className={i > 0 ? "mt-10" : ""}>
+          <SectionHeading href={section.path}>{section.label}</SectionHeading>
+          <TopicNav section={section.key} hideOtherSection />
+        </div>
+      ))}
     </div>
   );
 }

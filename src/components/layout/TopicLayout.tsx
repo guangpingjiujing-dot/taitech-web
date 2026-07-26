@@ -32,7 +32,9 @@ export function TopicLayout({
   const subLabel =
     topic.section === "rdb-index"
       ? RDB_GROUP_LABEL[topic.group]
-      : dataModelingCategories[topic.category].label;
+      : topic.section === "data-modeling"
+        ? dataModelingCategories[topic.category].label
+        : ""; // why-need-rdb は sub-classification なし
 
   return (
     <Container size="wide" className="py-8 md:py-12">
@@ -66,9 +68,11 @@ export function TopicLayout({
 
           <div className="mb-4 flex items-center gap-3">
             <LevelBadge level={topic.level} />
-            <span className="text-xs text-[var(--muted-foreground)]">
-              {subLabel}
-            </span>
+            {subLabel && (
+              <span className="text-xs text-[var(--muted-foreground)]">
+                {subLabel}
+              </span>
+            )}
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
@@ -101,7 +105,11 @@ export function TopicLayout({
         <aside className="hidden lg:flex lg:sticky lg:top-14 lg:self-start lg:flex-col lg:gap-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pt-4 lg:pb-8">
           <SeriesNav
             active={
-              topic.section === "rdb-index" ? "rdb-index" : topic.category
+              topic.section === "rdb-index"
+                ? "rdb-index"
+                : topic.section === "why-need-rdb"
+                  ? "why-need-rdb"
+                  : topic.category
             }
           />
           <BookSidebar topicSlug={slug} />

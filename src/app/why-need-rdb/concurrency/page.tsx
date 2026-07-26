@@ -1,0 +1,146 @@
+import { buildTopicMetadata } from "@/lib/metadata";
+import { TopicLayout } from "@/components/layout/TopicLayout";
+import { TopicJsonLd } from "@/components/seo/JsonLd";
+import { FAQ } from "@/components/layout/FAQ";
+import { RaceDiagram } from "@/components/viz/rdb-fundamentals/RaceDiagram";
+import { findTopic } from "@/content/topics";
+
+const slug = "concurrency";
+const topic = findTopic("why-need-rdb", slug)!;
+
+export const metadata = buildTopicMetadata(topic);
+
+const faq = [
+  {
+    q: "Lost Update は Excel だけの問題？",
+    a: "いいえ、RDB でも分離レベルや設計次第で起こります。RDB は「起こらないようにする手段 (ロック / MVCC / バージョン列)」を提供する点が Excel との違いです。",
+  },
+  {
+    q: "悲観ロックと楽観ロックはどちらを選ぶべき？",
+    a: "競合が頻発する場面は悲観、稀な場面は楽観が向きます。楽観は競合検出時のリトライロジックを実装する必要があります。",
+  },
+  {
+    q: "分離レベルの 4 段階、実務では何を選ぶ？",
+    a: "多くのアプリケーションは READ COMMITTED (PostgreSQL のデフォルト) で十分です。金融系や在庫のような厳密な整合性が必要な処理では SERIALIZABLE を局所的に使います。",
+  },
+  {
+    q: "MVCC を使えばロックは不要？",
+    a: "読み取りは他の書き込みをブロックしなくなりますが、書き込み同士の競合や書き込みスキューは別途対処が必要です。",
+  },
+];
+
+export default function Page() {
+  return (
+    <TopicLayout section="why-need-rdb" slug={slug}>
+      <TopicJsonLd section="why-need-rdb" slug={slug} faq={faq} />
+
+      <h2>事故 — 2 人が同時に書き込んで、片方の修正が消えた</h2>
+      <p>
+        経理担当 A が売上シートを開き、行 45 の金額を <code>¥98,000 → ¥120,000</code> に修正して保存。
+        ほぼ同時に担当 B が同じシートを開いて、別の行 88 の顧客名を修正して保存した。
+        B のファイルには A の修正が含まれていなかったため、<strong>B の保存が A の修正を上書きして消した</strong>。
+      </p>
+      <p>
+        週次で月次売上を集計した時、A の修正が反映されておらず、報告値が実際と食い違って初めて発覚した。
+        これが <strong>Lost Update (更新消失)</strong>。
+      </p>
+
+      <h2>原因 — Excel には「他人が編集中は待つ」細粒度の仕組みがない</h2>
+      <p>
+        Excel のファイルロックは「開いたら排他」で、他の人は誰も編集できない状態になる。
+        あるいは Google Sheets のようにリアルタイム同時編集を許すか、どちらか。
+        <strong>「あなたが変更したセルだけロックする」</strong> ような細粒度の制御はほぼ不可能。
+      </p>
+
+      <RaceDiagram
+        title="Lost Update — 2 人が同時に読んで別々に上書き"
+        actors={["担当 A", "担当 B"]}
+        steps={[
+          {
+            time: 1,
+            actor: 0,
+            action: "売上シートを開く",
+            value: "行 45 = ¥98,000",
+          },
+          {
+            time: 2,
+            actor: 1,
+            action: "同じ売上シートを開く",
+            value: "行 45 = ¥98,000",
+          },
+          {
+            time: 3,
+            actor: 0,
+            action: "行 45 を修正 → 保存",
+            value: "行 45 = ¥120,000",
+          },
+          {
+            time: 4,
+            actor: 1,
+            action: "別の行を修正 → 保存",
+            value: "自分の手元のコピーで上書き",
+            isProblem: true,
+          },
+        ]}
+        outcome="A の修正 (¥120,000) が B の保存で消え、¥98,000 に戻った"
+      />
+
+      <h2>解決策 — ロックと分離レベル</h2>
+
+      <h3>1. 悲観ロック — 「触ったら他人を待たせる」</h3>
+      <p>
+        書き換えたい行を最初に <code>SELECT ... FOR UPDATE</code> で明示的にロックする。
+        他のトランザクションはそのロックが解放されるまで待たされる。
+      </p>
+      <pre>
+        <code>{`BEGIN;
+SELECT amount FROM sales WHERE id = 45 FOR UPDATE;
+-- 他のトランザクションはここで待たされる
+UPDATE sales SET amount = 120000 WHERE id = 45;
+COMMIT;`}</code>
+      </pre>
+
+      <h3>2. 楽観ロック — 「保存直前にバージョンを確認」</h3>
+      <p>
+        行に <code>version</code> 列を持たせ、UPDATE の <code>WHERE</code> で読んだ時のバージョンを条件に含める。
+        他人が先に書き換えていたらバージョンが変わっているので UPDATE は 0 行にヒットして失敗、リトライする。
+      </p>
+      <pre>
+        <code>{`UPDATE sales
+   SET amount = 120000, version = version + 1
+ WHERE id = 45 AND version = 12;
+-- 影響行が 0 なら他人が先に書き換えている → リトライ`}</code>
+      </pre>
+
+      <h3>3. 分離レベル (Isolation Level) — DBMS の既定挙動</h3>
+      <p>
+        SQL 標準で 4 段階 (<code>READ UNCOMMITTED</code> / <code>READ COMMITTED</code> / <code>REPEATABLE READ</code> / <code>SERIALIZABLE</code>) が定義されている。
+        PostgreSQL の既定は <code>READ COMMITTED</code>。厳密な整合性が必要な処理では <code>SERIALIZABLE</code> を局所的に使う。
+      </p>
+
+      <h3>4. MVCC (多版同時実行制御)</h3>
+      <p>
+        PostgreSQL や Oracle は行に「バージョン」を内部で持ち、書き込みが読み取りをブロックしない設計 (MVCC)。
+        読み取りは常に「トランザクション開始時点のスナップショット」を見るため待ち時間が減る。
+        ただし書き込み同士の競合と <strong>書き込みスキュー</strong> は別途対処が必要。
+      </p>
+
+      <h2>境界事例</h2>
+      <ul>
+        <li>
+          <strong>分離レベルは高いほど遅い</strong>: SERIALIZABLE は高コスト。競合予測に基づいて必要な範囲だけに絞る
+        </li>
+        <li>
+          <strong>デッドロック</strong>: 2 つのトランザクションが互いの行をロックし合って進めなくなる状態。
+          DBMS は片方を検出して自動 ROLLBACK する
+        </li>
+        <li>
+          <strong>MVCC でも起こる書き込みスキュー</strong>: 「両者ともスナップショットを見て別々に更新したら、直列実行では起こり得ない結果になる」異常。
+          SERIALIZABLE への昇格や述語ロックで防ぐ
+        </li>
+      </ul>
+
+      <FAQ items={faq} />
+    </TopicLayout>
+  );
+}

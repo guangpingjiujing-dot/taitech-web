@@ -7,8 +7,6 @@ import { HubTopicNav } from "@/components/layout/HubTopicNav";
 import { site } from "@/lib/site";
 import { sections } from "@/content/sections";
 
-const DATA_MODELING_READY = true;
-
 export const metadata: Metadata = {
   title: { absolute: site.fullName },
   description: site.description,
@@ -33,7 +31,7 @@ export default function Home() {
         </aside>
         <div className="min-w-0">
           <Hero />
-          <TwoPillars />
+          <ThreePillars />
           <MentorSection />
           <WhyThisSite />
         </div>
@@ -52,46 +50,50 @@ function Hero() {
               たいてっく
             </div>
             <h1 className="mt-3 text-3xl md:text-5xl font-bold tracking-tight leading-tight">
-              RDBとデータモデリングを、動く図解と厳密な定義で。
+              RDBの原理と設計を、動く図解と厳密な定義で。
             </h1>
             <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed">
               教科書で挫折しがちな概念を、実際に触れる図解と辞書的な厳密な定義で解説します。
-              新人エンジニアの独学から、IPAデータベーススペシャリスト対策まで、必要な深さで読める2本柱の学習サイト。
+              新人エンジニアの独学から、IPAデータベーススペシャリスト対策まで、必要な深さで読める3本柱の学習サイト。
+              <Link
+                href="/why-need-rdb"
+                className="underline underline-offset-4 hover:text-[var(--foreground)]"
+              >
+                「もしもこの世界にRDBがなかったら」
+              </Link>
+              では Excel をバックエンドにした 7 つの事故から RDB の根本価値を、
               <Link
                 href="/data-modeling/er-diagram"
                 className="underline underline-offset-4 hover:text-[var(--foreground)]"
               >
                 「変なER図」
               </Link>
-              では、よくある EC サイトのデータを使って、間違った ER 図を直しながら ER 図を読み解く力を身につけられます。
+              では EC サイトのデータを使って間違った ER 図を直しながら読み解く力を身につけられます。
             </p>
           </div>
           <HeroVisual />
         </div>
 
-        {/* CTA row: Hero 2 カラム grid の外に出して full width を使う (3 ボタンが narrow な text col で改行するのを回避) */}
+        {/* CTA row: Hero 2 カラム grid の外に出して full width を使う (4 ボタンが narrow な text col で改行するのを回避) */}
         <div className="mt-10 flex flex-wrap gap-3">
+          <Link
+            href={sections["why-need-rdb"].path}
+            className="inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-3 text-sm font-bold hover:bg-[#262626]"
+          >
+            もしRDBがなかったら →
+          </Link>
           <Link
             href={sections["rdb-index"].path}
             className="inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-3 text-sm font-bold hover:bg-[#262626]"
           >
             RDBインデックスから見る →
           </Link>
-          {DATA_MODELING_READY ? (
-            <Link
-              href={sections["data-modeling"].path}
-              className="inline-flex items-center gap-2 border border-[var(--foreground)] px-5 py-3 text-sm font-bold hover:bg-[var(--muted)]"
-            >
-              データモデリングから見る →
-            </Link>
-          ) : (
-            <span
-              aria-disabled="true"
-              className="inline-flex items-center gap-2 border border-[var(--border)] px-5 py-3 text-sm font-bold text-[var(--muted-foreground)] cursor-not-allowed"
-            >
-              データモデリング (近日公開)
-            </span>
-          )}
+          <Link
+            href={sections["data-modeling"].path}
+            className="inline-flex items-center gap-2 border border-[var(--foreground)] px-5 py-3 text-sm font-bold hover:bg-[var(--muted)]"
+          >
+            データモデリングから見る →
+          </Link>
           <Link
             href="/data-modeling/er-diagram"
             className="inline-flex items-center gap-2 bg-[#c53030] text-white px-5 py-3 text-sm font-bold hover:bg-[#a52a2a]"
@@ -107,39 +109,68 @@ function Hero() {
 function HeroVisual() {
   return (
     <div className="relative aspect-[4/3] w-full max-w-md justify-self-end">
-      <svg viewBox="0 0 400 300" className="w-full h-full" role="img" aria-label="2本柱">
-        <rect x="0" y="0" width="400" height="300" fill="#f2f2f0" />
-        <g transform="translate(60, 40)" fontFamily="monospace">
-          <rect x="0" y="0" width="130" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
-          <text x="65" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">INDEX</text>
-          <line x1="15" y1="52" x2="115" y2="52" stroke="#d9d9d5" strokeWidth="1" />
-          <text x="15" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">B-tree</text>
-          <text x="15" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Hash</text>
-          <text x="15" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">Clustered</text>
-          <text x="15" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">Composite</text>
-          <text x="15" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">Covering</text>
+      <svg viewBox="0 0 480 300" className="w-full h-full" role="img" aria-label="3本柱">
+        <rect x="0" y="0" width="480" height="300" fill="#f2f2f0" />
+        <g transform="translate(40, 40)" fontFamily="monospace">
+          {/* WHY column */}
+          <rect x="0" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="60" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">WHY</text>
+          <line x1="14" y1="52" x2="106" y2="52" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="14" y="76" fontSize="11" fontWeight="700" fill="#0a0a0a">Atomicity</text>
+          <text x="14" y="98" fontSize="11" fontWeight="700" fill="#0a0a0a">Concurrency</text>
+          <text x="14" y="120" fontSize="11" fontWeight="700" fill="#0a0a0a">Uniqueness</text>
+          <text x="14" y="142" fontSize="11" fontWeight="700" fill="#0a0a0a">FK / RI</text>
+          <text x="14" y="164" fontSize="11" fontWeight="700" fill="#0a0a0a">Durability</text>
 
-          <rect x="150" y="0" width="130" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
-          <text x="215" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">MODELING</text>
-          <line x1="165" y1="52" x2="265" y2="52" stroke="#d9d9d5" strokeWidth="1" />
-          <text x="165" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">FD</text>
-          <text x="165" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Keys</text>
-          <text x="165" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">1NF</text>
-          <text x="165" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">2NF</text>
-          <text x="165" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">3NF</text>
+          {/* INDEX column */}
+          <rect x="140" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="200" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">INDEX</text>
+          <line x1="154" y1="52" x2="246" y2="52" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="154" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">B-tree</text>
+          <text x="154" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Hash</text>
+          <text x="154" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">Clustered</text>
+          <text x="154" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">Composite</text>
+          <text x="154" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">Covering</text>
+
+          {/* MODELING column */}
+          <rect x="280" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="340" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">MODELING</text>
+          <line x1="294" y1="52" x2="386" y2="52" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="294" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">FD</text>
+          <text x="294" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Keys</text>
+          <text x="294" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">1NF</text>
+          <text x="294" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">2NF</text>
+          <text x="294" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">3NF</text>
         </g>
-        <text x="200" y="250" textAnchor="middle" fontSize="11" fill="#6b6b68" fontFamily="monospace" letterSpacing="2">
-          TAITECH · 2 SERIES
+        <text x="240" y="250" textAnchor="middle" fontSize="11" fill="#6b6b68" fontFamily="monospace" letterSpacing="2">
+          TAITECH · 3 SERIES
         </text>
       </svg>
     </div>
   );
 }
 
-function TwoPillars() {
+function ThreePillars() {
   const pillars = [
     {
+      key: "why-need-rdb" as const,
+      seriesNumber: "SERIES 01",
+      href: sections["why-need-rdb"].path,
+      title: sections["why-need-rdb"].label,
+      lead: "Excel をバックエンドに繋いだら何が起きるか。7 つの事故から、RDB が黙って守ってくれている 5 つの根本価値を学ぶ。",
+      bullets: [
+        "在庫が -1 個になる原因は？(原子性)",
+        "同じ顧客が 3 行できる原因は？(一意性)",
+        "停電で全部消える原因は？(永続性)",
+      ],
+      links: [
+        { href: "/why-need-rdb", label: "壊れた Excel を見る" },
+        { href: "/why-need-rdb/atomicity", label: "在庫が -1 個になった夜" },
+      ],
+    },
+    {
       key: "rdb-index" as const,
+      seriesNumber: "SERIES 02",
       href: sections["rdb-index"].path,
       title: sections["rdb-index"].label,
       lead: "B-treeやハッシュ、複合インデックスの動きを、値を変えられる図解で辿る。",
@@ -152,10 +183,10 @@ function TwoPillars() {
         { href: "/rdb-index/basics/why-index", label: "なぜインデックスが必要か" },
         { href: "/rdb-index/btree", label: "B-tree インデックス" },
       ],
-      ready: true,
     },
     {
       key: "data-modeling" as const,
+      seriesNumber: "SERIES 03",
       href: sections["data-modeling"].path,
       title: sections["data-modeling"].label,
       lead: "「変なER図」の間違い探しから ER 図の基本、そのまま正規化の 3 ステップへ。",
@@ -168,7 +199,6 @@ function TwoPillars() {
         { href: "/data-modeling/er-diagram", label: "変なER図" },
         { href: "/data-modeling/normalization/why", label: "なぜ正規化が必要か" },
       ],
-      ready: DATA_MODELING_READY,
     },
   ];
 
@@ -176,24 +206,19 @@ function TwoPillars() {
     <section id="pillars" className="scroll-mt-16 border-b border-[var(--border)]">
       <Container size="wide" className="py-16 md:py-20">
         <h2 className="mb-10 text-2xl md:text-3xl font-bold tracking-tight">
-          2本の柱
+          3本の柱
         </h2>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {pillars.map((p) => (
             <article
               key={p.key}
               className="border border-[var(--border)] p-6 md:p-8 flex flex-col"
             >
               <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                {p.key === "rdb-index" ? "SERIES 01" : "SERIES 02"}
+                {p.seriesNumber}
               </div>
               <h3 className="mt-2 text-xl md:text-2xl font-bold tracking-tight">
                 {p.title}
-                {!p.ready && (
-                  <span className="ml-2 text-xs font-bold text-[var(--muted-foreground)]">
-                    (近日公開)
-                  </span>
-                )}
               </h3>
               <p className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {p.lead}
@@ -207,35 +232,24 @@ function TwoPillars() {
                 ))}
               </ul>
               <div className="mt-6 flex-1" />
-              {p.ready ? (
-                <>
-                  <Link
-                    href={p.href}
-                    className="mt-6 inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-bold hover:bg-[#262626] self-start"
-                  >
-                    このシリーズを見る →
-                  </Link>
-                  <ul className="mt-5 space-y-1 text-sm text-[var(--muted-foreground)]">
-                    {p.links.map((l) => (
-                      <li key={l.href}>
-                        <Link
-                          href={l.href}
-                          className="hover:text-[var(--foreground)] hover:underline underline-offset-4"
-                        >
-                          {l.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <span
-                  aria-disabled="true"
-                  className="mt-6 inline-flex items-center gap-2 border border-[var(--border)] px-5 py-2.5 text-sm font-bold text-[var(--muted-foreground)] self-start cursor-not-allowed"
-                >
-                  準備中
-                </span>
-              )}
+              <Link
+                href={p.href}
+                className="mt-6 inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-bold hover:bg-[#262626] self-start"
+              >
+                このシリーズを見る →
+              </Link>
+              <ul className="mt-5 space-y-1 text-sm text-[var(--muted-foreground)]">
+                {p.links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="hover:text-[var(--foreground)] hover:underline underline-offset-4"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </article>
           ))}
         </div>

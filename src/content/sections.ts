@@ -1,6 +1,6 @@
 import { site } from "@/lib/site";
 
-export type SectionKey = "rdb-index" | "data-modeling";
+export type SectionKey = "why-need-rdb" | "rdb-index" | "data-modeling";
 
 export type Section = {
   key: SectionKey;
@@ -12,6 +12,15 @@ export type Section = {
 };
 
 export const sections: Record<SectionKey, Section> = {
+  "why-need-rdb": {
+    key: "why-need-rdb",
+    label: "もしもこの世界にRDBがなかったら",
+    shortLabel: "もしRDBがなかったら",
+    path: "/why-need-rdb",
+    description:
+      "Excel をバックエンドに使ったら何が壊れるかを起点に、トランザクション・制約・同時実行制御・永続性など RDB の根本価値を体系的に理解するセクション。",
+    ogImageAlt: "もしもこの世界にRDBがなかったら",
+  },
   "rdb-index": {
     key: "rdb-index",
     label: "RDBインデックス図解",

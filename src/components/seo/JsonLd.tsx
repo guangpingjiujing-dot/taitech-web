@@ -173,7 +173,7 @@ export function HubHomeJsonLd() {
     isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: (["rdb-index", "data-modeling"] as const).map((key, i) => ({
+      itemListElement: (Object.keys(sections) as SectionKey[]).map((key, i) => ({
         "@type": "ListItem",
         position: i + 1,
         item: {
@@ -193,7 +193,17 @@ export function HubHomeJsonLd() {
   );
 }
 
-export function SectionHubJsonLd({ section }: { section: SectionKey }) {
+export function SectionHubJsonLd({
+  section,
+  faq,
+  flagshipDefinition,
+}: {
+  section: SectionKey;
+  /** 旗艦セクションで FAQPage を出す場合に指定 */
+  faq?: { q: string; a: string }[];
+  /** 旗艦セクションで TechArticle (定義文) を追加する場合に指定 */
+  flagshipDefinition?: string;
+}) {
   const sectionMeta = sections[section];
   const items = topicsInSection(section);
   const author = {
@@ -233,6 +243,34 @@ export function SectionHubJsonLd({ section }: { section: SectionKey }) {
       ],
     },
   ];
+  if (flagshipDefinition) {
+    data.push({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      headline: sectionMeta.label,
+      url: `${site.url}${sectionMeta.path}`,
+      abstract: flagshipDefinition,
+      description: sectionMeta.description,
+      inLanguage: "ja-JP",
+      image: `${site.url}${sectionMeta.path}/opengraph-image`,
+      author,
+      publisher: PUBLISHER_ORG,
+      mainEntityOfPage: `${site.url}${sectionMeta.path}`,
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-speakable='definition']"],
+      },
+    });
+  }
+  if (faq && faq.length > 0) {
+    data.push(
+      buildFaqPage({
+        items: faq,
+        aboutName: sectionMeta.label,
+        pageUrl: `${site.url}${sectionMeta.path}`,
+      }),
+    );
+  }
   return (
     <>
       {data.map((d, i) => (

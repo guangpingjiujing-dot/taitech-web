@@ -39,6 +39,12 @@ export const books: Book[] = [
       "many-to-many",
       "weak-entity",
       "notation",
+      "atomicity",
+      "concurrency",
+      "uniqueness",
+      "referential-integrity",
+      "durability",
+      "recap",
     ],
   },
   {
@@ -78,7 +84,16 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4814400748?tag=taitech-22",
     description:
       "実務でやりがちなSQL・DB設計のアンチパターンとその回避策を体系的に学べる。",
-    topics: ["btree", "composite", "unique", "cost", "denormalization"],
+    topics: [
+      "btree",
+      "composite",
+      "unique",
+      "cost",
+      "denormalization",
+      "uniqueness",
+      "referential-integrity",
+      "recap",
+    ],
   },
   {
     id: "postgres-internals",
@@ -87,7 +102,16 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4297132060?tag=taitech-22",
     description:
       "PostgreSQLの内部構造・ストレージ・インデックス機構を丁寧に解説。設計と運用計画の鉄則が学べる。",
-    topics: ["btree", "hash", "clustered", "partial", "statistics"],
+    topics: [
+      "btree",
+      "hash",
+      "clustered",
+      "partial",
+      "statistics",
+      "atomicity",
+      "durability",
+      "concurrency",
+    ],
   },
   {
     id: "ipa-db-specialist",
@@ -114,6 +138,12 @@ export const books: Book[] = [
       "many-to-many",
       "weak-entity",
       "notation",
+      "atomicity",
+      "concurrency",
+      "uniqueness",
+      "referential-integrity",
+      "durability",
+      "recap",
     ],
   },
   {
@@ -136,6 +166,9 @@ export const books: Book[] = [
       "relationship",
       "cardinality",
       "weak-entity",
+      "atomicity",
+      "concurrency",
+      "recap",
     ],
   },
 ];

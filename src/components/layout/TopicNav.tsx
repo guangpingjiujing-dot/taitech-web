@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { rdbTopicsBy, dataModelingTopicsIn } from "@/content/topics";
+import {
+  rdbTopicsBy,
+  dataModelingTopicsIn,
+  whyNeedRdbTopics,
+} from "@/content/topics";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
 
@@ -32,15 +36,23 @@ export function TopicNav({
           label: g.label,
           items: rdbTopicsBy(g.key),
         }))
-      : Object.values(dataModelingCategories).map((c) => ({
-          key: c.key,
-          label: c.label,
-          items: dataModelingTopicsIn(c.key),
-        }));
+      : section === "why-need-rdb"
+        ? [
+            {
+              key: "why-need-rdb",
+              label: "もしRDBがなかったら",
+              items: whyNeedRdbTopics,
+            },
+          ]
+        : Object.values(dataModelingCategories).map((c) => ({
+            key: c.key,
+            label: c.label,
+            items: dataModelingTopicsIn(c.key),
+          }));
 
-  const otherSection: SectionKey =
-    section === "rdb-index" ? "data-modeling" : "rdb-index";
-  const otherMeta = sections[otherSection];
+  const otherSections: SectionKey[] = (
+    Object.keys(sections) as SectionKey[]
+  ).filter((k) => k !== section);
 
   return (
     <nav aria-label="トピック一覧" className="text-sm">
@@ -61,6 +73,21 @@ export function TopicNav({
                   </div>
                   <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                     9 つの違和感、全て指摘できますか？
+                  </div>
+                </Link>
+              </li>
+            )}
+            {g.key === "why-need-rdb" && (
+              <li>
+                <Link
+                  href="/why-need-rdb"
+                  className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                >
+                  <div className="font-semibold group-hover:underline underline-offset-4">
+                    壊れた Excel
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                    7 つの違和感、指摘できますか？
                   </div>
                 </Link>
               </li>
@@ -88,17 +115,20 @@ export function TopicNav({
         </div>
       ))}
 
-      {!hideOtherSection && (
+      {!hideOtherSection && otherSections.length > 0 && (
         <div className="mt-8 border-t border-[var(--border)] pt-6">
           <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
             他のシリーズ
           </div>
-          <Link
-            href={otherMeta.path}
-            className="block px-3 py-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/60"
-          >
-            {otherMeta.shortLabel} →
-          </Link>
+          {otherSections.map((key) => (
+            <Link
+              key={key}
+              href={sections[key].path}
+              className="block px-3 py-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/60"
+            >
+              {sections[key].shortLabel} →
+            </Link>
+          ))}
         </div>
       )}
     </nav>

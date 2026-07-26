@@ -3,9 +3,11 @@ import type { SectionKey } from "@/content/sections";
 import {
   rdbTopics,
   dataModelingTopicsIn,
+  whyNeedRdbTopics,
   findTopic,
   type DataModelingTopic,
   type Topic,
+  type WhyNeedRdbTopic,
 } from "@/content/topics";
 
 const NORMALIZATION_ORDER = [
@@ -28,12 +30,27 @@ const ER_DIAGRAM_ORDER = [
   "notation",
 ] as const;
 
+// 事故インパクト順 (atomicity から始めて衝撃度の高いものを先に、recap で総括)
+const WHY_NEED_RDB_ORDER = [
+  "atomicity",
+  "concurrency",
+  "uniqueness",
+  "referential-integrity",
+  "durability",
+  "recap",
+] as const;
+
 function getOrderedTopics(
   section: SectionKey,
   category?: DataModelingTopic["category"],
 ): Topic[] {
   if (section === "rdb-index") {
     return rdbTopics;
+  }
+  if (section === "why-need-rdb") {
+    return WHY_NEED_RDB_ORDER
+      .map((slug) => whyNeedRdbTopics.find((t) => t.slug === slug))
+      .filter((t): t is WhyNeedRdbTopic => Boolean(t));
   }
   if (category === "er-diagram") {
     const items = dataModelingTopicsIn("er-diagram");
