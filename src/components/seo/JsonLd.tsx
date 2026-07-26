@@ -56,7 +56,7 @@ export function AuthorJsonLd({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "トップ", item: site.url },
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
         { "@type": "ListItem", position: 2, name: "著者について", item: url },
       ],
     },
@@ -168,7 +168,7 @@ export function SectionHubJsonLd({ section }: { section: SectionKey }) {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "トップ", item: site.url },
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
         {
           "@type": "ListItem",
           position: 2,
@@ -232,7 +232,7 @@ export function CategoryHubJsonLd({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "トップ", item: site.url },
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
         {
           "@type": "ListItem",
           position: 2,
@@ -274,7 +274,7 @@ export function CategoryHubJsonLd({
 
 function buildBreadcrumb(topic: NonNullable<ReturnType<typeof findTopic>>) {
   const items: { name: string; item: string }[] = [
-    { name: "トップ", item: site.url },
+    { name: "ホーム", item: site.url },
   ];
   const sectionMeta = sections[topic.section];
   items.push({

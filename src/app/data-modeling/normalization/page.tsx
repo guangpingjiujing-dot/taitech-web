@@ -135,7 +135,7 @@ function NormalizationJsonLd() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "トップ", item: site.url },
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
         {
           "@type": "ListItem",
           position: 2,

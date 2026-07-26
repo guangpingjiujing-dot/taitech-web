@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { topics } from "@/content/topics";
 import type { SectionKey } from "@/content/sections";
 import { TopicNav } from "@/components/layout/TopicNav";
+import { cn } from "@/lib/utils";
 
 export function TopicNavDrawer({ section }: { section: SectionKey }) {
   const [open, setOpen] = useState(false);
@@ -48,25 +49,27 @@ export function TopicNavDrawer({ section }: { section: SectionKey }) {
         <span className="hidden sm:inline">トピック一覧</span>
       </button>
 
-      {open && (
-        <div className="fixed inset-x-0 bottom-0 top-14 z-30">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setOpen(false)}
-            aria-label="閉じる"
-            tabIndex={-1}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="トピック一覧"
-            className="relative h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[var(--border)] bg-[var(--background)] p-6 shadow-xl"
-          >
-            <TopicNav section={section} currentSlug={currentSlug} />
-          </div>
+      {/* 常時 SSR して内部リンクを crawler に見せる。閉じている間は display:none 相当 */}
+      <div
+        className={cn("fixed inset-x-0 bottom-0 top-14 z-30", !open && "hidden")}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setOpen(false)}
+          aria-label="閉じる"
+          tabIndex={open ? 0 : -1}
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="トピック一覧"
+          className="relative h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[var(--border)] bg-[var(--background)] p-6 shadow-xl"
+        >
+          <TopicNav section={section} currentSlug={currentSlug} />
         </div>
-      )}
+      </div>
     </>
   );
 }

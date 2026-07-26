@@ -49,6 +49,17 @@ export function TopicLayout({
             <Link href={sectionMeta.path} className="hover:text-[var(--foreground)]">
               {sectionMeta.shortLabel}
             </Link>
+            {topic.section === "data-modeling" && (
+              <>
+                <span className="mx-2">/</span>
+                <Link
+                  href={dataModelingCategories[topic.category].path}
+                  className="hover:text-[var(--foreground)]"
+                >
+                  {dataModelingCategories[topic.category].label}
+                </Link>
+              </>
+            )}
             <span className="mx-2">/</span>
             <span>{topic.shortTitle}</span>
           </nav>
