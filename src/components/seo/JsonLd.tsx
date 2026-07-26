@@ -11,6 +11,63 @@ import {
   type DataModelingCategoryKey,
 } from "@/content/sections";
 
+// ビルド時 (SSG) に確定するタイムスタンプ。デプロイ = このページを一度に生成し直したという事実の反映。
+// LLM/AI エンジンが「新鮮度」を weight する用途 (Perplexity / Bing Chat / Copilot 等) を狙う。
+const BUILD_DATE = new Date().toISOString();
+
+const AUTHOR_PERSON = {
+  "@type": "Person" as const,
+  name: site.author.name,
+  url: `${site.url}/about`,
+};
+
+const PUBLISHER_ORG = {
+  "@type": "Organization" as const,
+  name: site.name,
+  url: site.url,
+};
+
+/**
+ * FAQPage JSON-LD を「AEO / LLMO 対応」フル拡張版で組み立てる。
+ * Google の SERP FAQ 表示は 2023-08 以降 一般 site で無効化されているが、
+ * LLM / 音声アシスタント / Bing / DuckDuckGo は依然 FAQPage を読む。
+ */
+function buildFaqPage({
+  items,
+  aboutName,
+  pageUrl,
+}: {
+  items: { q: string; a: string }[];
+  aboutName: string;
+  pageUrl: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    inLanguage: "ja-JP",
+    dateModified: BUILD_DATE,
+    about: { "@type": "Thing", name: aboutName },
+    mainEntityOfPage: pageUrl,
+    author: AUTHOR_PERSON,
+    publisher: PUBLISHER_ORG,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["[data-speakable='faq']"],
+    },
+    mainEntity: items.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      answerCount: 1,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a,
+        inLanguage: "ja-JP",
+        author: AUTHOR_PERSON,
+      },
+    })),
+  };
+}
+
 export function AuthorJsonLd({
   faq,
   knowsAbout,
@@ -62,15 +119,13 @@ export function AuthorJsonLd({
     },
   ];
   if (faq && faq.length > 0) {
-    data.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faq.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    });
+    data.push(
+      buildFaqPage({
+        items: faq,
+        aboutName: site.author.name,
+        pageUrl: url,
+      }),
+    );
   }
   return (
     <>
@@ -249,15 +304,13 @@ export function CategoryHubJsonLd({
     },
   ];
   if (faq && faq.length > 0) {
-    data.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faq.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    });
+    data.push(
+      buildFaqPage({
+        items: faq,
+        aboutName: categoryMeta.label,
+        pageUrl: `${site.url}${categoryMeta.path}`,
+      }),
+    );
   }
   return (
     <>
@@ -341,18 +394,13 @@ export function TopicJsonLd({
     },
   ];
   if (faq && faq.length > 0) {
-    data.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faq.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: f.a,
-        },
-      })),
-    });
+    data.push(
+      buildFaqPage({
+        items: faq,
+        aboutName: topic.title,
+        pageUrl: `${site.url}${topic.path}`,
+      }),
+    );
   }
   return (
     <>

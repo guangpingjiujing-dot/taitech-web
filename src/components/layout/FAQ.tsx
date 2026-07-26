@@ -1,6 +1,6 @@
 export function FAQ({ items }: { items: { q: string; a: string }[] }) {
   return (
-    <section className="mt-16">
+    <section className="mt-16" data-speakable="faq">
       <h2 className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
         よくある疑問
       </h2>
