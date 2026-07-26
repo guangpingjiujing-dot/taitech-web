@@ -208,10 +208,19 @@ export const rdbTopics: RdbTopic[] = [
       "オプティマイザは統計情報を頼りにインデックス利用を判断する。仕組みと落とし穴を理解する。",
     definition:
       "統計情報とは、テーブルやカラムの行数・値の分布・NULL率などをオプティマイザが参照する要約データであり、これが古いと実行計画が最適でなくなる。",
-    keywords: ["統計情報", "オプティマイザ", "カーディナリティ", "ANALYZE"],
-    metaTitle: "統計情報とオプティマイザ｜インデックス利用判断の仕組み",
+    keywords: [
+      "統計情報",
+      "オプティマイザ",
+      "カーディナリティ",
+      "ANALYZE",
+      "MySQL 統計情報",
+      "PostgreSQL 統計情報",
+      "pg_statistic",
+      "innodb_stats",
+    ],
+    metaTitle: "統計情報とオプティマイザ｜MySQL / PostgreSQL の仕組みを図解",
     metaDescription:
-      "オプティマイザが統計情報を頼りにインデックス利用を判断する仕組みを図解で解説。行数・値の分布・NULL率・カーディナリティの役割、ANALYZE が必要になる場面と落とし穴まで。",
+      "オプティマイザが統計情報を頼りにインデックス利用を判断する仕組みを図解で解説。MySQL (innodb_stats / ANALYZE TABLE) と PostgreSQL (pg_statistic / ANALYZE / autovacuum) それぞれの更新タイミング、カーディナリティ・NULL率の役割、統計情報が古いときの落とし穴まで。",
   },
   {
     section: "rdb-index",

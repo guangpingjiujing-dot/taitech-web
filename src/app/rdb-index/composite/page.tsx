@@ -1,4 +1,5 @@
 import { buildTopicMetadata } from "@/lib/metadata";
+import Link from "next/link";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
 import { CompositeViz } from "@/components/viz/CompositeViz";
@@ -61,6 +62,21 @@ export default function Page() {
         <li>等価比較 → 範囲比較 → ソートの順にカラムを並べると効果的</li>
         <li>不要な複合を大量に作らない。似た2つは統合できないか検討する</li>
       </ul>
+
+      <h2>複合キーが自然に生まれる場面 — 多対多の連関実体</h2>
+      <p>
+        複合インデックスの典型的な出現源が、
+        {" "}<Link href="/data-modeling/er-diagram/many-to-many">多対多を連関実体で分解した中間テーブル</Link>
+        {" "}だ。例えば「学生 × 科目」を分解した履修登録テーブルでは、
+        主キーが <code>(学籍番号, 科目ID)</code> の複合主キーになる。
+        この主キーはそのまま <code>(学籍番号, 科目ID)</code> の複合インデックスを兼ねる。
+      </p>
+      <p>
+        カラム順は「よく単独で検索するほう」を先頭に置くのが定石。
+        「特定学生の履修科目一覧」を頻繁に引くなら <code>(学籍番号, 科目ID)</code>、
+        「特定科目の履修者一覧」を頻繁に引くなら <code>(科目ID, 学籍番号)</code>。
+        両方の検索がバランス良く発生するなら、逆順の複合インデックスを追加で貼るのが実務での判断。
+      </p>
 
       <FAQ items={faq} />
     </TopicLayout>

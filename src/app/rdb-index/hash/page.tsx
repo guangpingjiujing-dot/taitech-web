@@ -26,6 +26,20 @@ export default function Page() {
     <TopicLayout section="rdb-index" slug={slug}>
       <TopicJsonLd section="rdb-index" slug={slug} faq={faq} />
 
+      <h2>ハッシュインデックスとは</h2>
+      <p>
+        <strong>ハッシュインデックス</strong> (hash index) とは、
+        キーの値をハッシュ関数で固定長の数値 (ハッシュ値) に変換し、
+        その値に対応するバケットへ格納・参照することで
+        <strong>平均 O(1) の等価検索</strong> を実現するインデックス方式のこと。
+        B-tree のように木構造を辿らず、1 回の計算でバケット位置が決まるのが最大の特徴だ。
+      </p>
+      <p>
+        <strong>使える場面</strong>: <code>WHERE id = ?</code> のような等価検索 (完全一致)。
+        <strong>使えない場面</strong>: 範囲検索・ソート・前方一致・複合条件の先頭以外での絞り込み。
+        PostgreSQL の <code>USING hash</code>、MySQL Memory エンジン、キーバリューストア (Redis 等) の内部構造で使われる。
+      </p>
+
       <h2>キーをハッシュ値に変換してバケットに配る</h2>
       <p>
         ハッシュインデックスの仕組みはシンプルです。キーをハッシュ関数に通して固定サイズの数値に変換し、そのバケットに格納する。

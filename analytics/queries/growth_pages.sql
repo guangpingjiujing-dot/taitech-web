@@ -1,5 +1,7 @@
 -- 直近 14 日 vs その前 14 日 で impressions が伸びた / 沈んだページ
 -- GSC ベース。差分絶対値・比率の両方を出す。
+-- 閾値はサイト立ち上げ初期のデータ量に合わせて緩めに設定（imp_prior + imp_recent >= 5）。
+-- 定常運用に入ったら 100 まで戻して母数ノイズを弾く方針。
 
 WITH recent AS (
   SELECT page, SUM(impressions) AS imp_recent, SUM(clicks) AS clk_recent
@@ -27,6 +29,6 @@ SELECT
   COALESCE(r.clk_recent, 0) AS clk_recent
 FROM recent r
 FULL OUTER JOIN prior p ON r.page = p.page
-WHERE (COALESCE(p.imp_prior, 0) + COALESCE(r.imp_recent, 0)) >= 100
+WHERE (COALESCE(p.imp_prior, 0) + COALESCE(r.imp_recent, 0)) >= 5
 ORDER BY delta_imp DESC
 LIMIT 40;

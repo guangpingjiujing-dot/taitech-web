@@ -47,7 +47,8 @@ export default function Page() {
 
       <h2>ER 図での見分け方 — 主キーの構造がすべて</h2>
       <p>
-        弱エンティティかどうかは、視覚記号ではなく <strong>主キーの構造</strong> で決まる。
+        弱エンティティかどうかは、視覚記号ではなく <strong>主キーの構造</strong> で決まる
+        (キーの分類そのものについては <Link href="/data-modeling/normalization/keys">キーの階層</Link> を参照)。
         子側の主キーが親側の主キーを含んでいれば弱、独立の主キーだけで完結していれば強。
       </p>
       <p>

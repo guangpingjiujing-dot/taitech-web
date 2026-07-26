@@ -60,13 +60,15 @@ export const dataModelingTopics: DataModelingTopic[] = [
       "functional dependency",
       "部分関数従属",
       "推移関数従属",
+      "推移的関数従属",
       "完全関数従属",
+      "多値従属",
       "決定関数",
       "FD",
     ],
     metaTitle: "関数従属性 (Functional Dependency) とは｜図解で理解",
     metaDescription:
-      "関数従属性の定義と例を図解で解説。X → Y の記法、完全関数従属・部分関数従属・推移関数従属の違いまで、1NF〜3NF・BCNF の判定基準になる概念を整理。",
+      "関数従属性の定義と例を図解で解説。X → Y の記法、完全関数従属・部分関数従属・推移関数従属・多値従属の違い、関数従属の判定手順、2NF/3NF/4NF との対応まで整理。",
   },
   {
     section: "data-modeling",

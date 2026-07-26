@@ -30,6 +30,21 @@ export default function Page() {
     <TopicLayout section="rdb-index" slug={slug}>
       <TopicJsonLd section="rdb-index" slug={slug} faq={faq} />
 
+      <h2>ユニークインデックスとは</h2>
+      <p>
+        <strong>ユニークインデックス</strong> (unique index) とは、
+        対象カラム (複合の場合はカラムの組) の値が
+        <strong>テーブル全体で重複しないこと</strong> を保証するインデックスのこと。
+        通常のインデックスと同じく検索を高速化する一方で、
+        INSERT / UPDATE 時に「同じ値が既にあれば拒否する」制約チェックにも使われる。
+      </p>
+      <p>
+        メールアドレス・ユーザー名・注文番号のような
+        <strong>「一意でなければならない値」</strong> に貼るのが典型例。
+        SQL の <code>UNIQUE</code> 制約は内部的にユニークインデックスを作るので、両者は実質同じ仕組み。
+        主キーもユニークインデックスの一種 (NULL を許さない特殊版) と考えると整理しやすい。
+      </p>
+
       <h2>「同じ値は入れさせない」という保証</h2>
       <p>
         ユニークインデックスは検索の高速化に加え、そのカラムの値が重複しないことを保証する制約として機能します。
