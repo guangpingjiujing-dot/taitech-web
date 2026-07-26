@@ -83,6 +83,10 @@ export default function ErDiagramHub() {
             aria-label="パンくず"
             className="text-xs text-[var(--muted-foreground)]"
           >
+            <Link href="/" className="hover:text-[var(--foreground)]">
+              ホーム
+            </Link>
+            <span className="mx-2">/</span>
             <Link href={sectionMeta.path} className="hover:text-[var(--foreground)]">
               {sectionMeta.shortLabel}
             </Link>

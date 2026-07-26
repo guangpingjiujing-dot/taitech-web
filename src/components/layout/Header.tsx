@@ -6,27 +6,45 @@ import { sections, type SectionKey } from "@/content/sections";
 
 type HeaderSection = "hub" | SectionKey;
 
-const HEADER_META: Record<HeaderSection, { label: string; logoHref: string }> = {
-  hub: { label: site.name, logoHref: "/" },
-  "rdb-index": { label: sections["rdb-index"].label, logoHref: sections["rdb-index"].path },
-  "data-modeling": { label: sections["data-modeling"].label, logoHref: sections["data-modeling"].path },
+const HEADER_META: Record<HeaderSection, { label: string }> = {
+  hub: { label: site.name },
+  "rdb-index": { label: sections["rdb-index"].label },
+  "data-modeling": { label: sections["data-modeling"].label },
 };
 
 export function Header({ section = "rdb-index" }: { section?: HeaderSection } = {}) {
   const meta = HEADER_META[section];
+  const inSection = section !== "hub";
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]">
       <Container size="wide">
         <div className="flex h-14 items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            {section !== "hub" && <TopicNavDrawer section={section} />}
+          <div className="flex items-center gap-1 min-w-0">
+            {inSection && <TopicNavDrawer section={section} />}
             <Link
-              href={meta.logoHref}
-              className="flex items-center gap-2.5 font-bold tracking-tight"
+              href="/"
+              aria-label={inSection ? `${site.name} トップへ` : undefined}
+              className="flex items-center gap-2.5 font-bold tracking-tight shrink-0"
             >
               <LogoMark />
-              <span className="hidden sm:inline">{meta.label}</span>
+              <span className="hidden sm:inline">{site.name}</span>
             </Link>
+            {inSection && (
+              <>
+                <span
+                  aria-hidden
+                  className="hidden sm:inline text-[var(--muted-foreground)] mx-1"
+                >
+                  /
+                </span>
+                <Link
+                  href={sections[section].path}
+                  className="hidden sm:inline font-bold tracking-tight text-[var(--foreground)] hover:opacity-80 truncate"
+                >
+                  {meta.label}
+                </Link>
+              </>
+            )}
           </div>
           <nav className="flex items-center gap-1 text-sm">
             <Link

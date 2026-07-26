@@ -6,6 +6,7 @@ import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { BookSidebar } from "@/components/cta/BookSidebar";
 import { RelatedTopics } from "@/components/layout/RelatedTopics";
 import { PrevNext } from "@/components/layout/PrevNext";
+import { SeriesNav } from "@/components/layout/SeriesNav";
 import { findTopic } from "@/content/topics";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 
@@ -41,6 +42,10 @@ export function TopicLayout({
             aria-label="パンくず"
             className="mb-6 text-xs text-[var(--muted-foreground)]"
           >
+            <Link href="/" className="hover:text-[var(--foreground)]">
+              ホーム
+            </Link>
+            <span className="mx-2">/</span>
             <Link href={sectionMeta.path} className="hover:text-[var(--foreground)]">
               {sectionMeta.shortLabel}
             </Link>
@@ -82,7 +87,14 @@ export function TopicLayout({
           <MentorCTA />
         </article>
 
-        <BookSidebar topicSlug={slug} />
+        <aside className="hidden lg:flex lg:sticky lg:top-14 lg:self-start lg:flex-col lg:gap-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pt-4 lg:pb-8">
+          <SeriesNav
+            active={
+              topic.section === "rdb-index" ? "rdb-index" : topic.category
+            }
+          />
+          <BookSidebar topicSlug={slug} />
+        </aside>
       </div>
     </Container>
   );

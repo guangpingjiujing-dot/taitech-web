@@ -6,9 +6,9 @@ export function BookSidebar({ topicSlug }: { topicSlug: string }) {
   const items = booksForTopic(topicSlug);
 
   return (
-    <aside className="hidden lg:flex lg:sticky lg:top-20 lg:self-start lg:flex-col lg:gap-3 lg:max-h-[calc(100vh-6rem)]">
+    <div className="flex flex-col gap-3">
       {items.length > 0 && (
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
             関連書籍
           </h2>
@@ -45,6 +45,6 @@ export function BookSidebar({ topicSlug }: { topicSlug: string }) {
         </div>
       )}
       <MentorSidebarCTA />
-    </aside>
+    </div>
   );
 }
