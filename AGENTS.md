@@ -83,11 +83,26 @@ npm run test:e2e:ui
 3. `docs/DESIGN.md`: サイト設計・アーキテクチャ・SEO/LLMO 戦略
 4. `docs/OPERATIONS.md`: アカウント・DNS・支払い・GA4 IP フィルタ等の非公開ディテール
 5. `docs/MONETIZATION_IDEAS.md`: 収益化アイデア集（ロードマップの補足）
-6. `docs/qiita/`, `docs/x-posts/`, `docs/data-modeling/`: 記事下書き・データモデリング作業メモ
+6. `docs/x-posts/`, `docs/data-modeling/`: X 投稿ドラフト・データモデリング作業メモ
+   （Qiita記事のSSoTは `../qiita` (github.com/guangpingjiujing-dot/qiita) に移管済み。詳細は下の「Qiita 記事のドラフト依頼」節を参照。docs/qiita は空placeholder）
 7. `docs/er-diagram/`: 変なER図 (ER 図カテゴリ) の設計と実装ログ。
    本セクションを触るときは `03-implementation-status.md` を一次情報に。
    00-02 は初期設計時のスナップショットで stale (top に警告あり)
 8. `analytics/reports/*.md`: GA4/GSC の月次データレビュー
+
+# Qiita 記事のドラフト依頼
+
+Qiita (@taitech_dev) 記事のSSoTは **`../qiita/`** (github.com/guangpingjiujing-dot/qiita)。
+このリポジトリで Qiita 記事の作成・修正依頼を受けたら、**書く場所は `../qiita/public/*.md`**（このリポジトリの `docs/qiita/` は空 placeholder で書いてはいけない）。
+
+書き方の詳細ルールは `../qiita/AGENTS.md` を参照。特に以下は事故が起きやすいので必ず守る:
+
+- **本文にbare URL を貼らない**。必ず `[説明的なテキスト](URL)` の Markdown リンクにする
+- **リンクテキストにURLを入れない**（`[https://...](https://...)` も禁止。「そこで何が読めるか」を書く）
+- frontmatter の `id` / `updated_at` は絶対に手で書き換えない（Qiita側が管理する識別子）
+- 新規下書きは `ignorePublish: true` にしておく（`publish --all` の対象外になる）
+- 本文の一番上に `# タイトル` は書かない（frontmatter の `title:` が使われる）
+- Qiita Web での直編集は禁止（すべてローカル → git push で反映）
 
 # Amazon Associates ガードレール
 
