@@ -74,36 +74,36 @@ export default function OGImage() {
               <div style={{ width: 90, display: "flex" }}>注文ID</div>
               <div style={{ width: 100, display: "flex" }}>顧客名</div>
               <div style={{ width: 90, display: "flex" }}>金額</div>
-              <div style={{ display: "flex" }}>在庫</div>
+              <div style={{ display: "flex" }}>状態</div>
             </div>
             {/* Data rows with anomalies */}
-            <ExcelRow orderId="ORD-001" name="山田太郎" amount="¥9,800" stock="0" />
+            <ExcelRow orderId="ORD-001" name="山田太郎" amount="¥9,800" stock="済" />
             <ExcelRow
               orderId="ORD-001"
               name="佐藤花子"
               amount="¥10,800"
-              stock="-1"
+              stock="?"
               highlight
             />
             <ExcelRow
               orderId="ORD-003"
               name="山田太郎"
               amount="¥9,800"
-              stock="-1"
+              stock="?"
               highlight
             />
             <ExcelRow
               orderId="ORD-004"
               name="山田太郎"
               amount="¥9,800"
-              stock="-1"
+              stock="?"
               highlight
             />
             <ExcelRow
               orderId="ORD-002"
               name="#N/A"
               amount="¥7,600"
-              stock="-1"
+              stock="?"
               highlight
             />
           </div>
@@ -217,8 +217,8 @@ function ExcelRow({
       <div
         style={{
           display: "flex",
-          fontWeight: stock.startsWith("-") ? 700 : 400,
-          color: stock.startsWith("-") ? "#a05252" : "#0a0a0a",
+          fontWeight: stock === "?" ? 700 : 400,
+          color: stock === "?" ? "#a05252" : "#0a0a0a",
         }}
       >
         {stock}

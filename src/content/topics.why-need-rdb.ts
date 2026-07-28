@@ -19,11 +19,11 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     section: "why-need-rdb",
     slug: "atomicity",
     path: "/why-need-rdb/atomicity",
-    title: "在庫が -1 個になった夜 (原子性)",
+    title: "注文だけが残った夜 (原子性)",
     shortTitle: "原子性",
     level: "basic",
     summary:
-      "受注時に在庫を減らすExcelマクロが、注文の記録と在庫の減算の途中で止まって在庫が -1 個になった。この事故から、RDB のトランザクションが提供する「原子性 (atomicity)」を体系的に理解する。",
+      "受注時に「注文追加 → 在庫減算」の 2 段階マクロを実行する Excel で、途中で止まって注文は記録されたが在庫が減らないままの中途半端な状態が積み重なった。この事故から、RDB のトランザクションが提供する「原子性 (atomicity)」を体系的に理解する。",
     definition:
       "原子性 (atomicity) とは、トランザクションに含まれる複数の更新操作が全て成功して確定される、または全てなかったことにされるのいずれかしか取らないという性質であり、部分的な適用による矛盾状態の発生を防ぐ ACID 特性の一つである。",
     keywords: [
@@ -37,9 +37,9 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
       "COMMIT",
       "部分適用",
     ],
-    metaTitle: "原子性とは｜Excel で在庫が -1 になった夜から理解",
+    metaTitle: "原子性とは｜Excel で注文だけが残った夜から理解",
     metaDescription:
-      "受注マクロが途中で止まり在庫が -1 になった事故を題材に、RDB のトランザクションが提供する「原子性 (atomicity)」を解説。BEGIN/COMMIT/ROLLBACK と部分適用の防止を図解で理解する。",
+      "受注マクロが途中で止まり注文だけ記録されて在庫が減らないままになった事故を題材に、RDB のトランザクションが提供する「原子性 (atomicity)」を解説。BEGIN/COMMIT/ROLLBACK と部分適用の防止を図解で理解する。",
   },
   {
     section: "why-need-rdb",
@@ -135,15 +135,17 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
       "durability",
       "WAL",
       "Write-Ahead Logging",
-      "fsync",
+      "同期書き込み",
       "REDO",
       "UNDO",
+      "ロールフォワード",
+      "ロールバック",
       "クラッシュリカバリ",
       "ACID",
     ],
     metaTitle: "永続性と WAL とは｜停電で 8 時間消えた事故で理解",
     metaDescription:
-      "停電で当日の作業がまるごと消えた事故を題材に、RDB の Write-Ahead Logging (WAL) と COMMIT 時の fsync による永続性 (durability) の保証、REDO / UNDO の役割を図解で解説。",
+      "停電で当日の作業がまるごと消えた事故を題材に、RDB の Write-Ahead Logging (WAL) と COMMIT 時の同期書き込みによる永続性 (durability) の保証、ロールフォワード / ロールバックの役割を図解で解説。",
   },
   {
     section: "why-need-rdb",

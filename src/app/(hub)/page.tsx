@@ -159,13 +159,13 @@ function ThreePillars() {
       title: sections["why-need-rdb"].label,
       lead: "Excel をバックエンドに繋いだら何が起きるか。7 つの事故から、RDB が黙って守ってくれている 5 つの根本価値を学ぶ。",
       bullets: [
-        "在庫が -1 個になる原因は？(原子性)",
+        "注文が入ったのに在庫が減らない原因は？(原子性)",
         "同じ顧客が 3 行できる原因は？(一意性)",
         "停電で全部消える原因は？(永続性)",
       ],
       links: [
         { href: "/why-need-rdb", label: "壊れた Excel を見る" },
-        { href: "/why-need-rdb/atomicity", label: "在庫が -1 個になった夜" },
+        { href: "/why-need-rdb/atomicity", label: "注文だけが残った夜" },
       ],
     },
     {

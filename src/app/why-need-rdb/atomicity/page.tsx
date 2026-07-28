@@ -34,21 +34,51 @@ export default function Page() {
     <TopicLayout section="why-need-rdb" slug={slug}>
       <TopicJsonLd section="why-need-rdb" slug={slug} faq={faq} />
 
-      <h2>事故 — 在庫が -1 個になった夜</h2>
+      <h2>事故 — 注文だけが残った夜</h2>
       <p>
-        架空 EC サイト「たいてっく荘 EC」の受注は、受注ボタンが押されるたびに 2 段階の Excel マクロで処理されていた。
+        ある EC サイトの受注は、受注ボタンが押されるたびに 2 段階の Excel マクロで処理されていた。
         まず注文シートに 1 行追加し、次に商品シートの在庫を 1 減らす。ある夜、注文シートに書き込んだ直後にネットワークが瞬断してマクロが止まった。翌朝スタッフが気付いた時には、
         注文は残ったまま <strong>商品の在庫が減らされていない</strong> 状態だった。
       </p>
       <p>
-        もう 1 件同じ商品の注文が入ると在庫は <strong>0 個</strong>。さらに 1 件で <strong>-1 個</strong>。
-        物理的にありえない値のまま販売が続き、翌週の棚卸しで欠品が発覚した。
+        これが単発の 1 件で終わればまだ被害は小さい。しかしマクロは毎日何百件も実行され、
+        同じ形の中断が週に数件のペースで起き続けた。数週間後、商品シートの在庫は
+        <strong>実在庫より 20 個以上多い値</strong> を示すようになっていた。
       </p>
+      <p>
+        営業担当が「在庫あり」と表示された商品を客に売っても、倉庫には物理的に商品が無い。
+        出荷指示を受けた倉庫スタッフから何度も返品連絡が入り、顧客対応が破綻した。
+      </p>
+
+      <div className="not-prose my-6 border-l-2 border-[var(--border-strong)] bg-[var(--muted)]/40 px-4 py-3">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+          先に用語を 3 つだけ整理
+        </div>
+        <ul className="mt-2 space-y-1.5 text-sm text-[var(--foreground)] leading-relaxed">
+          <li>
+            <strong>トランザクション</strong>: 「複数の変更を 1 つの塊として扱う」単位。
+            この塊の中身は「全部やる」か「1 つもやらない」かのどちらかしか許さない
+          </li>
+          <li>
+            <strong>コミット (COMMIT)</strong>: トランザクション内の変更を「全部確定させる」操作。
+            これ以降、変更は永続化される
+          </li>
+          <li>
+            <strong>ロールバック (ROLLBACK)</strong>: トランザクション内の変更を「全部なかったことにする」操作。
+            途中でエラーが起きた時に呼び出される
+          </li>
+        </ul>
+        <div className="mt-2 text-xs text-[var(--muted-foreground)]">
+          以下、この 3 語を前提に解説します。詳細な SQL 例は「解決策」節で扱います。
+        </div>
+      </div>
 
       <h2>原因 — Excel には「まとめて確定」の単位がない</h2>
       <p>
-        Excel / Sheets には <strong>「複数の変更を 1 つの塊として扱う」</strong> 仕組みがない。マクロで擬似的に順番に実行しても、どこかで止まれば
-        「片方だけ適用された中途半端な状態」が残る。ロールバックしたくても、Excel はそれをサポートしない。
+        Excel / Sheets には <strong>「複数の変更を 1 つのトランザクションとして扱う」</strong> 仕組みがない。
+        マクロで擬似的に順番に実行しても、どこかで止まれば「片方だけ適用された中途半端な状態」が残る。
+        RDB ならこの時点で自動 ROLLBACK が走って両方戻せるが、Excel には ROLLBACK 相当の機能がない。
+        マクロがどこまで進んだかも、変更がまとめて COMMIT されたかどうかも、記録されない。
       </p>
 
       <LogSequence

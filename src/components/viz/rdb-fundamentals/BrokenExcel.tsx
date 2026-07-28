@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  */
 
 export type AnomalyId =
-  | "stock-neg"
+  | "stock-not-decremented"
   | "dup-order"
   | "same-name"
   | "orphan-fk"
@@ -33,13 +33,10 @@ export function BrokenExcel({ highlightIds = [] }: BrokenExcelProps) {
 
   return (
     <div className="overflow-x-auto rounded-sm border border-[var(--border-strong)] bg-[var(--card)]">
-      {/* Excel 風のシートタブ */}
-      <div className="flex items-center gap-1 border-b border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-xs">
-        <SheetTab active>注文</SheetTab>
-        <SheetTab>顧客</SheetTab>
-        <SheetTab>商品</SheetTab>
-        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
-          fictional-ec-shop.xlsx
+      {/* File header (シートタブは削除 — 3 シートを同時表示しているので切替 UI は不要) */}
+      <div className="flex items-center border-b border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-xs">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
+          fictional-ec-shop.xlsx (3 シート同時表示)
         </span>
       </div>
 
@@ -53,27 +50,6 @@ export function BrokenExcel({ highlightIds = [] }: BrokenExcelProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-function SheetTab({
-  active,
-  children,
-}: {
-  active?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      className={cn(
-        "border border-b-0 px-3 py-1 font-bold",
-        active
-          ? "border-[var(--border-strong)] bg-[var(--card)] text-[var(--foreground)]"
-          : "border-transparent text-[var(--muted-foreground)]",
-      )}
-    >
-      {children}
-    </span>
   );
 }
 
@@ -421,24 +397,24 @@ function ProductsMiniSheet({ isHl }: { isHl: (id: AnomalyId) => boolean }) {
           <tr
             className={cn(
               "border-b border-[var(--border)]",
-              isHl("stock-neg") && "bg-[var(--wrong-soft)]",
+              isHl("stock-not-decremented") && "bg-[var(--wrong-soft)]",
             )}
           >
             <td className="px-3 py-1.5">P-042</td>
             <td className="px-3 py-1.5">プレミアム座布団</td>
             <td className="px-3 py-1.5 text-right">
               <CellHighlight
-                anomaly={{ id: "stock-neg", number: 1 }}
-                active={isHl("stock-neg")}
+                anomaly={{ id: "stock-not-decremented", number: 1 }}
+                active={isHl("stock-not-decremented")}
               >
-                <span className="font-bold text-[var(--wrong)]">-1</span>
+                12
               </CellHighlight>
             </td>
           </tr>
           <tr className="border-b border-[var(--border)] last:border-b-0">
             <td className="px-3 py-1.5">P-018</td>
             <td className="px-3 py-1.5">竹製箸</td>
-            <td className="px-3 py-1.5 text-right">42</td>
+            <td className="px-3 py-1.5 text-right">37</td>
           </tr>
         </tbody>
       </table>

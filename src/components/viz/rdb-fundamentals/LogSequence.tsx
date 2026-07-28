@@ -20,7 +20,7 @@ export type LogSequenceProps = {
 
 /**
  * トランザクションログ / WAL の時系列を線形に表示する。
- * atomicity ページでは BEGIN..COMMIT の流れ、durability ページでは fsync と停電の対比に使う。
+ * atomicity ページでは BEGIN..COMMIT の流れ、durability ページでは同期書き込みと停電の対比に使う。
  */
 export function LogSequence({
   title,

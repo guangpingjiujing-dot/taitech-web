@@ -90,6 +90,29 @@ body {
   font-feature-settings: "palt";
   -webkit-font-smoothing: antialiased;
   line-height: 1.8;
+  /* 日本語テキストの改行制御:
+     - word-break: keep-all — CJK 文字を語中 (「箇/所」など) で分断しない。
+       改行は空白 / 句読点 / 英数境界でのみ行われる。日本語 Web の推奨設定
+     - overflow-wrap: break-word — 上記で改行できず overflow する場合の安全網
+     - line-break: strict — kinsoku (禁則処理) を厳格に適用
+     - text-wrap: pretty — モダンブラウザで意味の切れ目を優先して折り返す */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+/* 見出しは text-wrap: balance で複数行時の視覚バランスを改善 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 
 .prose-jp h1 {

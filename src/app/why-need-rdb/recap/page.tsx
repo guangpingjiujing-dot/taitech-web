@@ -51,12 +51,13 @@ export default function Page() {
               <th className="px-3 py-2 text-left font-bold">事故</th>
               <th className="px-3 py-2 text-left font-bold">欠けていたもの</th>
               <th className="px-3 py-2 text-left font-bold">RDB での名前</th>
+              <th className="px-3 py-2 text-left font-bold">ACID 対応</th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-[var(--border)]">
               <td className="px-3 py-2 font-mono">1</td>
-              <td className="px-3 py-2">在庫が -1 個</td>
+              <td className="px-3 py-2">注文だけ記録され在庫が減らない</td>
               <td className="px-3 py-2">途中で止まらない保証</td>
               <td className="px-3 py-2">
                 <Link
@@ -66,6 +67,7 @@ export default function Page() {
                   原子性 (atomicity)
                 </Link>
               </td>
+              <td className="px-3 py-2 font-mono font-bold">A</td>
             </tr>
             <tr className="border-b border-[var(--border)]">
               <td className="px-3 py-2 font-mono">2</td>
@@ -76,21 +78,25 @@ export default function Page() {
                   href="/why-need-rdb/concurrency"
                   className="font-bold underline underline-offset-4"
                 >
-                  同時実行制御
+                  同時実行制御 (isolation)
                 </Link>
               </td>
+              <td className="px-3 py-2 font-mono font-bold">I</td>
             </tr>
             <tr className="border-b border-[var(--border)]">
               <td className="px-3 py-2 font-mono">3</td>
-              <td className="px-3 py-2">同名 3 人</td>
+              <td className="px-3 py-2">「山田太郎」の重複登録を弾けない</td>
               <td className="px-3 py-2">「重複禁止」の宣言</td>
               <td className="px-3 py-2">
                 <Link
                   href="/why-need-rdb/uniqueness"
                   className="font-bold underline underline-offset-4"
                 >
-                  一意性制約
+                  一意性制約 (UNIQUE)
                 </Link>
+              </td>
+              <td className="px-3 py-2 text-xs text-[var(--muted-foreground)]">
+                C の材料
               </td>
             </tr>
             <tr className="border-b border-[var(--border)]">
@@ -102,8 +108,11 @@ export default function Page() {
                   href="/why-need-rdb/referential-integrity"
                   className="font-bold underline underline-offset-4"
                 >
-                  参照整合性
+                  参照整合性 (FK)
                 </Link>
+              </td>
+              <td className="px-3 py-2 text-xs text-[var(--muted-foreground)]">
+                C の材料
               </td>
             </tr>
             <tr>
@@ -118,28 +127,41 @@ export default function Page() {
                   永続性 (durability)
                 </Link>
               </td>
+              <td className="px-3 py-2 font-mono font-bold">D</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <h2>ACID とその他の制約の関係</h2>
+      <h2>ACID の 4 文字とその他の制約の関係</h2>
       <p>
-        よくある混乱: 「ACID には Consistency (一貫性) があるのに、なぜ一意性や参照整合性は
-        別扱い？」。
+        <strong>ACID</strong> はトランザクションが守るべき 4 特性の頭字語:
       </p>
       <ul>
         <li>
-          <strong>ACID の Consistency</strong>: 「トランザクション実行の前後でデータベースの制約が保たれる」という抽象概念。
-          <em>どの</em> 制約かは実装次第
+          <strong>A — Atomicity (原子性)</strong>: トランザクション内の変更は「全部確定」か「全部戻す」のいずれか。
+          → 表 <span className="font-mono">#1</span> で解説
         </li>
         <li>
-          <strong>一意性・参照整合性・CHECK・NOT NULL</strong>: 「実際にどの制約を宣言するか」の具体
+          <strong>C — Consistency (一貫性)</strong>: トランザクション実行の前後で
+          「宣言された制約 (UNIQUE / FK / CHECK など) がすべて満たされている」状態が保たれる。
+          <strong>C 自体はメカニズムではなく「他 3 特性 + 制約群が正しく動いた結果として達成される状態」</strong>。
+          具体的な制約 (表 <span className="font-mono">#3</span>、<span className="font-mono">#4</span> など) を宣言することで実現される
+        </li>
+        <li>
+          <strong>I — Isolation (独立性 / 分離性)</strong>: 複数のトランザクションが同時に走っても、
+          結果は「1 つずつ順番に実行した場合」と同等になる。
+          → 表 <span className="font-mono">#2</span> で解説
+        </li>
+        <li>
+          <strong>D — Durability (永続性)</strong>: コミット済みの変更は、システム障害後も失われずに残る。
+          → 表 <span className="font-mono">#5</span> で解説
         </li>
       </ul>
       <p>
-        つまり ACID の C は「制約が守られる仕組みがある」という契約で、一意性や参照整合性は
-        「具体的にどう守るか」の道具。両者は階層が違うので独立して扱える。
+        よくある混乱: 「ACID の C は制約の話に見えるが、なぜ一意性 (UNIQUE) や参照整合性 (FK) は別扱いなのか？」。
+        <strong>C は抽象的な「制約が守られる契約」で、UNIQUE / FK / CHECK は「具体的に何を守るか」の道具</strong>。
+        階層が違うので独立して扱える。
       </p>
 
       <h2>Excel での「頑張って回避」はなぜ限界か</h2>

@@ -106,10 +106,13 @@ export default function WhyNeedRdbHub() {
               </span>
             </h1>
             <p className="mt-8 text-base md:text-lg text-[var(--foreground)]/90 leading-relaxed">
-              下に、架空 EC サイトの受注管理 Excel があります。仕込まれているのは 7 つの明らかにおかしい箇所。
+              下に、架空 EC サイトの受注管理 Excel があります。仕込まれているのは
+              <span className="whitespace-nowrap">7 つ</span>の明らかにおかしい箇所。
             </p>
             <p className="mt-4 text-base md:text-lg text-[var(--foreground)]/90 leading-relaxed">
-              「Excel でどうにかなる」で止まっていた業務データ管理の限界を、RDB が黙って守ってくれている 5 つの根本価値で 1 つずつ言語化していきましょう。
+              「Excel でどうにかなる」で止まっていた業務データ管理の限界を、RDB が黙って守ってくれている
+              <span className="whitespace-nowrap">5 つ</span>の根本価値で
+              <span className="whitespace-nowrap">1 つ</span>ずつ言語化していきましょう。
             </p>
           </div>
 
