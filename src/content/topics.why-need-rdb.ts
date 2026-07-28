@@ -45,7 +45,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     section: "why-need-rdb",
     slug: "concurrency",
     path: "/why-need-rdb/concurrency",
-    title: "2 人が同時に書き込んだ結果 (同時実行制御)",
+    title: "2 人が同時に書いて修正が消えた (同時実行制御)",
     shortTitle: "同時実行制御",
     level: "basic",
     summary:
@@ -71,11 +71,11 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     section: "why-need-rdb",
     slug: "uniqueness",
     path: "/why-need-rdb/uniqueness",
-    title: "「山田太郎」さんが 3 人いる (一意性)",
+    title: "「山田太郎」の行が 4 つある (一意性)",
     shortTitle: "一意性",
     level: "basic",
     summary:
-      "顧客管理シートに「山田太郎」の行が 3 つできてしまい、しかもそれぞれ違う連絡先。どの顧客に発送すれば良いかシステム的に判定できない。この事故から、RDB の主キーと UNIQUE 制約による一意性の保証を理解する。",
+      "顧客管理シートに「山田太郎」の行が 4 つできてしまい、しかもそれぞれ違う連絡先。同一人物の再登録なのか、同姓同名の別人なのかシステム的に判定できない。この事故から、RDB の主キーと UNIQUE 制約による一意性の保証を理解する。",
     definition:
       "一意性制約 (unique constraint) とは、指定した列 (または列の組) の値がテーブル内で重複しないことを DBMS が構造的に保証する制約であり、主キーは NOT NULL と一意性を組み合わせた特殊な一意性制約として位置付けられる。",
     keywords: [
@@ -89,9 +89,9 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
       "代理キー",
       "サロゲートキー",
     ],
-    metaTitle: "UNIQUE 制約と主キーとは｜同名 3 人問題で理解する一意性",
+    metaTitle: "UNIQUE 制約と主キーとは｜同名 4 行問題で理解する一意性",
     metaDescription:
-      "同名顧客が 3 行できて発送先が判定できなくなった事故を題材に、RDB の主キー / UNIQUE 制約と代理キー (サロゲートキー) の選定基準を図解で解説。",
+      "同名顧客が 4 行できて同一人物の再登録か別人か判定できなくなった事故を題材に、RDB の主キー / UNIQUE 制約と代理キー (サロゲートキー) の選定基準を図解で解説。",
   },
   {
     section: "why-need-rdb",
@@ -155,7 +155,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     shortTitle: "RDB の 5 つの根本価値",
     level: "basic",
     summary:
-      "6 つの事故から見えた「Excel には無くて RDB には有る」5 つの根本価値 (原子性 / 同時実行制御 / 一意性 / 参照整合性 / 永続性) を横断的にまとめる。ACID と宣言的制約が「なぜ RDB なのか」の答えである。",
+      "5 つの事故から見えた「Excel には無くて RDB には有る」5 つの根本価値 (原子性 / 同時実行制御 / 一意性 / 参照整合性 / 永続性) を横断的にまとめる。ACID と宣言的制約が「なぜ RDB なのか」の答えである。",
     definition:
       "リレーショナルデータベース管理システム (RDBMS) とは、リレーショナルモデルに基づいてデータを表形式で管理し、トランザクションによる ACID 特性 (原子性・一貫性・分離性・永続性) と一意性・参照整合性などの宣言的制約を通じて、複数ユーザー環境でのデータ整合性を構造的に保証するデータ管理システムである。",
     keywords: [

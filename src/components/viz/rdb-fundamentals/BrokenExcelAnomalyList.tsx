@@ -76,7 +76,7 @@ const ANOMALIES: Anomaly[] = [
     answerTitle: "メール列に `n/a` `unknown` `-` の混在",
     expectedVsActual:
       "本来: 登録フォームで RFC 準拠のメール形式を検証し、未入力なら NULL のはず / 現在: 文字列型の列にゴミデータが混在 (CHECK / NOT NULL 制約が無い)",
-    concept: "CHECK / NOT NULL 制約 (v2 で解説予定)",
+    concept: "CHECK / NOT NULL 制約 (本シリーズ scope 外)",
   },
   {
     id: "sum-mismatch",
@@ -85,7 +85,7 @@ const ANOMALIES: Anomaly[] = [
     answerTitle: "合計金額の集約ミス",
     expectedVsActual:
       "本来: $9.99 × 3 = $29.97 のはず / 現在: $30.00 (手計算で四捨五入)。SQL の SUM ならこの誤りは起きない",
-    concept: "SQL の宣言的集約 (v2 で解説予定)",
+    concept: "SQL の宣言的集約 (本シリーズ scope 外)",
   },
 ];
 

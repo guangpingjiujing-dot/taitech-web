@@ -61,7 +61,7 @@ function Hero() {
               >
                 「もしもこの世界にRDBがなかったら」
               </Link>
-              では Excel をバックエンドにした 7 つの事故から RDB の根本価値を、
+              では Excel をバックエンドにしたシートの 7 つのおかしな箇所から RDB の根本価値を、
               <Link
                 href="/data-modeling/er-diagram"
                 className="underline underline-offset-4 hover:text-[var(--foreground)]"
@@ -157,10 +157,10 @@ function ThreePillars() {
       seriesNumber: "SERIES 01",
       href: sections["why-need-rdb"].path,
       title: sections["why-need-rdb"].label,
-      lead: "Excel をバックエンドに繋いだら何が起きるか。7 つの事故から、RDB が黙って守ってくれている 5 つの根本価値を学ぶ。",
+      lead: "Excel をバックエンドに繋いだら何が起きるか。受注シートに仕込まれた 7 つのおかしな箇所から、RDB が黙って守ってくれている 5 つの根本価値を学ぶ。",
       bullets: [
         "注文が入ったのに在庫が減らない原因は？(原子性)",
-        "同じ顧客が 3 行できる原因は？(一意性)",
+        "同じ顧客名が 4 行できる原因は？(一意性)",
         "停電で全部消える原因は？(永続性)",
       ],
       links: [

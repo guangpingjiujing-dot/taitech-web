@@ -62,7 +62,7 @@ export default function Page() {
       />
 
       <p>
-        <strong>ここで先に確認しておきたい</strong>: 山田太郎という名前が 3 行あっても、それ自体は問題ない。
+        <strong>ここで先に確認しておきたい</strong>: 山田太郎という名前が 4 行あっても、それ自体は問題ない。
         現実に同姓同名の別人は存在する。顧客ID (C-001 / C-011 / C-012 / C-013) は自動採番で unique なので、
         <strong>DB 的な UNIQUE(顧客ID) 制約は既に満たされている</strong>。
       </p>
@@ -120,7 +120,7 @@ INSERT INTO customers (email, name)
         実は UNIQUE(email) だけでは、悪意なしのユーザーが <code>n/a</code>、<code>unknown</code>、<code>-</code> のような
         異なる junk 文字列を毎回入れて再登録するのを防げない (それぞれが別の unique 値として通ってしまう)。
         これを塞ぐには、email の <em>形式そのもの</em> を検証する <strong>CHECK 制約</strong> を併用する必要がある
-        (別記事「CHECK / NOT NULL 制約」で扱う予定)。
+        (CHECK / NOT NULL 制約は本シリーズ scope 外)。
       </p>
       <p>
         UNIQUE と CHECK は別の制約であり、扱う概念も別 (前者は「値の重複禁止」、後者は「値の形式検証」)。

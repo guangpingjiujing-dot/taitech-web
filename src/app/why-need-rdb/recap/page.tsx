@@ -38,7 +38,7 @@ export default function Page() {
     <TopicLayout section="why-need-rdb" slug={slug}>
       <TopicJsonLd section="why-need-rdb" slug={slug} faq={faq} />
 
-      <h2>6 つの事故から見えた 5 つの根本価値</h2>
+      <h2>5 つの事故から見えた 5 つの根本価値</h2>
       <p>
         本シリーズで見てきた事故を並べ直すと、Excel には無く RDB には有る 5 つの根本価値が浮かび上がる。
       </p>
@@ -192,7 +192,7 @@ export default function Page() {
       <p>
         逆に RDB が向かない場面 (ログ収集の高頻度書き込み、ドキュメント指向のデータ、
         分析専用の massive scan) は NoSQL / DWH / スプレッドシートの適用範囲。
-        これは v2 の <code>when-not-to-rdb</code> で詳しく扱う予定。
+        「RDB を選ばない判断」の線引きは別記事で扱う予定。
       </p>
 
       <h2>次に学ぶこと</h2>

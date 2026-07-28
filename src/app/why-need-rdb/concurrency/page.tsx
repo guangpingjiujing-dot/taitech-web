@@ -45,6 +45,11 @@ export default function Page() {
         週次で月次売上を集計した時、A の修正が反映されておらず、報告値が実際と食い違って初めて発覚した。
         これが <strong>Lost Update (更新消失)</strong>。
       </p>
+      <p className="text-sm text-[var(--muted-foreground)]">
+        ※ 冒頭の「壊れた Excel」に仕込んだ <strong>同一 <code>ORD-001</code> が 2 行できる違和感</strong> も、同じ concurrency 系統の事故。
+        こちらは「A と B がほぼ同時に新規注文を起票し、それぞれ手元で『次の注文ID は ORD-001』と採番して衝突」という別メカニズムだが、
+        いずれも「他人の並行操作を DBMS が調停してくれない」ことが根本原因。
+      </p>
 
       <h2>原因 — Excel には行 / セル単位のロック機構がない</h2>
       <p>
