@@ -40,6 +40,8 @@ const PAGES = [
   "/why-need-rdb/referential-integrity",
   "/why-need-rdb/durability",
   "/why-need-rdb/recap",
+  "/fe",
+  "/fe/transpile",
   "/privacy",
   "/terms",
   "/contact",
@@ -359,6 +361,69 @@ test("Statistics viz: status buttons + fresh toggle", async ({ page }) => {
   await page.waitForTimeout(120);
   expect(errors).toEqual([]);
   expect(warnings).toEqual([]);
+});
+
+test("FE Playground: run default sample produces expected output", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe", { waitUntil: "networkidle" });
+  // Wait for the dynamic CodeMirror editor to hydrate.
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+  // Default sample sums 1..5 = 15
+  await expect(page.locator("pre").filter({ hasText: "15" })).toBeVisible({
+    timeout: 5_000,
+  });
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Playground: step button advances execution and highlights lines", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  const stepBtn = page.getByRole("button", { name: /^→ ステップ$/ });
+  for (let i = 0; i < 3; i++) {
+    await stepBtn.click();
+    await page.waitForTimeout(80);
+  }
+  // A highlighted execution line should exist after stepping.
+  await expect(page.locator(".cm-execLine").first()).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Playground: Python transpile preview shows converted code", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await page.getByRole("button", { name: /^Python変換$/ }).click();
+  // Default sample transpiled to Python contains `range(1, n + 1, 1)`
+  await expect(
+    page.locator("pre").filter({ hasText: /range\(1, n \+ 1, 1\)/ }),
+  ).toBeVisible({ timeout: 5_000 });
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Transpile page: side-by-side view renders Python and TypeScript", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe/transpile", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  // Both language panes should be present with expected content markers.
+  await expect(page.locator("pre").filter({ hasText: /range\(1, n \+ 1, 1\)/ })).toBeVisible();
+  await expect(
+    page.locator("pre").filter({ hasText: /for \(let i = 1; i <= n; i \+= 1\)/ }),
+  ).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
 

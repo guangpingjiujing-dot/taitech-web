@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const sectionHubs = Object.values(sections).map((s) => s.path);
   const categoryHubs = Object.values(dataModelingCategories).map((c) => c.path);
   const topicPaths = topics.map((t) => t.path);
+  const feExtraPaths = ["/fe/transpile"];
 
   const priorityFor = (p: string): number => {
     if (p === "/") return 1.0;
@@ -20,7 +21,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return 0.7;
   };
 
-  return [...staticPaths, ...sectionHubs, ...categoryHubs, ...topicPaths].map((p) => ({
+  return [
+    ...staticPaths,
+    ...sectionHubs,
+    ...categoryHubs,
+    ...topicPaths,
+    ...feExtraPaths,
+  ].map((p) => ({
     url: `${site.url}${p}`,
     lastModified: now,
     changeFrequency: "monthly",

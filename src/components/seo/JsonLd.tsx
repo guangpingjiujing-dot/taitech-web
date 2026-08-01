@@ -391,6 +391,81 @@ function buildBreadcrumb(topic: NonNullable<ReturnType<typeof findTopic>>) {
   }));
 }
 
+/**
+ * SoftwareApplication + WebPage + BreadcrumbList (+ optional FAQ) for
+ * interactive Playground-style pages under /fe.
+ */
+export function FePlaygroundJsonLd({
+  path,
+  name,
+  description,
+  breadcrumb,
+  faq,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  breadcrumb: { name: string; item: string }[];
+  faq?: { q: string; a: string }[];
+}) {
+  const url = `${site.url}${path}`;
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      applicationCategory: "EducationalApplication",
+      operatingSystem: "Any (Web browser)",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "JPY",
+      },
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      author: AUTHOR_PERSON,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumb.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.name,
+        item: b.item,
+      })),
+    },
+  ];
+  if (faq && faq.length > 0) {
+    data.push(
+      buildFaqPage({ items: faq, aboutName: name, pageUrl: url }),
+    );
+  }
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
 export function TopicJsonLd({
   section,
   slug,

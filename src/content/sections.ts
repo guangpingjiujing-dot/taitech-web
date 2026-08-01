@@ -1,6 +1,10 @@
 import { site } from "@/lib/site";
 
-export type SectionKey = "why-need-rdb" | "rdb-index" | "data-modeling";
+export type SectionKey =
+  | "why-need-rdb"
+  | "rdb-index"
+  | "data-modeling"
+  | "fe";
 
 export type Section = {
   key: SectionKey;
@@ -38,6 +42,15 @@ export const sections: Record<SectionKey, Section> = {
     description:
       "関数従属性と正規化を中心に、リレーショナルデータベースの設計体系を厳密な定義と図解で整理するセクション。",
     ogImageAlt: "データモデリング体系",
+  },
+  fe: {
+    key: "fe",
+    label: "基本情報技術者試験 擬似言語 Playground",
+    shortLabel: "擬似言語 Playground",
+    path: "/fe",
+    description:
+      "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、実際に動かして・可視化して・Python / TypeScript に変換しながら理解できるインタラクティブなツール。",
+    ogImageAlt: "基本情報技術者試験 擬似言語 Playground",
   },
 };
 

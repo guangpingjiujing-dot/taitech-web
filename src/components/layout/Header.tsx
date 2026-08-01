@@ -11,17 +11,21 @@ const HEADER_META: Record<HeaderSection, { label: string }> = {
   "rdb-index": { label: sections["rdb-index"].label },
   "data-modeling": { label: sections["data-modeling"].label },
   "why-need-rdb": { label: sections["why-need-rdb"].shortLabel },
+  fe: { label: sections.fe.shortLabel },
 };
 
 export function Header({ section = "rdb-index" }: { section?: HeaderSection } = {}) {
   const meta = HEADER_META[section];
   const inSection = section !== "hub";
+  // FE section has no lesson-drawer content yet (Phase 1); hide it until
+  // lessons ship.
+  const showDrawer = inSection && section !== "fe";
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]">
       <Container size="wide">
         <div className="flex h-14 items-center justify-between gap-2">
           <div className="flex items-center gap-1 min-w-0">
-            {inSection && <TopicNavDrawer section={section} />}
+            {showDrawer && <TopicNavDrawer section={section} />}
             <Link
               href="/"
               aria-label={inSection ? `${site.name} トップへ` : undefined}
