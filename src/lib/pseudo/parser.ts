@@ -295,25 +295,31 @@ class Parser {
       "KW_ELSE",
       "KW_ENDIF",
     ]);
-    const branches: IfBranch[] = [{ cond: firstCond, body: firstBody }];
+    const branches: IfBranch[] = [
+      { cond: firstCond, body: firstBody, keywordPos: pos },
+    ];
     while (this.check("KW_ELSEIF")) {
+      const elseifPos = this.peek().pos;
       this.consume();
       this.expect("LPAREN");
       const cond = this.parseExpr();
       this.expect("RPAREN");
       this.match("KW_THEN");
       const body = this.parseBlock(["KW_ELSEIF", "KW_ELSE", "KW_ENDIF"]);
-      branches.push({ cond, body });
+      branches.push({ cond, body, keywordPos: elseifPos });
     }
     let elseBody: Statement[] | null = null;
-    if (this.match("KW_ELSE")) {
+    let elsePos: typeof pos | null = null;
+    if (this.check("KW_ELSE")) {
+      elsePos = this.peek().pos;
+      this.consume();
       elseBody = this.parseBlock(["KW_ENDIF"]);
     }
     this.expect(
       "KW_ENDIF",
       "if 文は 'endif' で閉じます。elseif や else のブロックが閉じているかも確認してください。",
     );
-    return { kind: "IfStmt", branches, elseBody, pos };
+    return { kind: "IfStmt", branches, elseBody, elsePos, pos };
   }
 
   private parseWhileStmt(): WhileStmt {

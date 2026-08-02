@@ -59,12 +59,19 @@ export interface Assignment extends BaseNode {
 export interface IfBranch {
   cond: Expr;
   body: Statement[];
+  /** Position of the `if` / `elseif` keyword — used to highlight the
+   *  condition line in step execution even when the previous branch's
+   *  condition was false. */
+  keywordPos: Position;
 }
 
 export interface IfStmt extends BaseNode {
   kind: "IfStmt";
   branches: IfBranch[];
   elseBody: Statement[] | null;
+  /** Position of the `else` keyword when `elseBody` is present, so the
+   *  else line can be highlighted before entering its body. */
+  elsePos: Position | null;
 }
 
 export interface WhileStmt extends BaseNode {

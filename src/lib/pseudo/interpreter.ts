@@ -470,19 +470,41 @@ function execAssignment(stmt: Assignment, state: ExecutionState): void {
   assignTo(stmt.target, value, state);
 }
 
+/** Build a Statement-shaped marker whose only meaningful field is `pos`.
+ *  Used to yield a `before-stmt` event that highlights the `if`,
+ *  `elseif`, or `else` line even though these are not standalone
+ *  statements in the AST. Consumers of StepEvent only read `.pos`. */
+function makeLineMarker(pos: Position): Statement {
+  return {
+    kind: "ExprStmt",
+    pos,
+    expr: { kind: "Ident", name: "__marker__", pos },
+  };
+}
+
 function* execIf(
   stmt: IfStmt,
   state: ExecutionState,
 ): Generator<StepEvent> {
   for (const branch of stmt.branches) {
+    const marker = makeLineMarker(branch.keywordPos);
+    state.currentNode = marker;
+    yield { type: "before-stmt", node: marker };
+    incrementSteps(state, marker);
     const cond = evaluate(branch.cond, state);
-    const b = ensureBool(cond, stmt.pos, "if の条件");
+    const b = ensureBool(cond, branch.keywordPos, "if の条件");
     if (b) {
       yield* execBlock(branch.body, state);
       return;
     }
   }
   if (stmt.elseBody) {
+    if (stmt.elsePos) {
+      const marker = makeLineMarker(stmt.elsePos);
+      state.currentNode = marker;
+      yield { type: "before-stmt", node: marker };
+      incrementSteps(state, marker);
+    }
     yield* execBlock(stmt.elseBody, state);
   }
 }
@@ -573,16 +595,24 @@ function* execStatement(
   stmt: Statement,
   state: ExecutionState,
 ): Generator<StepEvent> {
-  // Loop constructs manage their own before/after-stmt yields, because they
-  // need to prepare the iterator variable in the frame BEFORE the first
-  // highlight fires (otherwise the variables pane shows the loop line
-  // highlighted with no `i` yet, which is confusing to learners).
+  // Compound constructs manage their own before/after-stmt yields:
+  //  - For/While need to publish the iterator to the frame BEFORE the first
+  //    highlight fires, so the variables pane shows `i` on the loop line.
+  //  - If needs to yield a before-stmt for each branch's keyword (if /
+  //    elseif / else) so learners can watch condition evaluation
+  //    line-by-line, and to avoid the outer output-emission block below
+  //    from re-yielding output events already yielded by nested print
+  //    statements inside the branch bodies.
   if (stmt.kind === "ForStmt") {
     yield* execFor(stmt, state);
     return;
   }
   if (stmt.kind === "WhileStmt") {
     yield* execWhile(stmt, state);
+    return;
+  }
+  if (stmt.kind === "IfStmt") {
+    yield* execIf(stmt, state);
     return;
   }
 
@@ -597,9 +627,6 @@ function* execStatement(
       break;
     case "Assignment":
       execAssignment(stmt, state);
-      break;
-    case "IfStmt":
-      yield* execIf(stmt, state);
       break;
     case "ReturnStmt":
       execReturn(stmt, state);

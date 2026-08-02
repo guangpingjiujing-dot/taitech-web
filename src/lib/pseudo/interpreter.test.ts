@@ -268,6 +268,44 @@ endfor
     expect(forStmtBefore.length).toBe(4);
   });
 
+  it("emits exactly one output event per print inside an if body", () => {
+    // Regression: previously the outer execStatement for IfStmt re-yielded
+    // output events for prints inside the branch body, so 良 was emitted twice.
+    const events = collect(`
+整数型: 点数 ← 72
+if (点数 ≧ 80)
+  print("優")
+elseif (点数 ≧ 60)
+  print("良")
+else
+  print("不可")
+endif
+`);
+    const outputs = events.filter((e) => e.type === "output");
+    expect(outputs.length).toBe(1);
+    expect((outputs[0] as { text: string }).text).toBe("良");
+  });
+
+  it("yields a before-stmt on each if/elseif/else keyword line for step highlight", () => {
+    // Regression: previously execIf jumped straight to a matching branch body
+    // without highlighting the elseif/else condition line first.
+    const events = collect(`
+整数型: 点数 ← 30
+if (点数 ≧ 80)
+  print("優")
+elseif (点数 ≧ 60)
+  print("良")
+else
+  print("不可")
+endif
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // 変数宣言 line 2, if line 3, elseif line 5, else line 7, print("不可") line 8
+    expect(beforeLines).toEqual([2, 3, 5, 7, 8]);
+  });
+
   it("re-emits before-stmt for the while line on each check + at exit", () => {
     const events = collect(`
 整数型: i ← 0
