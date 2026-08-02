@@ -5,6 +5,7 @@ import { Playground } from "@/components/fe/Playground";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
+import { feLessons } from "@/content/fe/lessons";
 
 const sectionMeta = sections.fe;
 
@@ -168,23 +169,37 @@ export default function FeTopPage() {
             もっと詳しく — 構文別レッスン
           </h2>
           <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-            各構文の詳しい解説と例題を用意しています (順次公開予定)。
+            各構文の詳しい解説と、埋め込みエディタで動かせる例題を用意しています。
           </p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {LESSON_CARDS.map((l) => (
+            {feLessons.map((l) => (
               <li key={l.slug}>
-                <div className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 opacity-60">
-                  <div className="font-semibold">{l.title}</div>
-                  <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                <Link
+                  href={`/fe/lessons/${l.slug}`}
+                  className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                >
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    レッスン {l.order}
+                  </div>
+                  <div className="mt-1 font-semibold">{l.shortTitle}</div>
+                  <p
+                    className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                    style={{ textWrap: "pretty" }}
+                  >
                     {l.description}
                   </p>
-                  <div className="mt-2 text-xs text-[var(--muted-foreground)]">
-                    準備中
-                  </div>
-                </div>
+                </Link>
               </li>
             ))}
           </ul>
+          <p className="mt-6 text-sm text-[var(--muted-foreground)]">
+            <Link
+              href="/fe/lessons"
+              className="underline underline-offset-4 hover:opacity-80"
+            >
+              レッスン一覧を開く →
+            </Link>
+          </p>
         </section>
 
         <section className="mt-16 max-w-3xl">
@@ -244,35 +259,3 @@ const SYNTAX_TABLE = [
   },
 ];
 
-const LESSON_CARDS = [
-  {
-    slug: "variable",
-    title: "変数と型",
-    description: "整数型 / 実数型 / 文字列型 / 論理型 と代入 (←)",
-  },
-  {
-    slug: "if",
-    title: "条件分岐 (if / elseif / else)",
-    description: "if 文の書き方と、複数条件の組み合わせ方",
-  },
-  {
-    slug: "while",
-    title: "繰り返し (while)",
-    description: "条件が真の間くり返す構文と、無限ループの避け方",
-  },
-  {
-    slug: "for",
-    title: "繰り返し (for)",
-    description: "「〜から〜まで〜ずつ増やす」形の使い方と境界条件",
-  },
-  {
-    slug: "array",
-    title: "配列",
-    description: "配列宣言・要素アクセス。基本情報の配列は1始まり",
-  },
-  {
-    slug: "function",
-    title: "関数と手続き",
-    description: "○ から始まる関数/手続き定義と引数の渡し方",
-  },
-];

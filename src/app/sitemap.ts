@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
 import { topics } from "@/content/topics";
 import { sections, dataModelingCategories } from "@/content/sections";
+import { feLessons } from "@/content/fe/lessons";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -9,7 +10,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const sectionHubs = Object.values(sections).map((s) => s.path);
   const categoryHubs = Object.values(dataModelingCategories).map((c) => c.path);
   const topicPaths = topics.map((t) => t.path);
-  const feExtraPaths = ["/fe/transpile"];
+  const feExtraPaths = [
+    "/fe/transpile",
+    "/fe/lessons",
+    ...feLessons.map((l) => `/fe/lessons/${l.slug}`),
+  ];
 
   const priorityFor = (p: string): number => {
     if (p === "/") return 1.0;

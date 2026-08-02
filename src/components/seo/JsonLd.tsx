@@ -466,6 +466,92 @@ export function FePlaygroundJsonLd({
   );
 }
 
+/**
+ * LearningResource + WebPage + BreadcrumbList (+ optional FAQ) for
+ * lesson pages under /fe/lessons/[slug].
+ */
+export function FeLessonJsonLd({
+  path,
+  name,
+  description,
+  keywords,
+  breadcrumb,
+  faq,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  keywords: string[];
+  breadcrumb: { name: string; item: string }[];
+  faq?: { q: string; a: string }[];
+}) {
+  const url = `${site.url}${path}`;
+  const ogImageUrl = `${url}/opengraph-image`;
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      learningResourceType: "Lesson",
+      educationalLevel: "初学者〜基本情報技術者試験受験者",
+      educationalUse: "自習・試験対策",
+      teaches: name,
+      image: ogImageUrl,
+      keywords: keywords.join(", "),
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+      isPartOf: {
+        "@type": "CollectionPage",
+        name: sections.fe.label,
+        url: `${site.url}${sections.fe.path}`,
+      },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-speakable='definition']"],
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      author: AUTHOR_PERSON,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumb.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.name,
+        item: b.item,
+      })),
+    },
+  ];
+  if (faq && faq.length > 0) {
+    data.push(
+      buildFaqPage({ items: faq, aboutName: name, pageUrl: url }),
+    );
+  }
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
 export function TopicJsonLd({
   section,
   slug,
