@@ -17,9 +17,7 @@ const HEADER_META: Record<HeaderSection, { label: string }> = {
 export function Header({ section = "rdb-index" }: { section?: HeaderSection } = {}) {
   const meta = HEADER_META[section];
   const inSection = section !== "hub";
-  // FE section has no lesson-drawer content yet (Phase 1); hide it until
-  // lessons ship.
-  const showDrawer = inSection && section !== "fe";
+  const showDrawer = inSection;
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]">
       <Container size="wide">

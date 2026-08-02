@@ -4,6 +4,7 @@ import {
   dataModelingTopicsIn,
   whyNeedRdbTopics,
 } from "@/content/topics";
+import { feLessons } from "@/content/fe/lessons";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
 
@@ -44,11 +45,23 @@ export function TopicNav({
               items: whyNeedRdbTopics,
             },
           ]
-        : Object.values(dataModelingCategories).map((c) => ({
-            key: c.key,
-            label: c.label,
-            items: dataModelingTopicsIn(c.key),
-          }));
+        : section === "fe"
+          ? [
+              {
+                key: "fe-lessons",
+                label: "構文別レッスン",
+                items: feLessons.map((l) => ({
+                  slug: l.slug,
+                  path: `/fe/lessons/${l.slug}`,
+                  shortTitle: l.shortTitle,
+                })),
+              },
+            ]
+          : Object.values(dataModelingCategories).map((c) => ({
+              key: c.key,
+              label: c.label,
+              items: dataModelingTopicsIn(c.key),
+            }));
 
   const otherSections: SectionKey[] = (
     Object.keys(sections) as SectionKey[]
@@ -91,6 +104,36 @@ export function TopicNav({
                   </div>
                 </Link>
               </li>
+            )}
+            {g.key === "fe-lessons" && (
+              <>
+                <li>
+                  <Link
+                    href="/fe"
+                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="font-semibold group-hover:underline underline-offset-4">
+                      実行シミュレーター
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                      その場で書いて、一行ずつ動かす
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/transpile"
+                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="font-semibold group-hover:underline underline-offset-4">
+                      多言語横並び比較
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                      Python / TypeScript と読み比べる
+                    </div>
+                  </Link>
+                </li>
+              </>
             )}
             {g.items.map((t) => {
               const active = t.slug === currentSlug;
