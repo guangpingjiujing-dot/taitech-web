@@ -43,6 +43,9 @@ export default function TranspilePage() {
         ]}
       />
       <Container size="wide">
+        <div className="mb-4">
+          <BackToPlayground />
+        </div>
         <header className="mb-6">
           <p className="text-xs font-semibold tracking-wider uppercase text-[var(--muted-foreground)]">
             擬似言語 → Python / TypeScript
@@ -99,15 +102,22 @@ export default function TranspilePage() {
           </div>
         </section>
 
-        <div className="mt-16 max-w-3xl">
-          <Link
-            href="/fe"
-            className="text-sm underline underline-offset-4 hover:opacity-80"
-          >
-            ← Playground (ステップ実行 付き) に戻る
-          </Link>
+        <div className="mt-16">
+          <BackToPlayground />
         </div>
       </Container>
     </div>
+  );
+}
+
+function BackToPlayground() {
+  return (
+    <Link
+      href="/fe"
+      className="inline-flex items-center gap-2 rounded-md border border-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
+    >
+      <span aria-hidden>←</span>
+      実行シミュレーターに戻る
+    </Link>
   );
 }

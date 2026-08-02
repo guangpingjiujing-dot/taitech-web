@@ -492,11 +492,20 @@ function* execWhile(
   state: ExecutionState,
 ): Generator<StepEvent> {
   while (true) {
+    // Yield the while-line highlight for every condition check (including the
+    // exit check that fails). The evaluation happens *after* the highlight so
+    // the variables pane reflects the values the loop is about to inspect.
+    state.currentNode = stmt;
+    yield { type: "before-stmt", node: stmt };
+    incrementSteps(state, stmt);
+
     const cond = evaluate(stmt.cond, state);
     const b = ensureBool(cond, stmt.pos, "while の条件");
     if (!b) break;
     yield* execBlock(stmt.body, state);
   }
+
+  yield { type: "after-stmt", node: stmt };
 }
 
 function* execFor(
@@ -522,10 +531,34 @@ function* execFor(
     stmt.direction === "inc" ? () => i <= end : () => i >= end;
   const advance =
     stmt.direction === "inc" ? () => (i += step) : () => (i -= step);
-  while (cond()) {
-    frame.variables.set(stmt.iterVar, { type: "int", value: i });
+
+  while (true) {
+    // For iterations that will actually run the body, publish the iterator
+    // value to the frame *before* the highlight fires so the variables pane
+    // shows `i` on the for-line highlight.
+    if (cond()) {
+      frame.variables.set(stmt.iterVar, { type: "int", value: i });
+    }
+    state.currentNode = stmt;
+    yield { type: "before-stmt", node: stmt };
+    incrementSteps(state, stmt);
+
+    if (!cond()) break;
     yield* execBlock(stmt.body, state);
     advance();
+  }
+
+  yield { type: "after-stmt", node: stmt };
+}
+
+function incrementSteps(state: ExecutionState, stmt: Statement) {
+  state.steps++;
+  if (state.steps > STEP_LIMIT) {
+    throw new PseudoRuntimeError(
+      "STEP_LIMIT_EXCEEDED",
+      `実行ステップが ${STEP_LIMIT} を超えました。無限ループになっていませんか?`,
+      stmt.pos,
+    );
   }
 }
 
@@ -540,6 +573,19 @@ function* execStatement(
   stmt: Statement,
   state: ExecutionState,
 ): Generator<StepEvent> {
+  // Loop constructs manage their own before/after-stmt yields, because they
+  // need to prepare the iterator variable in the frame BEFORE the first
+  // highlight fires (otherwise the variables pane shows the loop line
+  // highlighted with no `i` yet, which is confusing to learners).
+  if (stmt.kind === "ForStmt") {
+    yield* execFor(stmt, state);
+    return;
+  }
+  if (stmt.kind === "WhileStmt") {
+    yield* execWhile(stmt, state);
+    return;
+  }
+
   state.currentNode = stmt;
   yield { type: "before-stmt", node: stmt };
 
@@ -554,12 +600,6 @@ function* execStatement(
       break;
     case "IfStmt":
       yield* execIf(stmt, state);
-      break;
-    case "WhileStmt":
-      yield* execWhile(stmt, state);
-      break;
-    case "ForStmt":
-      yield* execFor(stmt, state);
       break;
     case "ReturnStmt":
       execReturn(stmt, state);

@@ -254,6 +254,33 @@ print("hello")
     const errorEvents = events.filter((e) => e.type === "error");
     expect(errorEvents.length).toBe(1);
   });
+
+  it("re-emits before-stmt for the for line on each iteration + at exit", () => {
+    const events = collect(`
+for (i を 1 から 3 まで 1 ずつ増やす)
+  print(i)
+endfor
+`);
+    const forStmtBefore = events.filter(
+      (e) => e.type === "before-stmt" && e.node.kind === "ForStmt",
+    );
+    // 3 iterations + 1 exit check = 4 highlights on the for line
+    expect(forStmtBefore.length).toBe(4);
+  });
+
+  it("re-emits before-stmt for the while line on each check + at exit", () => {
+    const events = collect(`
+整数型: i ← 0
+while (i < 3)
+  i ← i + 1
+endwhile
+`);
+    const whileBefore = events.filter(
+      (e) => e.type === "before-stmt" && e.node.kind === "WhileStmt",
+    );
+    // 3 successful checks + 1 failing check = 4 highlights on the while line
+    expect(whileBefore.length).toBe(4);
+  });
 });
 
 describe("interpreter: format", () => {

@@ -9,9 +9,9 @@ import { site } from "@/lib/site";
 const sectionMeta = sections.fe;
 
 const PAGE_TITLE =
-  "基本情報技術者試験の擬似言語をブラウザで実行できる Playground｜taitech.dev";
+  "基本情報技術者試験の擬似言語をブラウザで動かせる 実行シミュレーター｜taitech.dev";
 const PAGE_DESCRIPTION =
-  "基本情報技術者試験 (FE) 科目B で出題される擬似言語をその場で書いて、1文ずつステップ実行して変数の変化を可視化し、Python / TypeScript に変換して読み比べることができる無料の学習ツール。";
+  "基本情報技術者試験 (FE) 科目B で出題される擬似言語をその場で書いて、1 行ずつ実行して変数の変化を可視化し、Python / TypeScript に変換して読み比べることができる無料の学習ツール。";
 
 export const metadata: Metadata = {
   title: { absolute: PAGE_TITLE },
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 const FAQ = [
   {
-    q: "この Playground はどんなツールですか？",
+    q: "この実行シミュレーターはどんなツールですか？",
     a: "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、その場で書いて実行し、変数の変化や呼び出しスタックを可視化できる無料の学習ツールです。Python / TypeScript への変換もワンボタンで行えます。",
   },
   {
@@ -40,7 +40,7 @@ const FAQ = [
   },
   {
     q: "配列の添字は 0 始まりですか？1 始まりですか？",
-    a: "基本情報の擬似言語は 1 始まりです。この Playground でも 1 始まりで動作し、Python / TypeScript に変換する際は自動的に -1 が付与されコメントで理由が明示されます。",
+    a: "基本情報の擬似言語は 1 始まりです。この実行シミュレーターでも 1 始まりで動作し、Python / TypeScript に変換する際は自動的に -1 が付与されコメントで理由が明示されます。",
   },
   {
     q: "サーバに送信されますか？",
@@ -67,13 +67,20 @@ export default function FeTopPage() {
             基本情報技術者試験
           </p>
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
-            擬似言語をブラウザで実行できる Playground
+            擬似言語をブラウザで動かせる 実行シミュレーター
           </h1>
-          <p className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed">
-            科目B (プログラミング問題) で使われる擬似言語を、その場で書いて・1文ずつステップ実行して変数の変化を目で追い・Python / TypeScript
-            に変換して読み比べることができます。IPA
-            公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
-          </p>
+          <div
+            className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
+            style={{ textWrap: "pretty" }}
+          >
+            <p>科目B (プログラミング問題) の擬似言語をその場で書いて実行できます。</p>
+            <p>
+              一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられます。
+            </p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
+            </p>
+          </div>
         </header>
 
         <Playground />
@@ -82,65 +89,76 @@ export default function FeTopPage() {
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
             擬似言語 (基本情報 科目B) とは
           </h2>
-          <div className="mt-4 space-y-4 text-[var(--foreground)] leading-relaxed">
+          <div
+            className="mt-4 space-y-4 text-[var(--foreground)] leading-relaxed"
+            style={{ textWrap: "pretty" }}
+          >
             <p>
-              基本情報技術者試験の科目B では、特定のプログラミング言語ではなく IPA
-              が定義した独自の「擬似言語」でアルゴリズムが出題されます。C や Java
-              のような文法ではなく、日本語混じりの読みやすい記法で書かれており、
+              基本情報技術者試験の科目 B では、特定のプログラミング言語ではなく、IPA
+              が定義した独自の「擬似言語」でアルゴリズムが出題されます。
+            </p>
+            <p>
+              C や Java のような厳密な文法ではなく、日本語混じりの読みやすい記法で書かれます。
               初学者でも「何をしているか」を追いやすいのが特徴です。
             </p>
             <p>
-              しかし紙面で追うだけでは、変数の値がどう変化するか・ループが何回まわるか・
-              関数呼び出しでスタックがどう積まれるかといった<strong>動的な挙動</strong>
-              が掴みにくい面があります。本 Playground はその「動き」を可視化して、
-              擬似言語のコードが実行時に何をしているかを直感的に理解するためのツールです。
+              しかし紙面で追うだけでは、変数の値がどう変化するか、ループが何回まわるか、
+              関数呼び出しでスタックがどう積まれるか、といった<strong>動的な挙動</strong>が掴みにくい面があります。
+            </p>
+            <p>
+              このツールはその「動き」を可視化して、擬似言語のコードが実行時に何をしているかを直感的に理解するためのものです。
             </p>
           </div>
 
-          <h3 className="mt-8 text-lg font-bold tracking-tight">
+          <h3 className="mt-10 text-lg font-bold tracking-tight">
             主要構文の全体像
           </h3>
-          <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--foreground)]">
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                整数型: x ← 0
-              </code>{" "}
-              — 変数宣言と代入。型を明示して初期値を与えます
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                if (x &gt; 0) then / elseif / else / endif
-              </code>{" "}
-              — 条件分岐
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                while (条件) ... endwhile
-              </code>{" "}
-              — 繰り返し (条件が真の間)
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                for (i を 1 から n まで 1 ずつ増やす) ... endfor
-              </code>{" "}
-              — 繰り返し (回数指定)
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                整数型の配列: arr ← &#123;1, 2, 3&#125;
-              </code>{" "}
-              — 配列 (1 始まり)
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                ○整数型: name(...)
-              </code>{" "}
-              — 関数定義 (○ は関数/手続きの目印)
-            </li>
-          </ul>
-          <p className="mt-4 text-sm text-[var(--muted-foreground)]">
-            配列は必ず 1 番目から始まります (0 始まりではありません)。この Playground
-            では Python / TypeScript に変換する際に自動的に <code>-1</code>{" "}
+          <p
+            className="mt-2 text-sm text-[var(--muted-foreground)]"
+            style={{ textWrap: "pretty" }}
+          >
+            IPA 公式仕様書の表記に沿った、主要な構文をまとめます。
+          </p>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)] text-left text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
+                  <th className="py-2 pr-3 font-semibold">構文</th>
+                  <th className="py-2 pr-3 font-semibold">記述例</th>
+                  <th className="py-2 font-semibold">意味</th>
+                </tr>
+              </thead>
+              <tbody className="align-top">
+                {SYNTAX_TABLE.map((row) => (
+                  <tr
+                    key={row.name}
+                    className="border-b border-[var(--border)]"
+                  >
+                    <td className="py-2 pr-3 whitespace-nowrap font-semibold">
+                      {row.name}
+                    </td>
+                    <td className="py-2 pr-3">
+                      <code className="whitespace-pre-wrap rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
+                        {row.example}
+                      </code>
+                    </td>
+                    <td
+                      className="py-2 text-[var(--muted-foreground)]"
+                      style={{ textWrap: "pretty" }}
+                    >
+                      {row.meaning}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p
+            className="mt-4 text-sm text-[var(--muted-foreground)]"
+            style={{ textWrap: "pretty" }}
+          >
+            配列は必ず 1 番目から始まります (0 始まりではありません)。
+            Python / TypeScript に変換する際は自動的に <code>-1</code>{" "}
             が付与され、注釈コメントも生成されるので違いを直感的に確認できます。
           </p>
         </section>
@@ -173,21 +191,58 @@ export default function FeTopPage() {
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
             さらに深く比較したい
           </h2>
-          <p className="mt-3 text-sm text-[var(--foreground)] leading-relaxed">
-            擬似言語と Python / TypeScript を横並びで比較したい場合は{" "}
+          <p
+            className="mt-3 text-sm text-[var(--foreground)] leading-relaxed"
+            style={{ textWrap: "pretty" }}
+          >
+            擬似言語と Python / TypeScript を並べて読み比べたい場合は、
             <Link
               href="/fe/transpile"
               className="underline underline-offset-4 hover:opacity-80"
             >
-              /fe/transpile
-            </Link>{" "}
-            で 3 言語同時ビューを開けます。
+              多言語横並び比較ツール
+            </Link>
+            を用意しています。3 言語同時ビューで、構文ごとの差分を目で追えます。
           </p>
         </section>
       </Container>
     </div>
   );
 }
+
+const SYNTAX_TABLE = [
+  {
+    name: "変数宣言",
+    example: "整数型: x ← 0",
+    meaning: "型を明示して初期値を与える。← は代入を表す",
+  },
+  {
+    name: "条件分岐",
+    example:
+      "if (x > 0) then\n  ...\nelseif (...)\n  ...\nelse\n  ...\nendif",
+    meaning: "条件によって処理を分岐する",
+  },
+  {
+    name: "繰り返し (while)",
+    example: "while (条件)\n  ...\nendwhile",
+    meaning: "条件が真の間くり返す",
+  },
+  {
+    name: "繰り返し (for)",
+    example: "for (i を 1 から n まで 1 ずつ増やす)\n  ...\nendfor",
+    meaning: "回数を指定してくり返す (1 始まり、n を含む)",
+  },
+  {
+    name: "配列",
+    example: "整数型の配列: arr ← {1, 2, 3}",
+    meaning: "複数の値をまとめて扱う。添字は 1 始まり",
+  },
+  {
+    name: "関数定義",
+    example: "○整数型: name(整数型: a)\n  return a",
+    meaning: "○ から始めて関数を定義。手続き (戻り値なし) は型を省略",
+  },
+];
 
 const LESSON_CARDS = [
   {

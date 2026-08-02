@@ -57,16 +57,15 @@ const highlightLineField = StateField.define<DecorationSet>({
 });
 
 const execLineTheme = EditorView.theme({
-  ".cm-execLine": {
-    backgroundColor: "rgba(255, 220, 0, 0.18)",
-  },
   "&": {
     fontSize: "0.95rem",
+    height: "100%",
   },
   ".cm-scroller": {
     fontFamily:
       "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace",
     lineHeight: "1.5",
+    overflow: "auto",
   },
   ".cm-gutters": {
     backgroundColor: "transparent",
@@ -79,6 +78,15 @@ const execLineTheme = EditorView.theme({
   ".cm-content": {
     caretColor: "black",
   },
+  // execLine styles MUST come after activeLine so they win when both classes
+  // are present on the same line. The compound `.cm-line.cm-execLine` also
+  // raises specificity above the single-class `.cm-activeLine` rule.
+  ".cm-line.cm-execLine": {
+    backgroundColor: "rgba(255, 214, 0, 0.45)",
+  },
+  ".cm-line.cm-execLine.cm-activeLine": {
+    backgroundColor: "rgba(255, 214, 0, 0.45)",
+  },
 });
 
 export interface PseudoEditorProps {
@@ -86,8 +94,15 @@ export interface PseudoEditorProps {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   highlightLine?: number | null;
+  /** Version counter — the highlight effect re-fires whenever this changes,
+   *  even if `highlightLine` is unchanged (e.g. same line highlighted twice
+   *  in a row during a loop). */
+  highlightVersion?: number;
+  height?: string;
   minHeight?: string;
   className?: string;
+  /** Called on mount with an imperative handle for programmatic edits. */
+  onReady?: (api: { insertText: (text: string) => void }) => void;
 }
 
 export function PseudoEditor({
@@ -95,8 +110,11 @@ export function PseudoEditor({
   onChange,
   readOnly = false,
   highlightLine = null,
+  highlightVersion = 0,
+  height,
   minHeight = "260px",
   className,
+  onReady,
 }: PseudoEditorProps) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -134,6 +152,20 @@ export function PseudoEditor({
     const view = new EditorView({ state, parent: parentRef.current });
     viewRef.current = view;
     forceRender((n) => n + 1);
+    if (onReady) {
+      onReady({
+        insertText: (text: string) => {
+          const v = viewRef.current;
+          if (!v) return;
+          const { from, to } = v.state.selection.main;
+          v.dispatch({
+            changes: { from, to, insert: text },
+            selection: { anchor: from + text.length },
+          });
+          v.focus();
+        },
+      });
+    }
     return () => {
       view.destroy();
       viewRef.current = null;
@@ -158,7 +190,10 @@ export function PseudoEditor({
     const view = viewRef.current;
     if (!view) return;
     view.dispatch({ effects: setHighlightLine.of(highlightLine) });
-  }, [highlightLine]);
+    // `highlightVersion` is included so the effect re-fires on every commit,
+    // even when the target line is the same as the previous one (e.g. a for
+    // loop's header line re-highlighted on the next iteration).
+  }, [highlightLine, highlightVersion]);
 
   useEffect(() => {
     const view = viewRef.current;
@@ -174,7 +209,15 @@ export function PseudoEditor({
     <div
       ref={parentRef}
       className={className}
-      style={{ minHeight, border: "1px solid var(--color-border, #e5e7eb)", borderRadius: "8px", overflow: "hidden" }}
+      style={{
+        height: height ?? undefined,
+        minHeight: height ? undefined : minHeight,
+        border: "1px solid var(--color-border, #e5e7eb)",
+        borderRadius: "8px",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
     />
   );
 }

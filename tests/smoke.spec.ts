@@ -385,7 +385,7 @@ test("FE Playground: step button advances execution and highlights lines", async
   const { errors, warnings } = watchConsole(page);
   await page.goto("/fe", { waitUntil: "networkidle" });
   await page.waitForSelector(".cm-content", { timeout: 10_000 });
-  const stepBtn = page.getByRole("button", { name: /^→ ステップ$/ });
+  const stepBtn = page.getByRole("button", { name: /^一行ずつ実行$/ });
   for (let i = 0; i < 3; i++) {
     await stepBtn.click();
     await page.waitForTimeout(80);

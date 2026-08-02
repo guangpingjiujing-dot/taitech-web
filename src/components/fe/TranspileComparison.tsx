@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   parse,
   transpileToPython,
@@ -17,7 +17,7 @@ const PseudoEditor = dynamic(
     loading: () => (
       <div
         style={{
-          minHeight: "260px",
+          minHeight: "380px",
           border: "1px solid var(--color-border, #e5e7eb)",
           borderRadius: "8px",
           padding: "12px",
@@ -37,8 +37,41 @@ endfor
 print(合計)
 `;
 
+interface Snippet {
+  label: string;
+  text: string;
+  hint: string;
+}
+
+const SNIPPETS: Snippet[] = [
+  { label: "if", text: "if (x > 0) then\n  \nendif\n", hint: "条件分岐" },
+  {
+    label: "while",
+    text: "while (i < n)\n  \nendwhile\n",
+    hint: "条件が真の間くり返す",
+  },
+  {
+    label: "for",
+    text: "for (i を 1 から n まで 1 ずつ増やす)\n  \nendfor\n",
+    hint: "回数指定のくり返し",
+  },
+  { label: "変数", text: "整数型: x ← 0\n", hint: "変数宣言 + 初期化" },
+  {
+    label: "配列",
+    text: "整数型の配列: arr ← {1, 2, 3}\n",
+    hint: "配列宣言 (1 始まり)",
+  },
+  {
+    label: "関数",
+    text: "○整数型: name(整数型: a)\n  return a\n",
+    hint: "関数定義",
+  },
+  { label: "print", text: "print()\n", hint: "値を出力" },
+];
+
 export function TranspileComparison() {
   const [code, setCode] = useState(DEFAULT_CODE);
+  const insertRef = useRef<((text: string) => void) | null>(null);
 
   const transpiled = useMemo(() => {
     try {
@@ -66,11 +99,17 @@ export function TranspileComparison() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* Snippet toolbar sits ABOVE the 3-column grid so the three code panes
+          always line up horizontally regardless of how many snippet buttons
+          wrap onto a second row. */}
+      <SnippetToolbar onInsert={(text) => insertRef.current?.(text)} />
+
       <div
         style={{
           display: "grid",
           gap: "16px",
           gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          alignItems: "start",
         }}
         className="fe-transpile-grid"
       >
@@ -78,7 +117,10 @@ export function TranspileComparison() {
           <PseudoEditor
             value={code}
             onChange={setCode}
-            minHeight="380px"
+            height="380px"
+            onReady={({ insertText }) => {
+              insertRef.current = insertText;
+            }}
           />
         </Pane>
         <Pane title="Python">
@@ -119,6 +161,52 @@ export function TranspileComparison() {
   );
 }
 
+function SnippetToolbar({
+  onInsert,
+}: {
+  onInsert: (text: string) => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "6px",
+      }}
+    >
+      <span
+        style={{
+          fontSize: "0.75rem",
+          color: "var(--color-muted-foreground, #6b7280)",
+          marginRight: "2px",
+        }}
+      >
+        テンプレートを挿入
+      </span>
+      {SNIPPETS.map((s) => (
+        <button
+          key={s.label}
+          type="button"
+          onClick={() => onInsert(s.text)}
+          title={s.hint}
+          style={{
+            padding: "3px 8px",
+            border: "1px solid var(--color-border, #e5e7eb)",
+            background: "#fff",
+            borderRadius: "4px",
+            fontSize: "0.75rem",
+            fontFamily: "var(--font-geist-mono), monospace",
+            cursor: "pointer",
+          }}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Pane({
   title,
   children,
@@ -130,12 +218,10 @@ function Pane({
     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
       <h3
         style={{
-          fontSize: "0.75rem",
+          fontSize: "0.8rem",
           fontWeight: 700,
           margin: 0,
           opacity: 0.7,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
         }}
       >
         {title}

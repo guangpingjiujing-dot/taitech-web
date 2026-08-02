@@ -15,6 +15,8 @@ import {
   PseudoParseError,
 } from "@/lib/pseudo";
 
+const EDITOR_HEIGHT = "460px";
+
 const PseudoEditor = dynamic(
   () => import("./PseudoEditor").then((m) => m.PseudoEditor),
   { ssr: false, loading: () => <EditorSkeleton /> },
@@ -24,7 +26,7 @@ function EditorSkeleton() {
   return (
     <div
       style={{
-        minHeight: "260px",
+        height: EDITOR_HEIGHT,
         border: "1px solid var(--color-border, #e5e7eb)",
         borderRadius: "8px",
         background: "var(--color-muted, #f9fafb)",
@@ -52,6 +54,50 @@ export function Playground({ initialCode }: PlaygroundProps) {
   );
 }
 
+interface Snippet {
+  label: string;
+  text: string;
+  hint?: string;
+}
+
+const SNIPPETS: Snippet[] = [
+  {
+    label: "if",
+    text: "if (x > 0) then\n  \nendif\n",
+    hint: "条件分岐",
+  },
+  {
+    label: "while",
+    text: "while (i < n)\n  \nendwhile\n",
+    hint: "条件が真の間くり返す",
+  },
+  {
+    label: "for",
+    text: "for (i を 1 から n まで 1 ずつ増やす)\n  \nendfor\n",
+    hint: "回数指定のくり返し",
+  },
+  {
+    label: "変数",
+    text: "整数型: x ← 0\n",
+    hint: "変数宣言 + 初期化",
+  },
+  {
+    label: "配列",
+    text: "整数型の配列: arr ← {1, 2, 3}\n",
+    hint: "配列宣言 (1 始まり)",
+  },
+  {
+    label: "関数",
+    text: "○整数型: name(整数型: a)\n  return a\n",
+    hint: "関数定義",
+  },
+  {
+    label: "print",
+    text: "print()\n",
+    hint: "値を出力",
+  },
+];
+
 function PlaygroundInner() {
   const code = usePlayground((s) => s.code);
   const setCode = usePlayground((s) => s.setCode);
@@ -60,11 +106,12 @@ function PlaygroundInner() {
   const parseError = usePlayground((s) => s.parseError);
   const runtimeError = usePlayground((s) => s.runtimeError);
   const variables = usePlayground((s) => s.variables);
-  const frames = usePlayground((s) => s.frames);
   const output = usePlayground((s) => s.output);
   const step = usePlayground((s) => s.step);
   const runAll = usePlayground((s) => s.run);
   const reset = usePlayground((s) => s.reset);
+  const insertText = usePlayground((s) => s.insertText);
+  const editorInsertRef = usePlayground((s) => s.editorInsertRef);
 
   const [transpileTarget, setTranspileTarget] = useState<
     "python" | "typescript" | null
@@ -88,48 +135,115 @@ function PlaygroundInner() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <div
+        className="fe-playground-grid"
         style={{
           display: "grid",
           gap: "16px",
           gridTemplateColumns: "minmax(0, 1fr) 320px",
+          alignItems: "stretch",
         }}
-        className="fe-playground-grid"
       >
-        <PseudoEditor
-          value={code}
-          onChange={setCode}
-          highlightLine={highlight.line}
-        />
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-            <PrimaryButton onClick={runAll}>▶ 実行</PrimaryButton>
-            <PrimaryButton onClick={step}>→ ステップ</PrimaryButton>
-            <SecondaryButton onClick={reset}>⟲ リセット</SecondaryButton>
+        {/* Left: editor with toolbar */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
+            <StatusBadge status={status} />
+            <div
+              style={{
+                display: "flex",
+                gap: "4px",
+                flexWrap: "wrap",
+                marginLeft: "auto",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--color-muted-foreground, #6b7280)",
+                  alignSelf: "center",
+                  marginRight: "4px",
+                }}
+              >
+                テンプレートを挿入
+              </span>
+              {SNIPPETS.map((s) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => insertText(s.text)}
+                  title={s.hint}
+                  style={{
+                    padding: "3px 8px",
+                    border: "1px solid var(--color-border, #e5e7eb)",
+                    background: "#fff",
+                    borderRadius: "4px",
+                    fontSize: "0.75rem",
+                    fontFamily:
+                      "var(--font-geist-mono), monospace",
+                    cursor: "pointer",
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-            <SecondaryButton
-              onClick={() =>
-                setTranspileTarget((t) => (t === "python" ? null : "python"))
-              }
-              pressed={transpileTarget === "python"}
-            >
-              Python変換
-            </SecondaryButton>
-            <SecondaryButton
-              onClick={() =>
-                setTranspileTarget((t) =>
-                  t === "typescript" ? null : "typescript",
-                )
-              }
-              pressed={transpileTarget === "typescript"}
-            >
-              TypeScript変換
-            </SecondaryButton>
+          <PseudoEditor
+            value={code}
+            onChange={setCode}
+            highlightLine={highlight.line}
+            highlightVersion={highlight.version}
+            height={EDITOR_HEIGHT}
+            onReady={({ insertText: insert }) => {
+              editorInsertRef.current = insert;
+            }}
+          />
+        </div>
+
+        {/* Right column: controls + variables + output */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            height: EDITOR_HEIGHT,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              <PrimaryButton onClick={runAll}>▶ 実行</PrimaryButton>
+              <PrimaryButton onClick={step}>一行ずつ実行</PrimaryButton>
+              <SecondaryButton onClick={reset}>⟲ リセット</SecondaryButton>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              <SecondaryButton
+                onClick={() =>
+                  setTranspileTarget((t) => (t === "python" ? null : "python"))
+                }
+                pressed={transpileTarget === "python"}
+              >
+                Python変換
+              </SecondaryButton>
+              <SecondaryButton
+                onClick={() =>
+                  setTranspileTarget((t) =>
+                    t === "typescript" ? null : "typescript",
+                  )
+                }
+                pressed={transpileTarget === "typescript"}
+              >
+                TypeScript変換
+              </SecondaryButton>
+            </div>
           </div>
 
-          <StatusBadge status={status} />
-
-          <Panel title="変数">
+          <Panel title="変数" flex="1 1 auto" minHeight="120px">
             {variables.length === 0 ? (
               <Empty>まだ実行されていません</Empty>
             ) : (
@@ -141,20 +255,40 @@ function PlaygroundInner() {
                 }}
               >
                 <thead>
-                  <tr style={{ textAlign: "left", opacity: 0.7 }}>
-                    <th style={{ padding: "4px 6px" }}>名前</th>
-                    <th style={{ padding: "4px 6px" }}>型</th>
-                    <th style={{ padding: "4px 6px" }}>値</th>
+                  <tr
+                    style={{
+                      textAlign: "left",
+                      opacity: 0.7,
+                      borderBottom:
+                        "1px solid var(--color-border, #e5e7eb)",
+                    }}
+                  >
+                    <th style={{ padding: "4px 6px", fontWeight: 600 }}>
+                      名前
+                    </th>
+                    <th style={{ padding: "4px 6px", fontWeight: 600 }}>
+                      型
+                    </th>
+                    <th style={{ padding: "4px 6px", fontWeight: 600 }}>
+                      値
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {variables.map((v, i) => (
-                    <tr key={`${v.frame}:${v.name}:${i}`}>
+                    <tr
+                      key={`${v.frame}:${v.name}:${i}`}
+                      style={{
+                        borderBottom:
+                          "1px solid var(--color-border, #f0f0f0)",
+                      }}
+                    >
                       <td
                         style={{
-                          padding: "4px 6px",
+                          padding: "6px 6px",
                           fontFamily:
                             "var(--font-geist-mono), monospace",
+                          verticalAlign: "top",
                         }}
                       >
                         {v.name}
@@ -170,15 +304,22 @@ function PlaygroundInner() {
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: "4px 6px", opacity: 0.7 }}>
+                      <td
+                        style={{
+                          padding: "6px 6px",
+                          opacity: 0.7,
+                          verticalAlign: "top",
+                        }}
+                      >
                         {v.typeLabel}
                       </td>
                       <td
                         style={{
-                          padding: "4px 6px",
+                          padding: "6px 6px",
                           fontFamily:
                             "var(--font-geist-mono), monospace",
                           wordBreak: "break-all",
+                          verticalAlign: "top",
                         }}
                       >
                         {v.displayValue}
@@ -190,41 +331,24 @@ function PlaygroundInner() {
             )}
           </Panel>
 
-          <Panel title="呼び出しスタック">
-            {frames.length === 0 ? (
-              <Empty>—</Empty>
+          <Panel title="出力" height="160px">
+            {output.length === 0 ? (
+              <Empty>まだ出力はありません (print で表示します)</Empty>
             ) : (
-              <ol style={{ margin: 0, paddingLeft: "1.2em" }}>
-                {frames.map((f, i) => (
-                  <li key={i} style={{ fontSize: "0.85rem" }}>
-                    {f.funcName}
-                    {i === frames.length - 1 && f.line != null && (
-                      <span style={{ opacity: 0.6 }}> (行 {f.line})</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+              <pre
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  fontSize: "0.9rem",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {output.map((o) => o.text).join("\n")}
+              </pre>
             )}
           </Panel>
         </div>
       </div>
-
-      <Panel title="出力">
-        {output.length === 0 ? (
-          <Empty>まだ出力はありません (print で表示します)</Empty>
-        ) : (
-          <pre
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-geist-mono), monospace",
-              fontSize: "0.9rem",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {output.map((o) => o.text).join("\n")}
-          </pre>
-        )}
-      </Panel>
 
       {(parseError || runtimeError) && (
         <ErrorBox message={(parseError ?? runtimeError)!.message} />
@@ -249,16 +373,6 @@ function PlaygroundInner() {
           >
             {transpiled}
           </pre>
-          <p style={{ opacity: 0.6, fontSize: "0.8rem", marginTop: 8 }}>
-            変換結果は表示のみです。詳細な多言語比較は{" "}
-            <a
-              href="/fe/transpile/"
-              style={{ textDecoration: "underline" }}
-            >
-              /fe/transpile/
-            </a>{" "}
-            を利用してください。
-          </p>
         </Panel>
       )}
 
@@ -266,6 +380,9 @@ function PlaygroundInner() {
         @media (max-width: 900px) {
           .fe-playground-grid {
             grid-template-columns: minmax(0, 1fr) !important;
+          }
+          .fe-playground-grid > div:nth-child(2) {
+            height: auto !important;
           }
         }
       `}</style>
@@ -331,32 +448,48 @@ function SecondaryButton({
 function Panel({
   title,
   children,
+  height,
+  minHeight,
+  flex,
 }: {
   title: string;
   children: React.ReactNode;
+  /** Fixed height. Content overflows via scroll. */
+  height?: string;
+  /** Minimum height when using flex sizing. */
+  minHeight?: string;
+  /** flex shorthand for use inside a flex column parent. */
+  flex?: string;
 }) {
   return (
     <section
       style={{
         border: "1px solid var(--color-border, #e5e7eb)",
         borderRadius: "8px",
-        padding: "10px 12px",
+        padding: "8px 12px 10px 12px",
         background: "var(--color-background, #fff)",
+        display: "flex",
+        flexDirection: "column",
+        flex,
+        height,
+        minHeight,
+        minWidth: 0,
       }}
     >
       <h3
         style={{
-          fontSize: "0.85rem",
-          fontWeight: 600,
-          margin: "0 0 8px 0",
+          fontSize: "0.8rem",
+          fontWeight: 700,
+          margin: "0 0 6px 0",
           opacity: 0.7,
-          textTransform: "uppercase",
-          letterSpacing: "0.03em",
+          flexShrink: 0,
         }}
       >
         {title}
       </h3>
-      {children}
+      <div style={{ flex: "1 1 auto", overflow: "auto", minHeight: 0 }}>
+        {children}
+      </div>
     </section>
   );
 }
@@ -370,7 +503,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 function StatusBadge({ status }: { status: string }) {
   const label: Record<string, string> = {
     idle: "待機中",
-    paused: "実行中 (一時停止)",
+    paused: "一時停止中",
     running: "実行中",
     finished: "終了",
     parseError: "構文エラー",
@@ -384,18 +517,30 @@ function StatusBadge({ status }: { status: string }) {
     parseError: "#b91c1c",
     runtimeError: "#b91c1c",
   };
+  const dotColor = color[status] ?? "#6b7280";
   return (
     <span
       style={{
-        display: "inline-block",
-        padding: "2px 8px",
-        border: `1px solid ${color[status] ?? "#6b7280"}`,
-        color: color[status] ?? "#6b7280",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        padding: "3px 10px",
+        border: `1px solid ${dotColor}`,
+        color: dotColor,
         borderRadius: "999px",
         fontSize: "0.75rem",
-        alignSelf: "flex-start",
+        whiteSpace: "nowrap",
       }}
     >
+      <span
+        aria-hidden
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: dotColor,
+        }}
+      />
       {label[status] ?? status}
     </span>
   );

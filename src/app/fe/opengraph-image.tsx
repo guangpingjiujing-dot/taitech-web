@@ -131,7 +131,7 @@ export default function OGImage() {
               color: "#6b6b68",
             }}
           >
-            1文ずつステップ実行して
+            一行ずつ実行して
           </div>
           <div
             style={{
@@ -142,7 +142,7 @@ export default function OGImage() {
               color: "#6b6b68",
             }}
           >
-            変数の変化を目で追える Playground
+            変数の変化を目で追える 実行シミュレーター
           </div>
           <div
             style={{

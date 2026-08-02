@@ -45,12 +45,12 @@ export const sections: Record<SectionKey, Section> = {
   },
   fe: {
     key: "fe",
-    label: "基本情報技術者試験 擬似言語 Playground",
-    shortLabel: "擬似言語 Playground",
+    label: "基本情報技術者試験 擬似言語 実行シミュレーター",
+    shortLabel: "基本情報技術者試験 擬似言語 実行シミュレーター",
     path: "/fe",
     description:
-      "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、実際に動かして・可視化して・Python / TypeScript に変換しながら理解できるインタラクティブなツール。",
-    ogImageAlt: "基本情報技術者試験 擬似言語 Playground",
+      "基本情報技術者試験 (FE) 科目B で使われる擬似言語をブラウザで動かせる実行シミュレーター。一行ずつ実行して変数の変化を目で追ったり、Python / TypeScript に変換して読み比べたりできる。",
+    ogImageAlt: "基本情報技術者試験 擬似言語 実行シミュレーター",
   },
 };
 
