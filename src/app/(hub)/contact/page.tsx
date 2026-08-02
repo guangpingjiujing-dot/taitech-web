@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -25,9 +26,7 @@ export default function ContactPage() {
             className="group flex items-center justify-between py-5 px-2 -mx-2 hover:bg-[var(--muted)]/60 transition-colors"
           >
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                メール
-              </div>
+              <Eyebrow size="compact" as="div">メール</Eyebrow>
               <div className="mt-1 font-bold group-hover:underline underline-offset-4">
                 {site.contact.email}
               </div>
@@ -43,9 +42,7 @@ export default function ContactPage() {
             className="group flex items-center justify-between py-5 px-2 -mx-2 hover:bg-[var(--muted)]/60 transition-colors"
           >
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                メンタで無料相談
-              </div>
+              <Eyebrow size="compact" as="div">メンタで無料相談</Eyebrow>
               <div className="mt-1 font-bold group-hover:underline underline-offset-4">
                 個別指導・学習相談はこちら
               </div>

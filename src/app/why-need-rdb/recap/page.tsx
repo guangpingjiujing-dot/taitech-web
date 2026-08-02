@@ -1,4 +1,5 @@
 import { buildTopicMetadata } from "@/lib/metadata";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import Link from "next/link";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -204,9 +205,7 @@ export default function Page() {
           href="/rdb-index"
           className="group block border border-[var(--border-strong)] p-6 hover:bg-[var(--muted)]/60"
         >
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-            性能を掘る
-          </div>
+          <Eyebrow size="compact" as="div">性能を掘る</Eyebrow>
           <div className="mt-2 text-lg font-bold group-hover:underline underline-offset-4">
             RDBインデックス図解 →
           </div>
@@ -218,9 +217,7 @@ export default function Page() {
           href="/data-modeling"
           className="group block border border-[var(--border-strong)] p-6 hover:bg-[var(--muted)]/60"
         >
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-            設計を掘る
-          </div>
+          <Eyebrow size="compact" as="div">設計を掘る</Eyebrow>
           <div className="mt-2 text-lg font-bold group-hover:underline underline-offset-4">
             データモデリング体系 →
           </div>

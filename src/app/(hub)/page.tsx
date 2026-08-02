@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { HubHomeJsonLd } from "@/components/seo/JsonLd";
 import { HubTopicNav } from "@/components/layout/HubTopicNav";
@@ -46,9 +47,7 @@ function Hero() {
       <Container size="wide" className="py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              たいてっく
-            </div>
+            <Eyebrow size="compact" as="div">たいてっく</Eyebrow>
             <h1 className="mt-3 text-3xl md:text-5xl font-bold tracking-tight leading-tight">
               RDBの原理と設計を、動く図解と厳密な定義で。
             </h1>
@@ -214,9 +213,7 @@ function ThreePillars() {
               key={p.key}
               className="border border-[var(--border)] p-6 md:p-8 flex flex-col"
             >
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                {p.seriesNumber}
-              </div>
+              <Eyebrow size="compact" as="div">{p.seriesNumber}</Eyebrow>
               <h3 className="mt-2 text-xl md:text-2xl font-bold tracking-tight">
                 {p.title}
               </h3>
@@ -282,9 +279,7 @@ function WhyThisSite() {
         <div className="mt-10 grid gap-x-8 gap-y-8 md:grid-cols-3 md:divide-x md:divide-[var(--border)]">
           {features.map((f, i) => (
             <div key={i} className="md:px-8 first:md:pl-0 last:md:pr-0">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                特徴 {String(i + 1).padStart(2, "0")}
-              </div>
+              <Eyebrow size="compact" as="div">特徴 {String(i + 1).padStart(2, "0")}</Eyebrow>
               <div className="mt-2 text-lg font-bold">{f.title}</div>
               <p className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {f.body}

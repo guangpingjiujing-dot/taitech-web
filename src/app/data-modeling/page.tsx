@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { SectionHubJsonLd } from "@/components/seo/JsonLd";
@@ -244,9 +245,7 @@ function WhyThisSection() {
         <div className="mt-10 grid gap-x-8 gap-y-8 md:grid-cols-3 md:divide-x md:divide-[var(--border)]">
           {features.map((f, i) => (
             <div key={i} className="md:px-8 first:md:pl-0 last:md:pr-0">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                特徴 {String(i + 1).padStart(2, "0")}
-              </div>
+              <Eyebrow size="compact" as="div">特徴 {String(i + 1).padStart(2, "0")}</Eyebrow>
               <div className="mt-2 text-lg font-bold">{f.title}</div>
               <p className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {f.body}

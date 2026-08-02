@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { feLessons } from "@/content/fe/lessons";
@@ -79,28 +81,17 @@ export default function FeLessonsIndexPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <Container size="wide">
-        <nav
-          aria-label="パンくず"
-          className="mb-6 text-xs text-[var(--muted-foreground)]"
-        >
-          <Link href="/" className="hover:text-[var(--foreground)]">
-            ホーム
-          </Link>
-          <span className="mx-2">/</span>
-          <Link
-            href={sectionMeta.path}
-            className="hover:text-[var(--foreground)]"
-          >
-            擬似言語 実行シミュレーター
-          </Link>
-          <span className="mx-2">/</span>
-          <span>構文別レッスン</span>
-        </nav>
+        <Breadcrumb
+          className="mb-6"
+          items={[
+            { href: "/", label: "ホーム" },
+            { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
+            { label: "構文別レッスン" },
+          ]}
+        />
 
         <header className="mb-8 max-w-3xl">
-          <p className="text-xs font-semibold tracking-wider uppercase text-[var(--muted-foreground)]">
-            基本情報技術者試験 (FE) 科目 B — 擬似言語
-          </p>
+          <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
             構文別レッスン一覧
           </h1>

@@ -1,4 +1,5 @@
 import { buildTopicMetadata } from "@/lib/metadata";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
 import { FAQ } from "@/components/layout/FAQ";
@@ -52,9 +53,7 @@ export default function Page() {
       </p>
 
       <div className="not-prose my-6 border-l-2 border-[var(--border-strong)] bg-[var(--muted)]/40 px-4 py-3">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-          先に用語を 3 つだけ整理
-        </div>
+        <Eyebrow size="compact" as="div">先に用語を 3 つだけ整理</Eyebrow>
         <ul className="mt-2 space-y-1.5 text-sm text-[var(--foreground)] leading-relaxed">
           <li>
             <strong>トランザクション</strong>: 「複数の変更を 1 つの塊として扱う」単位。

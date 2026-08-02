@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { FAQ } from "@/components/layout/FAQ";
 import { AuthorJsonLd } from "@/components/seo/JsonLd";
@@ -114,9 +115,7 @@ export default function AboutPage() {
     <Container size="narrow" className="py-12 md:py-16">
       <AuthorJsonLd faq={faq} />
 
-      <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-        著者について
-      </div>
+      <Eyebrow size="compact" as="div">著者について</Eyebrow>
       <div className="mt-4 flex items-center gap-5">
         <Image
           src="/taitech-icon.svg"

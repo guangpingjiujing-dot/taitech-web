@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { site } from "@/lib/site";
 import { sections, dataModelingCategories } from "@/content/sections";
 import { dataModelingTopicsIn } from "@/content/topics";
@@ -43,20 +44,13 @@ export default function NormalizationHub() {
 
       <section className="border-b border-[var(--border)]">
         <Container size="wide" className="py-12 md:py-16">
-          <nav
-            aria-label="パンくず"
-            className="text-xs text-[var(--muted-foreground)]"
-          >
-            <Link href="/" className="hover:text-[var(--foreground)]">
-              ホーム
-            </Link>
-            <span className="mx-2">/</span>
-            <Link href={sectionMeta.path} className="hover:text-[var(--foreground)]">
-              {sectionMeta.shortLabel}
-            </Link>
-            <span className="mx-2">/</span>
-            <span>{category.label}</span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { href: "/", label: "ホーム" },
+              { href: sectionMeta.path, label: sectionMeta.shortLabel },
+              { label: category.label },
+            ]}
+          />
           <h1 className="mt-6 text-3xl md:text-4xl font-bold tracking-tight leading-tight">
             {category.label}
           </h1>

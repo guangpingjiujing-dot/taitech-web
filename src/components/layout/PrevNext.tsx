@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import type { SectionKey } from "@/content/sections";
 import {
   rdbTopics,
@@ -95,9 +96,7 @@ export function PrevNextCards({
             href={prev.href}
             className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
           >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              ← 前へ
-            </span>
+            <Eyebrow size="compact" as="span">← 前へ</Eyebrow>
             <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
               {prev.shortTitle}
             </span>
@@ -110,9 +109,7 @@ export function PrevNextCards({
             href={next.href}
             className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
           >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              次へ →
-            </span>
+            <Eyebrow size="compact" as="span">次へ →</Eyebrow>
             <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
               {next.shortTitle}
             </span>

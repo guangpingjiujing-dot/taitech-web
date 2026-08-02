@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { TranspileComparison } from "@/components/fe/TranspileComparison";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
@@ -47,9 +48,7 @@ export default function TranspilePage() {
           <BackToPlayground />
         </div>
         <header className="mb-6">
-          <p className="text-xs font-semibold tracking-wider uppercase text-[var(--muted-foreground)]">
-            擬似言語 → Python / TypeScript
-          </p>
+          <Eyebrow>擬似言語 → Python / TypeScript</Eyebrow>
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
             擬似言語を実在の言語に変換して読み比べる
           </h1>

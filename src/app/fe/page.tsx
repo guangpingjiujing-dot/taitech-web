@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Playground } from "@/components/fe/Playground";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
@@ -64,9 +65,7 @@ export default function FeTopPage() {
       />
       <Container size="wide">
         <header className="mb-6">
-          <p className="text-xs font-semibold tracking-wider uppercase text-[var(--muted-foreground)]">
-            基本情報技術者試験
-          </p>
+          <Eyebrow>基本情報技術者試験</Eyebrow>
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
             擬似言語をブラウザで動かせる 実行シミュレーター
           </h1>

@@ -5,6 +5,7 @@ import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FAQ } from "@/components/layout/FAQ";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { CategoryHubJsonLd } from "@/components/seo/JsonLd";
 import { sections, dataModelingCategories } from "@/content/sections";
 import { dataModelingTopicsIn } from "@/content/topics";
@@ -79,20 +80,13 @@ export default function ErDiagramHub() {
 
       <section className="border-b border-[var(--border)]">
         <Container size="wide" className="py-10 md:py-14">
-          <nav
-            aria-label="パンくず"
-            className="text-xs text-[var(--muted-foreground)]"
-          >
-            <Link href="/" className="hover:text-[var(--foreground)]">
-              ホーム
-            </Link>
-            <span className="mx-2">/</span>
-            <Link href={sectionMeta.path} className="hover:text-[var(--foreground)]">
-              {sectionMeta.shortLabel}
-            </Link>
-            <span className="mx-2">/</span>
-            <span>{category.label}</span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { href: "/", label: "ホーム" },
+              { href: sectionMeta.path, label: sectionMeta.shortLabel },
+              { label: category.label },
+            ]}
+          />
 
           <div className="mt-6 max-w-3xl">
             <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight leading-none">

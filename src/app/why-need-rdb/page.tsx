@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FAQ } from "@/components/layout/FAQ";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { SectionHubJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { whyNeedRdbTopics } from "@/content/topics";
@@ -85,16 +87,12 @@ export default function WhyNeedRdbHub() {
 
       <section className="border-b border-[var(--border)]">
         <Container size="wide" className="py-10 md:py-14">
-          <nav
-            aria-label="パンくず"
-            className="text-xs text-[var(--muted-foreground)]"
-          >
-            <Link href="/" className="hover:text-[var(--foreground)]">
-              ホーム
-            </Link>
-            <span className="mx-2">/</span>
-            <span>{sectionMeta.shortLabel}</span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { href: "/", label: "ホーム" },
+              { label: sectionMeta.shortLabel },
+            ]}
+          />
 
           <div className="mt-6 max-w-3xl">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
@@ -180,9 +178,7 @@ export default function WhyNeedRdbHub() {
               href={sections["rdb-index"].path}
               className="group block border border-[var(--border-strong)] bg-[var(--card)] p-6 hover:bg-[var(--muted)]/60"
             >
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                性能を掘る
-              </div>
+              <Eyebrow size="compact" as="div">性能を掘る</Eyebrow>
               <div className="mt-2 text-lg font-bold group-hover:underline underline-offset-4">
                 {sections["rdb-index"].label} →
               </div>
@@ -194,9 +190,7 @@ export default function WhyNeedRdbHub() {
               href={sections["data-modeling"].path}
               className="group block border border-[var(--border-strong)] bg-[var(--card)] p-6 hover:bg-[var(--muted)]/60"
             >
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-                設計を掘る
-              </div>
+              <Eyebrow size="compact" as="div">設計を掘る</Eyebrow>
               <div className="mt-2 text-lg font-bold group-hover:underline underline-offset-4">
                 {sections["data-modeling"].label} →
               </div>

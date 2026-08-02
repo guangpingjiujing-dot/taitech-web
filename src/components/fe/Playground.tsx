@@ -14,6 +14,7 @@ import {
   PseudoLexError,
   PseudoParseError,
 } from "@/lib/pseudo";
+import { Button } from "@/components/ui/Button";
 
 const EDITOR_HEIGHT = "460px";
 
@@ -217,29 +218,41 @@ function PlaygroundInner() {
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              <PrimaryButton onClick={runAll}>▶ 実行</PrimaryButton>
-              <PrimaryButton onClick={step}>一行ずつ実行</PrimaryButton>
-              <SecondaryButton onClick={reset}>⟲ リセット</SecondaryButton>
+              <Button variant="primary" size="sm" onClick={runAll}>
+                ▶ 実行
+              </Button>
+              <Button variant="primary" size="sm" onClick={step}>
+                一行ずつ実行
+              </Button>
+              <Button variant="secondary" size="sm" onClick={reset}>
+                ⟲ リセット
+              </Button>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              <SecondaryButton
+              <Button
+                variant={transpileTarget === "python" ? "primary" : "secondary"}
+                size="sm"
+                aria-pressed={transpileTarget === "python"}
                 onClick={() =>
                   setTranspileTarget((t) => (t === "python" ? null : "python"))
                 }
-                pressed={transpileTarget === "python"}
               >
                 Python変換
-              </SecondaryButton>
-              <SecondaryButton
+              </Button>
+              <Button
+                variant={
+                  transpileTarget === "typescript" ? "primary" : "secondary"
+                }
+                size="sm"
+                aria-pressed={transpileTarget === "typescript"}
                 onClick={() =>
                   setTranspileTarget((t) =>
                     t === "typescript" ? null : "typescript",
                   )
                 }
-                pressed={transpileTarget === "typescript"}
               >
                 TypeScript変換
-              </SecondaryButton>
+              </Button>
             </div>
           </div>
 
@@ -387,61 +400,6 @@ function PlaygroundInner() {
         }
       `}</style>
     </div>
-  );
-}
-
-function PrimaryButton({
-  onClick,
-  children,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        padding: "6px 12px",
-        border: "1px solid #111",
-        background: "#111",
-        color: "#fff",
-        borderRadius: "6px",
-        fontSize: "0.9rem",
-        cursor: "pointer",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function SecondaryButton({
-  onClick,
-  children,
-  pressed = false,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  pressed?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={pressed}
-      style={{
-        padding: "6px 12px",
-        border: "1px solid #111",
-        background: pressed ? "#111" : "#fff",
-        color: pressed ? "#fff" : "#111",
-        borderRadius: "6px",
-        fontSize: "0.9rem",
-        cursor: "pointer",
-      }}
-    >
-      {children}
-    </button>
   );
 }
 
