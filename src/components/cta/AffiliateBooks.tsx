@@ -26,7 +26,7 @@ export function AffiliateBooks({ topicSlug }: { topicSlug: string }) {
                   おすすめ
                 </span>
               )}
-              <div className="font-semibold leading-snug group-hover:underline underline-offset-4">
+              <div className="min-w-0 flex-1 break-words font-semibold leading-snug group-hover:underline underline-offset-4">
                 {b.title}
               </div>
             </div>
