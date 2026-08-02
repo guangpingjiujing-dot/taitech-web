@@ -89,34 +89,40 @@ function PrevNextNav({
   return (
     <nav
       aria-label="前後のレッスン"
-      className="mt-16 grid gap-3 sm:grid-cols-2"
+      className="not-prose mt-16 border-t border-[var(--border)] pt-8"
     >
-      {prev ? (
-        <Link
-          href={`/fe/lessons/${prev.slug}`}
-          className="block rounded-lg border border-[var(--border)] p-4 hover:bg-[var(--muted)]/40 transition-colors"
-        >
-          <div className="text-xs text-[var(--muted-foreground)]">
-            ← 前のレッスン
-          </div>
-          <div className="mt-1 font-semibold">{prev.shortTitle}</div>
-        </Link>
-      ) : (
-        <span />
-      )}
-      {next ? (
-        <Link
-          href={`/fe/lessons/${next.slug}`}
-          className="block rounded-lg border border-[var(--border)] p-4 hover:bg-[var(--muted)]/40 transition-colors sm:text-right"
-        >
-          <div className="text-xs text-[var(--muted-foreground)]">
-            次のレッスン →
-          </div>
-          <div className="mt-1 font-semibold">{next.shortTitle}</div>
-        </Link>
-      ) : (
-        <span />
-      )}
+      <div className="grid gap-3 md:grid-cols-2">
+        {prev ? (
+          <Link
+            href={`/fe/lessons/${prev.slug}`}
+            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+              ← 前へ
+            </span>
+            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
+              {prev.shortTitle}
+            </span>
+          </Link>
+        ) : (
+          <div />
+        )}
+        {next ? (
+          <Link
+            href={`/fe/lessons/${next.slug}`}
+            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+              次へ →
+            </span>
+            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
+              {next.shortTitle}
+            </span>
+          </Link>
+        ) : (
+          <div />
+        )}
+      </div>
     </nav>
   );
 }
