@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { MentorCTA } from "@/components/cta/MentorCTA";
+import { PrevNextCards } from "@/components/layout/PrevNext";
 import { sections } from "@/content/sections";
 import {
   feLessonNeighbors,
@@ -68,61 +69,24 @@ export function FeLessonLayout({
 
         <div className="prose-jp mt-10 max-w-none">{children}</div>
 
-        <PrevNextNav prev={prev} next={next} />
+        <PrevNextCards
+          ariaLabel="前後のレッスン"
+          prev={
+            prev
+              ? { href: `/fe/lessons/${prev.slug}`, shortTitle: prev.shortTitle }
+              : null
+          }
+          next={
+            next
+              ? { href: `/fe/lessons/${next.slug}`, shortTitle: next.shortTitle }
+              : null
+          }
+        />
 
         <AffiliateBooks topicSlug={`fe-${lesson.slug}`} />
 
         <MentorCTA />
       </article>
     </Container>
-  );
-}
-
-function PrevNextNav({
-  prev,
-  next,
-}: {
-  prev: FeLessonMeta | null;
-  next: FeLessonMeta | null;
-}) {
-  if (!prev && !next) return null;
-  return (
-    <nav
-      aria-label="前後のレッスン"
-      className="not-prose mt-16 border-t border-[var(--border)] pt-8"
-    >
-      <div className="grid gap-3 md:grid-cols-2">
-        {prev ? (
-          <Link
-            href={`/fe/lessons/${prev.slug}`}
-            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              ← 前へ
-            </span>
-            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
-              {prev.shortTitle}
-            </span>
-          </Link>
-        ) : (
-          <div />
-        )}
-        {next ? (
-          <Link
-            href={`/fe/lessons/${next.slug}`}
-            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              次へ →
-            </span>
-            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
-              {next.shortTitle}
-            </span>
-          </Link>
-        ) : (
-          <div />
-        )}
-      </div>
-    </nav>
   );
 }

@@ -10,6 +10,12 @@ import {
   type WhyNeedRdbTopic,
 } from "@/content/topics";
 
+/** Minimal shape needed by PrevNextCards. */
+export interface PrevNextItem {
+  href: string;
+  shortTitle: string;
+}
+
 const NORMALIZATION_ORDER = [
   "why",
   "functional-dependency",
@@ -65,8 +71,63 @@ function getOrderedTopics(
 }
 
 /**
- * 前後トピックへのナビゲーション。
- * 学習順序に沿った prev / next リンクを表示する。
+ * Presentation: 前後リンクを 2 カラムのカードで表示する。
+ * データ元 (Topic / FE lesson / その他) に依存しない汎用パーツ。
+ */
+export function PrevNextCards({
+  prev,
+  next,
+  ariaLabel = "前後のトピック",
+}: {
+  prev: PrevNextItem | null;
+  next: PrevNextItem | null;
+  ariaLabel?: string;
+}) {
+  if (!prev && !next) return null;
+  return (
+    <nav
+      aria-label={ariaLabel}
+      className="not-prose mt-16 border-t border-[var(--border)] pt-8"
+    >
+      <div className="grid gap-3 md:grid-cols-2">
+        {prev ? (
+          <Link
+            href={prev.href}
+            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+              ← 前へ
+            </span>
+            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
+              {prev.shortTitle}
+            </span>
+          </Link>
+        ) : (
+          <div />
+        )}
+        {next ? (
+          <Link
+            href={next.href}
+            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+              次へ →
+            </span>
+            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
+              {next.shortTitle}
+            </span>
+          </Link>
+        ) : (
+          <div />
+        )}
+      </div>
+    </nav>
+  );
+}
+
+/**
+ * Topic 系ページ (rdb-index / data-modeling / why-need-rdb) 用のラッパー。
+ * 学習順序に沿った prev / next リンクを PrevNextCards に渡す。
  */
 export function PrevNext({
   section,
@@ -83,46 +144,10 @@ export function PrevNext({
   if (idx === -1) return null;
   const prev = idx > 0 ? ordered[idx - 1] : null;
   const next = idx < ordered.length - 1 ? ordered[idx + 1] : null;
-
-  if (!prev && !next) return null;
-
   return (
-    <nav
-      aria-label="前後のトピック"
-      className="not-prose mt-16 border-t border-[var(--border)] pt-8"
-    >
-      <div className="grid gap-3 md:grid-cols-2">
-        {prev ? (
-          <Link
-            href={prev.path}
-            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              ← 前へ
-            </span>
-            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
-              {prev.shortTitle}
-            </span>
-          </Link>
-        ) : (
-          <div />
-        )}
-        {next ? (
-          <Link
-            href={next.path}
-            className="group flex flex-col justify-center items-center text-center border border-[var(--border-strong)] bg-[var(--card)] px-5 py-4 hover:bg-[var(--muted)]/60 transition-colors"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-              次へ →
-            </span>
-            <span className="mt-1 text-sm font-bold text-[var(--foreground)] group-hover:underline underline-offset-4">
-              {next.shortTitle}
-            </span>
-          </Link>
-        ) : (
-          <div />
-        )}
-      </div>
-    </nav>
+    <PrevNextCards
+      prev={prev ? { href: prev.path, shortTitle: prev.shortTitle } : null}
+      next={next ? { href: next.path, shortTitle: next.shortTitle } : null}
+    />
   );
 }
