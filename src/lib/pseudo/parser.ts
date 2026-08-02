@@ -315,11 +315,12 @@ class Parser {
       this.consume();
       elseBody = this.parseBlock(["KW_ENDIF"]);
     }
+    const endPos = this.peek().pos;
     this.expect(
       "KW_ENDIF",
       "if 文は 'endif' で閉じます。elseif や else のブロックが閉じているかも確認してください。",
     );
-    return { kind: "IfStmt", branches, elseBody, elsePos, pos };
+    return { kind: "IfStmt", branches, elseBody, elsePos, endPos, pos };
   }
 
   private parseWhileStmt(): WhileStmt {
@@ -329,11 +330,12 @@ class Parser {
     const cond = this.parseExpr();
     this.expect("RPAREN");
     const body = this.parseBlock(["KW_ENDWHILE"]);
+    const endPos = this.peek().pos;
     this.expect(
       "KW_ENDWHILE",
       "while ループは 'endwhile' で閉じます。",
     );
-    return { kind: "WhileStmt", cond, body, pos };
+    return { kind: "WhileStmt", cond, body, endPos, pos };
   }
 
   private parseForStmt(): ForStmt {
@@ -367,6 +369,7 @@ class Parser {
     }
     this.expect("RPAREN");
     const body = this.parseBlock(["KW_ENDFOR"]);
+    const endPos = this.peek().pos;
     this.expect("KW_ENDFOR", "for ループは 'endfor' で閉じます。");
     return {
       kind: "ForStmt",
@@ -376,6 +379,7 @@ class Parser {
       step,
       direction,
       body,
+      endPos,
       pos,
     };
   }

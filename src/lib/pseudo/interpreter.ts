@@ -495,6 +495,7 @@ function* execIf(
     const b = ensureBool(cond, branch.keywordPos, "if の条件");
     if (b) {
       yield* execBlock(branch.body, state);
+      yield* yieldEndMarker(stmt.endPos, state);
       return;
     }
   }
@@ -507,6 +508,21 @@ function* execIf(
     }
     yield* execBlock(stmt.elseBody, state);
   }
+  // Always highlight the `endif` line on exit — including when no branch
+  // matched and there is no else — so the learner sees the block close.
+  yield* yieldEndMarker(stmt.endPos, state);
+}
+
+/** Yield a before-stmt highlighting the closing keyword line
+ *  (endif / endwhile / endfor). */
+function* yieldEndMarker(
+  pos: Position,
+  state: ExecutionState,
+): Generator<StepEvent> {
+  const marker = makeLineMarker(pos);
+  state.currentNode = marker;
+  yield { type: "before-stmt", node: marker };
+  incrementSteps(state, marker);
 }
 
 function* execWhile(
@@ -527,6 +543,9 @@ function* execWhile(
     yield* execBlock(stmt.body, state);
   }
 
+  // Highlight the `endwhile` line after the exit check so the learner sees
+  // where the loop closes.
+  yield* yieldEndMarker(stmt.endPos, state);
   yield { type: "after-stmt", node: stmt };
 }
 
@@ -570,6 +589,9 @@ function* execFor(
     advance();
   }
 
+  // Highlight the `endfor` line after the exit check so the learner sees
+  // where the loop closes.
+  yield* yieldEndMarker(stmt.endPos, state);
   yield { type: "after-stmt", node: stmt };
 }
 

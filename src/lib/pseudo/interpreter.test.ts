@@ -286,9 +286,10 @@ endif
     expect((outputs[0] as { text: string }).text).toBe("良");
   });
 
-  it("yields a before-stmt on each if/elseif/else keyword line for step highlight", () => {
+  it("yields a before-stmt on each if/elseif/else/endif keyword line for step highlight", () => {
     // Regression: previously execIf jumped straight to a matching branch body
-    // without highlighting the elseif/else condition line first.
+    // without highlighting the elseif/else condition line first, and never
+    // touched the endif line on exit.
     const events = collect(`
 整数型: 点数 ← 30
 if (点数 ≧ 80)
@@ -302,8 +303,49 @@ endif
     const beforeLines = events
       .filter((e) => e.type === "before-stmt")
       .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
-    // 変数宣言 line 2, if line 3, elseif line 5, else line 7, print("不可") line 8
-    expect(beforeLines).toEqual([2, 3, 5, 7, 8]);
+    // 変数宣言 line 2, if line 3, elseif line 5, else line 7, print("不可") line 8, endif line 9
+    expect(beforeLines).toEqual([2, 3, 5, 7, 8, 9]);
+  });
+
+  it("highlights endif after a matched branch body", () => {
+    const events = collect(`
+整数型: x ← 5
+if (x > 0)
+  x ← x + 1
+endif
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // 変数宣言 line 2, if line 3, body line 4, endif line 5
+    expect(beforeLines).toEqual([2, 3, 4, 5]);
+  });
+
+  it("highlights endwhile after the exit check", () => {
+    const events = collect(`
+整数型: i ← 0
+while (i < 2)
+  i ← i + 1
+endwhile
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // decl(2), while(3), body(4), while(3), body(4), while(3) exit, endwhile(5)
+    expect(beforeLines).toEqual([2, 3, 4, 3, 4, 3, 5]);
+  });
+
+  it("highlights endfor after the exit check", () => {
+    const events = collect(`
+for (i を 1 から 2 まで 1 ずつ増やす)
+  print(i)
+endfor
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // for(2), body(3), for(2), body(3), for(2) exit, endfor(4)
+    expect(beforeLines).toEqual([2, 3, 2, 3, 2, 4]);
   });
 
   it("re-emits before-stmt for the while line on each check + at exit", () => {

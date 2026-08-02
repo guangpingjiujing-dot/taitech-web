@@ -72,12 +72,18 @@ export interface IfStmt extends BaseNode {
   /** Position of the `else` keyword when `elseBody` is present, so the
    *  else line can be highlighted before entering its body. */
   elsePos: Position | null;
+  /** Position of the `endif` keyword, so the closing line can be
+   *  highlighted on exit. */
+  endPos: Position;
 }
 
 export interface WhileStmt extends BaseNode {
   kind: "WhileStmt";
   cond: Expr;
   body: Statement[];
+  /** Position of the `endwhile` keyword, so the closing line can be
+   *  highlighted after the loop exits. */
+  endPos: Position;
 }
 
 export interface ForStmt extends BaseNode {
@@ -88,6 +94,9 @@ export interface ForStmt extends BaseNode {
   step: Expr;
   direction: "inc" | "dec";
   body: Statement[];
+  /** Position of the `endfor` keyword, so the closing line can be
+   *  highlighted after the loop exits. */
+  endPos: Position;
 }
 
 export interface ReturnStmt extends BaseNode {
