@@ -73,6 +73,56 @@ npm run test:e2e:ui
 
 コンポーネント追加・レイアウト変更後は E2E テスト実行推奨。全ページで console error / warning が出ないことを保証している。
 
+## UI コンポーネントの共通化方針
+
+**新しいセクション追加時に UI パーツをコピペしない**。既存の見た目が 2 箇所以上で必要なら、必ずコンポーネント化して共有する。今後の運用保守コストを直接下げる最重要ルール。
+
+### 実装前の確認手順
+
+1. 「これから書こうとしている UI」に対して、以下を **1 分以内で grep** する。
+   ```bash
+   # 例: パンくずを書こうとしているとき
+   grep -rn 'aria-label="パンくず"' src/
+   # 例: 「前のレッスン / 次のレッスン」のようなカードを書こうとしているとき
+   grep -rn "PrevNext\|前へ\|次へ" src/components/
+   # 例: 定義ボックス
+   grep -rn "border-l-2 border-\[var(--foreground)\]" src/components/
+   ```
+2. 既存のコンポーネントで賄えるか判断:
+   - **賄える** → そのまま呼ぶ
+   - **見た目は同じだが引数の型が違う** → presentation とデータ層を分ける (下記のパターン)
+   - **見た目そのものが違う要件** → 新規コンポーネントを作り、`src/components/{領域}/` へ置く
+
+### presentation / データ層分離パターン (推奨)
+
+既存コンポーネントが特定のドメインモデル (`Topic` 等) に密結合していて別ドメインから呼べない場合、**中身の見た目は 1 箇所** に保ちつつ、データ層は各セクションが持てるようにする。
+
+前例: `src/components/layout/PrevNext.tsx`
+- `PrevNextCards({prev, next})` — `{href, shortTitle}` だけ受け取る presentation
+- `PrevNext({section, currentSlug})` — Topic 系の学習順序を解決して `PrevNextCards` に渡すラッパー
+- `FeLessonLayout` は自前で neighbors を計算して直接 `PrevNextCards` を呼ぶ
+
+**Topic union に他ドメインの型を混ぜないこと**。混ぜると `findTopic` / `topicsInSection` / `sitemap` など 5〜10 箇所に波及する。
+
+### ディレクトリ規約
+
+- `src/components/ui/` — **ドメイン非依存の primitives** (Button, Card, Container, Badge)。ここに置くものは Topic / section / 特定 CMS を知らない
+- `src/components/layout/` — **ページ骨組み** (TopicLayout, PrevNext, FAQ, Header, Footer)。sections / topics を知ってよい
+- `src/components/cta/` — **モネタイズ導線** (AffiliateBooks, MentorCTA, BookSidebar, AmazonLink)
+- `src/components/seo/` — **JSON-LD ジェネレータ** (JsonLd.tsx 内に `TopicJsonLd`, `FePlaygroundJsonLd` 等を集約)
+- `src/components/{section}/` — **セクション固有** (fe/, viz/rdb-fundamentals/ 等)。他セクションから import されない前提のもの
+
+### 「コピペしていい例外」
+
+- インライン `style` を数行だけ書いて済むピクセル調整 (縦の余白 2px 詰めなど)
+- 同じ見た目でも「試行錯誤中で最終形が固まっていない」場合 (2 コミット以内に共通化する)
+
+これらも 3 回目に登場したら必ず抽出する。
+
+### インライン style と Tailwind の混在について
+
+このプロジェクトは Tailwind を基本にしているが、Playground など動的 UI では inline `style={{}}` が混在している。**新規コンポーネントは Tailwind を優先**。既存の inline style は触ったついでに Tailwind へ寄せる (無理して全部書き換えなくてよい)。
+
 ## Monorepo 情報 (docs/)
 
 `docs/` は `.gitignore` 済み。ローカル専用の運用メモを置く場所。GitHub には公開しない。
