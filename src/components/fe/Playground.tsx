@@ -201,8 +201,17 @@ function PlaygroundInner({
           </div>
         </div>
 
-        {/* row 1 col 2: control buttons */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        {/* row 1 col 2: control buttons。左ツールバーが縦 3 段で背が高い
+            ので、右ツールバーは alignSelf: end で下寄せにして変数ペインとの
+            隙間を最小化する */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+            alignSelf: "end",
+          }}
+        >
           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
             <Button variant="primary" size="sm" onClick={runAll}>
               ▶ 実行
