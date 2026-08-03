@@ -732,6 +732,14 @@ export function* runFromState(
 ): Generator<StepEvent, void, void> {
   try {
     for (const item of program.body) {
+      if (item.kind === "FuncDecl" || item.kind === "ProcDecl") {
+        // 関数 / 手続きの定義行にもハイライトを 1 回発火する。
+        // 定義自体は既に createInitialState で登録済みなので実行は不要
+        // だが、学習者が「ここで関数が宣言される」ことを目で追える
+        // ようにするため、○ の行で一旦停止する。
+        yield* yieldDeclarationMarker(item, state);
+        continue;
+      }
       if (isStatement(item)) {
         yield* execStatement(item, state);
       }
@@ -750,6 +758,16 @@ export function* runFromState(
     }
     throw e;
   }
+}
+
+function* yieldDeclarationMarker(
+  decl: FuncDecl | ProcDecl,
+  state: ExecutionState,
+): Generator<StepEvent> {
+  const marker = makeLineMarker(decl.pos);
+  state.currentNode = marker;
+  yield { type: "before-stmt", node: marker };
+  incrementSteps(state, marker);
 }
 
 export function runToEnd(program: Program): ExecutionState {

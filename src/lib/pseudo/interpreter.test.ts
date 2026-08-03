@@ -335,6 +335,39 @@ endwhile
     expect(beforeLines).toEqual([2, 3, 4, 3, 4, 3, 5]);
   });
 
+  it("highlights the ○ function declaration line before main statements run", () => {
+    // Regression: previously runFromState skipped FuncDecl / ProcDecl entirely
+    // so the first before-stmt landed on print(...), not on the ○ line.
+    const events = collect(`
+○整数型: 最大値(整数型: a, 整数型: b)
+  if (a > b)
+    return a
+  endif
+  return b
+
+print(最大値(3, 7))
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // ○ decl line 2, print line 8
+    expect(beforeLines).toEqual([2, 8]);
+  });
+
+  it("highlights the ○ line for procedures (no return type) too", () => {
+    const events = collect(`
+○挨拶(文字列型: 名前)
+  print(名前)
+
+挨拶("太郎")
+`);
+    const beforeLines = events
+      .filter((e) => e.type === "before-stmt")
+      .map((e) => (e as { node: { pos: { line: number } } }).node.pos.line);
+    // ○ decl line 2, 挨拶("太郎") call line 5
+    expect(beforeLines).toEqual([2, 5]);
+  });
+
   it("highlights endfor after the exit check", () => {
     const events = collect(`
 for (i を 1 から 2 まで 1 ずつ増やす)
