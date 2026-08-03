@@ -163,25 +163,21 @@ function PlaygroundInner({
           alignItems: "stretch",
         }}
       >
-        {/* row 1 col 1: status badge + template label + template chips (縦積み) */}
+        {/* row 1 col 1: status badge / template label / template chips
+            を縦 3 段に積む。エラー時などバッジが横に伸びても他要素を
+            押し出さないよう、それぞれを独立行にする */}
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <div
+          <div>
+            <StatusBadge status={status} />
+          </div>
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
+              fontSize: "0.75rem",
+              color: "var(--color-muted-foreground, #6b7280)",
             }}
           >
-            <StatusBadge status={status} />
-            <span
-              style={{
-                fontSize: "0.75rem",
-                color: "var(--color-muted-foreground, #6b7280)",
-              }}
-            >
-              テンプレートを挿入
-            </span>
-          </div>
+            テンプレートを挿入
+          </span>
           <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
             {SNIPPETS.map((s) => (
               <button
