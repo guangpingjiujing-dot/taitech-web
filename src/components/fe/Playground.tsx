@@ -163,34 +163,27 @@ function PlaygroundInner({
           alignItems: "stretch",
         }}
       >
-        {/* row 1 col 1: status + template chips */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "8px",
-          }}
-        >
-          <StatusBadge status={status} />
+        {/* row 1 col 1: status badge + template label + template chips (縦積み) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <div
             style={{
               display: "flex",
-              gap: "4px",
-              flexWrap: "wrap",
-              marginLeft: "auto",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
+            <StatusBadge status={status} />
             <span
               style={{
+                marginLeft: "auto",
                 fontSize: "0.75rem",
                 color: "var(--color-muted-foreground, #6b7280)",
-                alignSelf: "center",
-                marginRight: "4px",
               }}
             >
               テンプレートを挿入
             </span>
+          </div>
+          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
             {SNIPPETS.map((s) => (
               <button
                 key={s.label}
