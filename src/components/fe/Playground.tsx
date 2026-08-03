@@ -169,13 +169,12 @@ function PlaygroundInner({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "12px",
             }}
           >
             <StatusBadge status={status} />
             <span
               style={{
-                marginLeft: "auto",
                 fontSize: "0.75rem",
                 color: "var(--color-muted-foreground, #6b7280)",
               }}
