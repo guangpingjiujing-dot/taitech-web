@@ -147,127 +147,134 @@ function PlaygroundInner({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/*
+        2×2 grid:
+          row 1 [左ツールバー] [右ツールバー]  ← 高さは両セルの max で揃う
+          row 2 [エディタ]     [変数/出力]      ← 上端が必ず一致する
+       */}
       <div
         className="fe-playground-grid"
         style={{
           display: "grid",
-          gap: "16px",
+          columnGap: "16px",
+          rowGap: "8px",
           gridTemplateColumns: "minmax(0, 1fr) 320px",
+          gridTemplateRows: `auto ${EDITOR_HEIGHT}`,
           alignItems: "stretch",
         }}
       >
-        {/* Left: editor with toolbar */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {/* row 1 col 1: status + template chips */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "8px",
+          }}
+        >
+          <StatusBadge status={status} />
           <div
             style={{
               display: "flex",
-              alignItems: "center",
+              gap: "4px",
               flexWrap: "wrap",
-              gap: "8px",
+              marginLeft: "auto",
             }}
           >
-            <StatusBadge status={status} />
-            <div
+            <span
               style={{
-                display: "flex",
-                gap: "4px",
-                flexWrap: "wrap",
-                marginLeft: "auto",
+                fontSize: "0.75rem",
+                color: "var(--color-muted-foreground, #6b7280)",
+                alignSelf: "center",
+                marginRight: "4px",
               }}
             >
-              <span
+              テンプレートを挿入
+            </span>
+            {SNIPPETS.map((s) => (
+              <button
+                key={s.label}
+                type="button"
+                onClick={() => insertText(s.text)}
+                title={s.hint}
                 style={{
+                  padding: "3px 8px",
+                  border: "1px solid var(--color-border, #e5e7eb)",
+                  background: "#fff",
+                  borderRadius: "4px",
                   fontSize: "0.75rem",
-                  color: "var(--color-muted-foreground, #6b7280)",
-                  alignSelf: "center",
-                  marginRight: "4px",
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  cursor: "pointer",
                 }}
               >
-                テンプレートを挿入
-              </span>
-              {SNIPPETS.map((s) => (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => insertText(s.text)}
-                  title={s.hint}
-                  style={{
-                    padding: "3px 8px",
-                    border: "1px solid var(--color-border, #e5e7eb)",
-                    background: "#fff",
-                    borderRadius: "4px",
-                    fontSize: "0.75rem",
-                    fontFamily:
-                      "var(--font-geist-mono), monospace",
-                    cursor: "pointer",
-                  }}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
+                {s.label}
+              </button>
+            ))}
           </div>
-          <PseudoEditor
-            value={code}
-            onChange={setCode}
-            highlightLine={highlight.line}
-            highlightVersion={highlight.version}
-            height={EDITOR_HEIGHT}
-            onReady={({ insertText: insert }) => {
-              editorInsertRef.current = insert;
-            }}
-          />
         </div>
 
-        {/* Right column: controls + variables + output */}
+        {/* row 1 col 2: control buttons */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            <Button variant="primary" size="sm" onClick={runAll}>
+              ▶ 実行
+            </Button>
+            <Button variant="primary" size="sm" onClick={step}>
+              一行ずつ実行
+            </Button>
+            <Button variant="secondary" size="sm" onClick={reset}>
+              ⟲ リセット
+            </Button>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            <Button
+              variant={transpileTarget === "python" ? "primary" : "secondary"}
+              size="sm"
+              aria-pressed={transpileTarget === "python"}
+              onClick={() =>
+                setTranspileTarget((t) => (t === "python" ? null : "python"))
+              }
+            >
+              Python変換
+            </Button>
+            <Button
+              variant={
+                transpileTarget === "typescript" ? "primary" : "secondary"
+              }
+              size="sm"
+              aria-pressed={transpileTarget === "typescript"}
+              onClick={() =>
+                setTranspileTarget((t) =>
+                  t === "typescript" ? null : "typescript",
+                )
+              }
+            >
+              TypeScript変換
+            </Button>
+          </div>
+        </div>
+
+        {/* row 2 col 1: editor */}
+        <PseudoEditor
+          value={code}
+          onChange={setCode}
+          highlightLine={highlight.line}
+          highlightVersion={highlight.version}
+          height={EDITOR_HEIGHT}
+          onReady={({ insertText: insert }) => {
+            editorInsertRef.current = insert;
+          }}
+        />
+
+        {/* row 2 col 2: variables + output stacked */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             gap: "10px",
-            height: EDITOR_HEIGHT,
+            minHeight: 0,
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              <Button variant="primary" size="sm" onClick={runAll}>
-                ▶ 実行
-              </Button>
-              <Button variant="primary" size="sm" onClick={step}>
-                一行ずつ実行
-              </Button>
-              <Button variant="secondary" size="sm" onClick={reset}>
-                ⟲ リセット
-              </Button>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              <Button
-                variant={transpileTarget === "python" ? "primary" : "secondary"}
-                size="sm"
-                aria-pressed={transpileTarget === "python"}
-                onClick={() =>
-                  setTranspileTarget((t) => (t === "python" ? null : "python"))
-                }
-              >
-                Python変換
-              </Button>
-              <Button
-                variant={
-                  transpileTarget === "typescript" ? "primary" : "secondary"
-                }
-                size="sm"
-                aria-pressed={transpileTarget === "typescript"}
-                onClick={() =>
-                  setTranspileTarget((t) =>
-                    t === "typescript" ? null : "typescript",
-                  )
-                }
-              >
-                TypeScript変換
-              </Button>
-            </div>
-          </div>
-
           <Panel title="変数" flex="1 1 auto" minHeight="120px">
             {variables.length === 0 ? (
               <Empty>まだ実行されていません</Empty>
@@ -402,14 +409,16 @@ function PlaygroundInner({
       )}
 
       {showOpenInFullEditor && (
-        <div className="mt-1">
+        <div className="mt-2">
           <Button
             asChild
             variant="primary"
-            size="sm"
-            /* no-underline overrides the .prose-jp a underline rule (this
-             * component is rendered inside lesson prose-jp containers). */
-            className="no-underline hover:no-underline"
+            size="md"
+            /* Tailwind v4 の ! suffix で .prose-jp a のグローバル
+             * (specificity 0,1,1) を上書きする。
+             * lesson の prose-jp コンテナ内で primary button が
+             * 黒地に黒文字 + 下線になるのを回避 */
+            className="text-[var(--primary-foreground)]! no-underline! hover:no-underline!"
           >
             <Link href={`/fe?code=${encodeURIComponent(code)}`}>
               このコードを実行シミュレーターで開く →
@@ -421,10 +430,10 @@ function PlaygroundInner({
       <style>{`
         @media (max-width: 900px) {
           .fe-playground-grid {
+            /* モバイルは 1 カラム縦積み: 左ツールバー → 右ツールバー →
+               エディタ → 右パネル の順に並ぶ。row 2 の固定高さも解除 */
             grid-template-columns: minmax(0, 1fr) !important;
-          }
-          .fe-playground-grid > div:nth-child(2) {
-            height: auto !important;
+            grid-template-rows: auto !important;
           }
         }
       `}</style>
