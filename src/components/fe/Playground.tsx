@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   DEFAULT_CODE,
@@ -401,13 +402,12 @@ function PlaygroundInner({
       )}
 
       {showOpenInFullEditor && (
-        <div className="mt-1 text-sm">
-          <a
-            href={`/fe?code=${encodeURIComponent(code)}`}
-            className="inline-flex items-center gap-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline underline-offset-4 decoration-[var(--border-strong)] hover:decoration-[var(--foreground)]"
-          >
-            このコードを実行シミュレーターで開く →
-          </a>
+        <div className="mt-1">
+          <Button asChild variant="secondary" size="sm">
+            <Link href={`/fe?code=${encodeURIComponent(code)}`}>
+              このコードを実行シミュレーターで開く →
+            </Link>
+          </Button>
         </div>
       )}
 
