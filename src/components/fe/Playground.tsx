@@ -403,7 +403,14 @@ function PlaygroundInner({
 
       {showOpenInFullEditor && (
         <div className="mt-1">
-          <Button asChild variant="secondary" size="sm">
+          <Button
+            asChild
+            variant="primary"
+            size="sm"
+            /* no-underline overrides the .prose-jp a underline rule (this
+             * component is rendered inside lesson prose-jp containers). */
+            className="no-underline hover:no-underline"
+          >
             <Link href={`/fe?code=${encodeURIComponent(code)}`}>
               このコードを実行シミュレーターで開く →
             </Link>
