@@ -123,6 +123,45 @@ npm run test:e2e:ui
 
 このプロジェクトは Tailwind を基本にしているが、Playground など動的 UI では inline `style={{}}` が混在している。**新規コンポーネントは Tailwind を優先**。既存の inline style は触ったついでに Tailwind へ寄せる (無理して全部書き換えなくてよい)。
 
+## Tailwind v4 / prose-jp のはまりどころ
+
+過去にこれらで数時間ハマったので明文化。触るたびに再発しないよう **事前に読んでから作業**。
+
+### 1. `!important` は **suffix** (v4 の非互換変更)
+
+Tailwind v4 は `!` を **class 名の末尾** に付ける。v3 の prefix (`!text-white`) は v4 では効かない。
+
+```html
+<!-- ❌ v3 syntax。v4 では単なる class 名として扱われて important にならない -->
+<a class="!text-white !no-underline">…</a>
+
+<!-- ⭕ v4 syntax。suffix にする -->
+<a class="text-white! no-underline!">…</a>
+```
+
+用途: 主に **specificity の高いグローバル CSS を上書きしたいとき** (次項参照)。
+
+### 2. `.prose-jp a` (globals.css) の specificity trap
+
+`src/app/globals.css` の `.prose-jp a` は specificity `(0,1,1)`。Tailwind の utility class `text-[...]` は `(0,1,0)` なので、**prose-jp コンテナ内の anchor に utility で色 / 下線を当てても勝てない**。
+
+lesson 本文 (LessonLayout の `<div className="prose-jp mt-10 max-w-none">`) の中で Button の primary variant を使うと、`.prose-jp a { text: var(--foreground); underline; }` が勝って黒背景に黒文字 + 下線という不可視状態になる。
+
+**回避策 3 択:**
+- **`!` suffix で優先度を上げる** (推奨、局所修正): `className="text-[var(--primary-foreground)]! no-underline! hover:no-underline!"` — 前例: `src/components/fe/Playground.tsx` の deep link ボタン
+- **`not-prose` でラップする**: 埋め込みエディタや自作パネルなど「prose のスタイルを一切受けたくない」ブロック全体に。埋め込み Playground はこの形 (`<div className="not-prose my-6"><Playground /></div>`)
+- **`.prose-jp a` を `:where(...)` で lower-specificity 化する**: 波及範囲が広いのでプロジェクト方針変更として別セッションで議論する
+
+### 3. Tailwind Preflight が `<button>` の cursor を `default` にリセットする
+
+素の `<button>` にホバーしても指カーソルにならない。対策済:
+- `src/components/ui/Button.tsx` の `buttonVariants` base に `cursor-pointer` を追加済 → **`Button` を経由する限り自動で指カーソル**
+- raw `<button>` (Playground の snippet chip 等) を書くときは inline style / class で明示 (`cursor: "pointer"` or `cursor-pointer`)
+
+### 4. TopicNav の section 分岐は **明示列挙が必要**
+
+`src/components/layout/TopicNav.tsx` の分岐は `rdb-index / why-need-rdb / fe / (else = data-modeling)` の順で判定している。**新セクションを `sections.ts` に追加したときは必ず TopicNav に分岐追加する**。else fallback で data-modeling categories を表示してしまうバグ (「基本情報技術者試験 擬似言語 実行シミュレーター」見出しの下に正規化 / ER 図 topic がぶら下がる) を実際に踏んだ (2026-08-02)。
+
 ## Monorepo 情報 (docs/)
 
 `docs/` は `.gitignore` 済み。ローカル専用の運用メモを置く場所。GitHub には公開しない。
