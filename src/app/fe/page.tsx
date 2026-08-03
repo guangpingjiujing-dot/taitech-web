@@ -50,7 +50,15 @@ const FAQ = [
   },
 ];
 
-export default function FeTopPage() {
+export default async function FeTopPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const rawCode = sp.code;
+  const incomingCode =
+    typeof rawCode === "string" && rawCode.length > 0 ? rawCode : undefined;
   return (
     <div className="py-8 lg:py-12">
       <FePlaygroundJsonLd
@@ -83,7 +91,7 @@ export default function FeTopPage() {
           </div>
         </header>
 
-        <Playground />
+        <Playground initialCode={incomingCode} />
 
         <section className="mt-16 max-w-3xl">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight">

@@ -70,7 +70,7 @@ export default function FunctionBody() {
         で呼び出し元に戻ると消えていくのが目で追えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
       </div>
       <p>
         出力は <code>7</code> と <code>10</code> です。
@@ -83,7 +83,7 @@ export default function FunctionBody() {
         手続きの定義では、戻り値の型を書きません。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={procCode} />
+        <Playground initialCode={procCode} showOpenInFullEditor />
       </div>
       <p>
         <code>挨拶</code> は戻り値を持たないので、
@@ -116,7 +116,7 @@ endif`}</code>
         のように「自分より 1 つ小さい問題」で表せる処理と相性が良い書き方です。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={factorialCode} />
+        <Playground initialCode={factorialCode} showOpenInFullEditor />
       </div>
       <p>
         出力は <code>120</code> (= 5! = 5×4×3×2×1) です。

@@ -68,7 +68,7 @@ export default function ArrayBody() {
         下のコードでエラーの様子を確認できます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={outOfRangeCode} />
+        <Playground initialCode={outOfRangeCode} showOpenInFullEditor />
       </div>
 
       <h2>ブラウザで動かしてみる</h2>
@@ -78,7 +78,7 @@ export default function ArrayBody() {
         <code>点数[i]</code> で 1 番目から 5 番目までを順に足していきます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
       </div>
       <p>
         出力は <code>{lesson.sampleOutput}</code> になります。
@@ -93,7 +93,7 @@ export default function ArrayBody() {
         残りの要素と比べて更新していく」典型的な最大値探索です。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={maxCode} />
+        <Playground initialCode={maxCode} showOpenInFullEditor />
       </div>
       <p>
         出力は <code>92</code> です。

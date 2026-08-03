@@ -58,7 +58,7 @@ endwhile`}</code>
         が交互に変わっていく様子を右側の表で追えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
       </div>
       <p>
         <code>n</code> を 10 や 100 に変えて再実行すると、
@@ -94,7 +94,7 @@ endwhile`}</code>
         次の例は 100 を 2 で割り続けて 1 になるまで何回かかるかを数えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={halfCode} />
+        <Playground initialCode={halfCode} showOpenInFullEditor />
       </div>
       <p>
         こういう「終了条件が動的に決まる」処理は for では書きにくく、while

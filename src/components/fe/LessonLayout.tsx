@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -44,6 +45,8 @@ export function FeLessonLayout({
 
         <div className="prose-jp mt-10 max-w-none">{children}</div>
 
+        <LessonNextActions />
+
         <PrevNextCards
           ariaLabel="前後のレッスン"
           prev={
@@ -63,5 +66,60 @@ export function FeLessonLayout({
         <MentorCTA />
       </article>
     </Container>
+  );
+}
+
+/**
+ * レッスン末尾に置く「次に何ができるか」導線カード。
+ * 読了直後の自然な次の一手を 3 択で提示する。breadcrumb と重複するが
+ * 目に入りやすい位置に置くのが目的。
+ */
+function LessonNextActions() {
+  const actions: { href: string; label: string; hint: string }[] = [
+    {
+      href: "/fe",
+      label: "実行シミュレーターへ",
+      hint: "自由にコードを書いて動かす",
+    },
+    {
+      href: "/fe/transpile",
+      label: "多言語横並び比較へ",
+      hint: "Python / TypeScript と読み比べる",
+    },
+    {
+      href: "/fe/lessons",
+      label: "レッスン一覧へ",
+      hint: "他 5 本の構文レッスンを見る",
+    },
+  ];
+  return (
+    <section
+      aria-labelledby="lesson-next-actions"
+      className="mt-12 rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
+    >
+      <h2
+        id="lesson-next-actions"
+        className="text-sm font-bold text-[var(--foreground)]"
+      >
+        自由に試したい / 他の構文も見たい
+      </h2>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+        {actions.map((a) => (
+          <li key={a.href}>
+            <Link
+              href={a.href}
+              className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+            >
+              <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                {a.label} →
+              </div>
+              <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                {a.hint}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

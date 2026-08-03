@@ -45,12 +45,19 @@ function EditorSkeleton() {
 
 export interface PlaygroundProps {
   initialCode?: string;
+  /** lesson 埋め込み用: 「このコードを実行シミュレーターで開く →」
+   *  リンクを Playground 下部に表示する。/fe 本体では既に本体なので
+   *  出す必要が無く、default は false。 */
+  showOpenInFullEditor?: boolean;
 }
 
-export function Playground({ initialCode }: PlaygroundProps) {
+export function Playground({
+  initialCode,
+  showOpenInFullEditor = false,
+}: PlaygroundProps) {
   return (
     <PlaygroundStoreProvider initialCode={initialCode ?? DEFAULT_CODE}>
-      <PlaygroundInner />
+      <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} />
     </PlaygroundStoreProvider>
   );
 }
@@ -99,7 +106,11 @@ const SNIPPETS: Snippet[] = [
   },
 ];
 
-function PlaygroundInner() {
+function PlaygroundInner({
+  showOpenInFullEditor,
+}: {
+  showOpenInFullEditor: boolean;
+}) {
   const code = usePlayground((s) => s.code);
   const setCode = usePlayground((s) => s.setCode);
   const highlight = usePlayground((s) => s.highlight);
@@ -387,6 +398,17 @@ function PlaygroundInner() {
             {transpiled}
           </pre>
         </Panel>
+      )}
+
+      {showOpenInFullEditor && (
+        <div className="mt-1 text-sm">
+          <a
+            href={`/fe?code=${encodeURIComponent(code)}`}
+            className="inline-flex items-center gap-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline underline-offset-4 decoration-[var(--border-strong)] hover:decoration-[var(--foreground)]"
+          >
+            このコードを実行シミュレーターで開く →
+          </a>
+        </div>
       )}
 
       <style>{`

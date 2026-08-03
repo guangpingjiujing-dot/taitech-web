@@ -72,7 +72,7 @@ export default function VariableBody() {
         変数の値の変化を右側の表で追えます。値を書き換えて何度も試してみてください。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
       </div>
       <p>
         実行後、右側の変数テーブルに <code>個数</code>, <code>単価</code>,{" "}
