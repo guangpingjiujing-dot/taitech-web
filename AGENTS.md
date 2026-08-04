@@ -184,6 +184,22 @@ lesson 本文 (LessonLayout の `<div className="prose-jp mt-10 max-w-none">`) �
 前例: `src/components/cta/BookSidebar.tsx` (FE の長い書名で発覚)。
 本文カラムのような広い箱では `min-w-0 flex-1 break-words` で足りる (`AffiliateBooks.tsx`)。
 
+## E2E テストの落とし穴: `getByRole("alert")` は必ず 2 件マッチする
+
+Next.js App Router は `<next-route-announcer>` というカスタム要素 (Shadow DOM) を挿入し、
+その中に `role="alert" aria-live="assertive"` の 1px 要素を置いている。
+クライアントサイド遷移でページタイトルをスクリーンリーダーに読ませるための正規の仕組みで、**バグではない**。
+
+- Playwright の `getByRole()` は **Shadow DOM を貫通する**ので、`getByRole("alert")` は
+  「自前のエラー表示 + アナウンサー」の 2 件にマッチし、strict mode 違反で落ちる
+- `document.querySelectorAll('[role="alert"]')` は Shadow DOM を見ないので 1 件しか返さない。
+  **この非対称が原因調査を混乱させる**ので先に知っておくこと
+
+```ts
+page.getByRole("alert").filter({ hasText: "行目" })          // 推奨: 中身で絞る
+page.locator('[role="alert"]:not(#__next-route-announcer__)') // 代替
+```
+
 ## Monorepo 情報 (docs/)
 
 `docs/` は `.gitignore` 済み。ローカル専用の運用メモを置く場所。GitHub には公開しない。
