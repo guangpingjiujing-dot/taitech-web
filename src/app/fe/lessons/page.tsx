@@ -86,125 +86,109 @@ export default function FeLessonsIndexPage() {
       <Container size="wide">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
           <div className="min-w-0">
-        <Breadcrumb
-          className="mb-6"
-          items={[
-            { href: "/", label: "ホーム" },
-            { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
-            { label: "構文別レッスン" },
-          ]}
-        />
+            <Breadcrumb
+              className="mb-6"
+              items={[
+                { href: "/", label: "ホーム" },
+                { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
+                { label: "構文別レッスン" },
+              ]}
+            />
 
-        <header className="mb-8 max-w-3xl">
-          <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
-            構文別レッスン一覧
-          </h1>
-          <p
-            className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
-            style={{ textWrap: "pretty" }}
-          >
-            変数・条件分岐・繰り返し・配列・関数の 6 つの構文を、埋め込みエディタで実際に動かしながら順番に学べます。
-            各レッスンは 1 本 5〜10 分で読み切れる分量です。
-          </p>
-        </header>
-
-        <ul className="grid gap-3 sm:grid-cols-2 max-w-3xl">
-          {feLessons.map((l) => (
-            <li key={l.slug}>
-              <Link
-                href={`/fe/lessons/${l.slug}`}
-                className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+            <header className="mb-8 max-w-3xl">
+              <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
+              <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
+                構文別レッスン一覧
+              </h1>
+              <p
+                className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
               >
-                <div className="text-xs text-[var(--muted-foreground)]">
-                  レッスン {l.order}
-                </div>
-                <div className="mt-1 font-semibold">{l.shortTitle}</div>
-                <p
-                  className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-                  style={{ textWrap: "pretty" }}
-                >
-                  {l.cardSummary}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                変数・条件分岐・繰り返し・配列・関数の 6 つの構文を、埋め込みエディタで実際に動かしながら順番に学べます。
+                各レッスンは 1 本 5〜10 分で読み切れる分量です。
+              </p>
+            </header>
 
-        <p
-          className="mt-10 max-w-3xl text-sm text-[var(--muted-foreground)]"
-          style={{ textWrap: "pretty" }}
-        >
-          読み終えたら
-          <Link
-            href="/fe/quiz"
-            className="underline underline-offset-4 hover:opacity-80"
-          >
-            練習問題
-          </Link>
-          で出力を当てられるか試してみてください。
-          エディタで自由にコードを書いて試したい場合は、
-          <Link
-            href={sectionMeta.path}
-            className="underline underline-offset-4 hover:opacity-80"
-          >
-            実行シミュレーター
-          </Link>
-          へ。Python / TypeScript に並べて比較したい場合は
-          <Link
-            href="/fe/transpile"
-            className="underline underline-offset-4 hover:opacity-80"
-          >
-            多言語横並び比較ツール
-          </Link>
-          へ進んでください。
-        </p>
+            <ul className="grid gap-3 sm:grid-cols-2 max-w-3xl">
+              {feLessons.map((l) => (
+                <li key={l.slug}>
+                  <Link
+                    href={`/fe/lessons/${l.slug}`}
+                    className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                  >
+                    <div className="text-xs text-[var(--muted-foreground)]">
+                      レッスン {l.order}
+                    </div>
+                    <div className="mt-1 font-semibold">{l.shortTitle}</div>
+                    <p
+                      className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                      style={{ textWrap: "pretty" }}
+                    >
+                      {l.cardSummary}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-        <section
-          aria-labelledby="lessons-next"
-          className="mt-10 max-w-3xl rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
-        >
-          <h2 id="lessons-next" className="text-sm font-bold">
-            読んだ後にやること
-          </h2>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            <li>
-              <Link
-                href="/fe/quiz"
-                className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
-              >
-                <div className="text-sm font-semibold group-hover:underline underline-offset-4">
-                  練習問題 {feQuizzes.length} 問を解く →
-                </div>
-                <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
-                  出力を当てられるかで理解度が分かる
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={sectionMeta.path}
-                className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
-              >
-                <div className="text-sm font-semibold group-hover:underline underline-offset-4">
-                  実行シミュレーターへ →
-                </div>
-                <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
-                  自由にコードを書いて動かす
-                </div>
-              </Link>
-            </li>
-          </ul>
-        </section>
+            <section
+              aria-labelledby="lessons-next"
+              className="mt-10 max-w-3xl rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
+            >
+              <h2 id="lessons-next" className="text-sm font-bold">
+                読んだ後にやること
+              </h2>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+                <li>
+                  <Link
+                    href="/fe/quiz"
+                    className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                      練習問題 {feQuizzes.length} 問を解く →
+                    </div>
+                    <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                      出力を当てられるかで理解度が分かる
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={sectionMeta.path}
+                    className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                      実行シミュレーターへ →
+                    </div>
+                    <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                      自由にコードを書いて動かす
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/transpile"
+                    className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                      多言語横並び比較へ →
+                    </div>
+                    <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                      Python / TypeScript と読み比べる
+                    </div>
+                  </Link>
+                </li>
+              </ul>
+            </section>
 
-        <div className="max-w-3xl">
-          <AffiliateBooks
-            topicSlug="fe-lessons"
-            domain="fe"
-            limit={3}
-            heading="レッスンと並行して読む（おすすめ書籍）"
-          />
-        </div>
+            <div className="max-w-3xl">
+              <AffiliateBooks
+                topicSlug="fe-lessons"
+                domain="fe"
+                limit={3}
+                heading="レッスンと並行して読む（おすすめ書籍）"
+              />
+            </div>
           </div>
 
           <FeSidebar topicSlug="fe-lessons" />

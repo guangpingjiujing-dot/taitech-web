@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Suspense } from "react";
+import { Playground } from "@/components/fe/Playground";
 import { PlaygroundDeepLink } from "@/components/fe/PlaygroundDeepLink";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
@@ -90,11 +91,14 @@ export default function FeTopPage() {
               </div>
             </header>
 
-            {/* ?code= の読み取りはクライアント側 (PlaygroundDeepLink) に置く。
-                server の searchParams で受けるとこのページが Dynamic になる */}
-            <Suspense fallback={<div style={{ minHeight: "560px" }} />}>
-              <PlaygroundDeepLink />
-            </Suspense>
+            {/* Playground 自体は SSR して prerender HTML に markup を残す。
+                ?code= / ?from= の読み取りだけを Suspense 配下の client に閉じ込める
+                (server の searchParams で受けるとこのページが Dynamic になる) */}
+            <Playground>
+              <Suspense fallback={null}>
+                <PlaygroundDeepLink />
+              </Suspense>
+            </Playground>
 
             <section className="mt-16 max-w-3xl">
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight">

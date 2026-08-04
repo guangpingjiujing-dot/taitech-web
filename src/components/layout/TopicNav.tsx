@@ -75,6 +75,17 @@ export function TopicNav({
               items: dataModelingTopicsIn(c.key),
             }));
 
+  /** ハードコードで並べている固定リンク (ツール / 旗艦ページ) 用の現在地判定 */
+  const linkClass = (href: string, base: string) =>
+    cn(
+      base,
+      href === currentPath
+        ? "border-[var(--foreground)] bg-[var(--muted)]/60"
+        : "border-transparent",
+    );
+  const current = (href: string) =>
+    href === currentPath ? ("page" as const) : undefined;
+
   const otherSections: SectionKey[] = (
     Object.keys(sections) as SectionKey[]
   ).filter((k) => k !== section);
@@ -91,7 +102,11 @@ export function TopicNav({
               <li>
                 <Link
                   href="/data-modeling/er-diagram"
-                  className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  className={linkClass(
+                    "/data-modeling/er-diagram",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/data-modeling/er-diagram")}
                 >
                   <div className="font-semibold group-hover:underline underline-offset-4">
                     変なER図
@@ -106,7 +121,11 @@ export function TopicNav({
               <li>
                 <Link
                   href="/why-need-rdb"
-                  className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  className={linkClass(
+                    "/why-need-rdb",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/why-need-rdb")}
                 >
                   <div className="font-semibold group-hover:underline underline-offset-4">
                     壊れた Excel
@@ -122,7 +141,11 @@ export function TopicNav({
                 <li>
                   <Link
                     href="/fe"
-                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                    className={linkClass(
+                    "/fe",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe")}
                   >
                     <div className="font-semibold group-hover:underline underline-offset-4">
                       実行シミュレーター
@@ -135,7 +158,11 @@ export function TopicNav({
                 <li>
                   <Link
                     href="/fe/transpile"
-                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                    className={linkClass(
+                    "/fe/transpile",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/transpile")}
                   >
                     <div className="font-semibold group-hover:underline underline-offset-4">
                       多言語横並び比較
@@ -151,7 +178,11 @@ export function TopicNav({
               <li>
                 <Link
                   href="/fe/lessons"
-                  className="block border-l-2 -ml-px border-transparent px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  className={linkClass(
+                    "/fe/lessons",
+                    "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/lessons")}
                 >
                   レッスン一覧
                 </Link>
@@ -161,7 +192,11 @@ export function TopicNav({
               <li>
                 <Link
                   href="/fe/quiz"
-                  className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  className={linkClass(
+                    "/fe/quiz",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/quiz")}
                 >
                   <div className="font-semibold group-hover:underline underline-offset-4">
                     練習問題をすべて見る

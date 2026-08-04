@@ -18,8 +18,8 @@ import {
 import { Button } from "@/components/ui/Button";
 
 const EDITOR_HEIGHT = "460px";
-/** モバイル (≤900px) では変数ペインが画面内に入らなくなるので低くする */
-const EDITOR_HEIGHT_MOBILE = "260px";
+// モバイル (≤900px) の高さは globals.css の .fe-playground-grid 側で
+// --fe-editor-height を上書きして与える (ここでは持たない)
 
 const PseudoEditor = dynamic(
   () => import("./PseudoEditor").then((m) => m.PseudoEditor),
@@ -55,15 +55,20 @@ export interface PlaygroundProps {
   /** 読み物に埋め込むときの縮小版。テンプレート挿入ツールバーを畳む
    *  (レッスン中に「テンプレートを挿入」は使われず、縦幅とノイズだけ増える) */
   compact?: boolean;
+  /** ストアの中に差し込む要素。`?code=` の適用など store を触るものを置く。
+   *  Playground 本体より前に描画される */
+  children?: React.ReactNode;
 }
 
 export function Playground({
   initialCode,
   showOpenInFullEditor = false,
   compact = false,
+  children,
 }: PlaygroundProps) {
   return (
     <PlaygroundStoreProvider initialCode={initialCode ?? DEFAULT_CODE}>
+      {children}
       <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} compact={compact} />
     </PlaygroundStoreProvider>
   );

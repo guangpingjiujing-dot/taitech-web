@@ -522,6 +522,60 @@ test("FE Quiz: progress is remembered on the index page", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("FE Quiz: deep link opens the code in the simulator and can come back", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await gotoQuiz(page, "/fe/quiz/array-one-based");
+  await answerQuiz(page, "イ 40\n60");
+
+  const deepLink = page.getByRole("link", { name: /実行シミュレーターで開く/ });
+  // 同一内容の query 違いをクロールさせない
+  await expect(deepLink).toHaveAttribute("rel", "nofollow");
+  await deepLink.click();
+
+  await page.waitForURL(/\/fe\?code=/);
+  // 問題のコードがエディタに入っていること
+  await expect(page.locator(".cm-content")).toContainText("整数型の配列: 得点");
+  // 戻り導線が出ていること
+  const back = page.getByRole("link", { name: "← 元のページに戻る" });
+  await expect(back).toBeVisible();
+  await back.click();
+  await expect(page).toHaveURL(/\/fe\/quiz\/array-one-based$/);
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Quiz: 一覧が基礎 / 本番相当の 2 層に分かれている", async ({ page }) => {
+  await page.goto("/fe/quiz", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: /基礎 — 構文が読めれば解ける/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /本番相当 — 科目 B と同じ土俵/ }),
+  ).toBeVisible();
+  // 母数が読み取れること
+  await expect(page.getByText("第 1 問 / 全 20 問").first()).toBeVisible();
+});
+
+test("FE: FAQ が JSON-LD だけでなくページ上にも出ている", async ({ page }) => {
+  for (const path of ["/fe", "/fe/lessons/array"]) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    const faq = page.locator('[data-speakable="faq"]');
+    await expect(faq, `${path} に可視 FAQ が無い`).toHaveCount(1);
+    await expect(faq).toBeVisible();
+  }
+});
+
+test("FE: 1024px 未満のトップからでも FE に到達できる", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  // hidden な aside の中ではなく、実際に見えているリンクだけを数える
+  const visible = page.locator('a[href^="/fe"]:visible');
+  expect(await visible.count()).toBeGreaterThan(0);
+});
+
 test("FE pages show FE affiliate books with the required disclosure", async ({
   page,
 }) => {
