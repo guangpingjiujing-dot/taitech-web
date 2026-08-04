@@ -162,6 +162,28 @@ lesson 本文 (LessonLayout の `<div className="prose-jp mt-10 max-w-none">`) �
 
 `src/components/layout/TopicNav.tsx` の分岐は `rdb-index / why-need-rdb / fe / (else = data-modeling)` の順で判定している。**新セクションを `sections.ts` に追加したときは必ず TopicNav に分岐追加する**。else fallback で data-modeling categories を表示してしまうバグ (「基本情報技術者試験 擬似言語 実行シミュレーター」見出しの下に正規化 / ER 図 topic がぶら下がる) を実際に踏んだ (2026-08-02)。
 
+### 5. `word-break: keep-all` で CJK が狭いカラムからはみ出す
+
+`src/app/globals.css` は body / prose に `word-break: keep-all` + `overflow-wrap: break-word` を効かせている
+(日本語を語中で切らないため)。この組み合わせには落とし穴がある:
+
+- `keep-all` により **CJK の連続は改行候補にならない** → その要素の min-content 幅 = 文字列の全長
+- `overflow-wrap: break-word` は**溢れたときに折るだけで min-content 幅を縮めない** → flex / grid item は
+  `min-width: auto` で min-content まで広がり、**カラムを突き破る**
+
+サイドバー (15rem) など狭い箱に長い日本語 (書名・トピック名) を入れるときは、`break-words` では足りない。
+
+```html
+<!-- ❌ 15rem のカードからはみ出す -->
+<div class="break-words">基本情報技術者【科目B】ゼロからわかるアルゴリズムと擬似言語</div>
+
+<!-- ⭕ min-content を縮める overflow-wrap: anywhere を使う -->
+<div class="min-w-0 [overflow-wrap:anywhere]">…</div>
+```
+
+前例: `src/components/cta/BookSidebar.tsx` (FE の長い書名で発覚)。
+本文カラムのような広い箱では `min-w-0 flex-1 break-words` で足りる (`AffiliateBooks.tsx`)。
+
 ## Monorepo 情報 (docs/)
 
 `docs/` は `.gitignore` 済み。ローカル専用の運用メモを置く場所。GitHub には公開しない。
@@ -177,7 +199,10 @@ lesson 本文 (LessonLayout の `<div className="prose-jp mt-10 max-w-none">`) �
 7. `docs/er-diagram/`: 変なER図 (ER 図カテゴリ) の設計と実装ログ。
    本セクションを触るときは `03-implementation-status.md` を一次情報に。
    00-02 は初期設計時のスナップショットで stale (top に警告あり)
-8. `analytics/reports/*.md`: GA4/GSC の月次データレビュー
+8. `docs/fe-playground/`: 基本情報技術者試験 擬似言語カテゴリ (`/fe/*`) の設計と実装ログ。
+   **`03-implementation-status.md` が一次情報**、練習問題の作問方針は `04-quiz-design.md`。
+   01-02 は実装前のスナップショットで stale (top に警告あり)
+9. `analytics/reports/*.md`: GA4/GSC の月次データレビュー
 
 # Qiita 記事のドラフト依頼
 

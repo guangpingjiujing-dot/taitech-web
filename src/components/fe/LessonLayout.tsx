@@ -6,11 +6,14 @@ import { MentorCTA } from "@/components/cta/MentorCTA";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { FeSidebar } from "@/components/fe/FeSidebar";
 import { sections } from "@/content/sections";
 import {
   feLessonNeighbors,
   type FeLessonMeta,
+  type FeLessonSlug,
 } from "@/content/fe/lessons";
+import { feQuizzesForLesson } from "@/content/fe/quiz";
 
 const sectionMeta = sections.fe;
 
@@ -25,57 +28,77 @@ export function FeLessonLayout({
 
   return (
     <Container size="wide" className="py-8 md:py-12">
-      <article className="mx-auto max-w-3xl">
-        <Breadcrumb
-          className="mb-6"
-          items={[
-            { href: "/", label: "ホーム" },
-            { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
-            { href: "/fe/lessons", label: "構文別レッスン" },
-            { label: lesson.shortTitle },
-          ]}
-        />
+      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+        <article className="mx-auto w-full min-w-0 max-w-3xl lg:mx-0">
+          <Breadcrumb
+            className="mb-6"
+            items={[
+              { href: "/", label: "ホーム" },
+              { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
+              { href: "/fe/lessons", label: "構文別レッスン" },
+              { label: lesson.shortTitle },
+            ]}
+          />
 
-        <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
-        <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
-          {lesson.title}
-        </h1>
+          <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
+          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
+            {lesson.title}
+          </h1>
 
-        <DefinitionBox className="mt-6">{lesson.definition}</DefinitionBox>
+          <DefinitionBox className="mt-6">{lesson.definition}</DefinitionBox>
 
-        <div className="prose-jp mt-10 max-w-none">{children}</div>
+          <div className="prose-jp mt-10 max-w-none">{children}</div>
 
-        <LessonNextActions />
+          <LessonNextActions lessonSlug={lesson.slug} />
 
-        <PrevNextCards
-          ariaLabel="前後のレッスン"
-          prev={
-            prev
-              ? { href: `/fe/lessons/${prev.slug}`, shortTitle: prev.shortTitle }
-              : null
-          }
-          next={
-            next
-              ? { href: `/fe/lessons/${next.slug}`, shortTitle: next.shortTitle }
-              : null
-          }
-        />
+          <PrevNextCards
+            ariaLabel="前後のレッスン"
+            prev={
+              prev
+                ? { href: `/fe/lessons/${prev.slug}`, shortTitle: prev.shortTitle }
+                : null
+            }
+            next={
+              next
+                ? { href: `/fe/lessons/${next.slug}`, shortTitle: next.shortTitle }
+                : null
+            }
+          />
 
-        <AffiliateBooks topicSlug={`fe-${lesson.slug}`} />
+          <AffiliateBooks
+            topicSlug={`fe-${lesson.slug}`}
+            domain="fe"
+            limit={3}
+            heading="この構文をもっと練習する（おすすめ書籍）"
+          />
 
-        <MentorCTA />
-      </article>
+          <MentorCTA />
+        </article>
+
+        <FeSidebar topicSlug={`fe-${lesson.slug}`} />
+      </div>
     </Container>
   );
 }
 
 /**
  * レッスン末尾に置く「次に何ができるか」導線カード。
- * 読了直後の自然な次の一手を 3 択で提示する。breadcrumb と重複するが
+ * 読了直後の自然な次の一手を提示する。breadcrumb と重複するが
  * 目に入りやすい位置に置くのが目的。
+ * 該当構文の練習問題がある場合は、それを先頭に置く (理解 → 確認の順)。
  */
-function LessonNextActions() {
+function LessonNextActions({ lessonSlug }: { lessonSlug: FeLessonSlug }) {
+  const quiz = feQuizzesForLesson(lessonSlug)[0];
   const actions: { href: string; label: string; hint: string }[] = [
+    ...(quiz
+      ? [
+          {
+            href: `/fe/quiz/${quiz.slug}`,
+            label: "練習問題を解く",
+            hint: `「${quiz.shortTitle}」で理解を確認する`,
+          },
+        ]
+      : []),
     {
       href: "/fe",
       label: "実行シミュレーターへ",
@@ -101,9 +124,9 @@ function LessonNextActions() {
         id="lesson-next-actions"
         className="text-sm font-bold text-[var(--foreground)]"
       >
-        自由に試したい / 他の構文も見たい
+        理解できたか試す / 自由に動かす
       </h2>
-      <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {actions.map((a) => (
           <li key={a.href}>
             <Link

@@ -1,0 +1,181 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
+import { QuizProgressSummary, QuizStatusBadge } from "@/components/fe/QuizProgress";
+import { sections } from "@/content/sections";
+import { site } from "@/lib/site";
+import { feQuizzes } from "@/content/fe/quiz";
+import { findFeLesson } from "@/content/fe/lessons";
+
+const PAGE_TITLE = "基本情報 擬似言語 練習問題（科目B オリジナル 10 問）｜taitech.dev";
+const PAGE_DESCRIPTION =
+  "基本情報技術者試験 (FE) 科目 B の擬似言語をトレースして答えるオリジナル練習問題 10 問。変数・条件分岐・while・for・配列・関数の頻出パターンを 4 択で確認し、解説と実行シミュレーターで答え合わせまでできる無料教材。";
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: "/fe/quiz" },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: "/fe/quiz",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+  },
+};
+
+const sectionMeta = sections.fe;
+
+export default function FeQuizIndexPage() {
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "基本情報 擬似言語 練習問題",
+    url: `${site.url}/fe/quiz`,
+    description: PAGE_DESCRIPTION,
+    inLanguage: "ja-JP",
+    isPartOf: {
+      "@type": "CollectionPage",
+      name: sectionMeta.label,
+      url: `${site.url}${sectionMeta.path}`,
+    },
+    hasPart: feQuizzes.map((q) => ({
+      "@type": "Quiz",
+      name: q.title,
+      url: `${site.url}/fe/quiz/${q.slug}`,
+      abstract: q.description,
+    })),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: sectionMeta.shortLabel,
+        item: `${site.url}${sectionMeta.path}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "練習問題",
+        item: `${site.url}/fe/quiz`,
+      },
+    ],
+  };
+
+  return (
+    <div className="py-8 lg:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <Container size="wide">
+        <Breadcrumb
+          className="mb-6"
+          items={[
+            { href: "/", label: "ホーム" },
+            { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
+            { label: "練習問題" },
+          ]}
+        />
+
+        <header className="mb-8 max-w-3xl">
+          <Eyebrow>基本情報技術者試験 (FE) 科目 B — 擬似言語</Eyebrow>
+          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
+            擬似言語 練習問題 {feQuizzes.length} 問
+          </h1>
+          <p
+            className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
+            style={{ textWrap: "pretty" }}
+          >
+            コードを目で追って出力を答える 4 択問題です。1 問ずつ独立しているので、
+            気になる構文から解いて構いません。答え合わせをすると解説と、
+            そのコードを実行シミュレーターで動かすリンクが出ます。
+          </p>
+          <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+            すべてオリジナル問題です（IPA 公式過去問の転載はしていません）。
+          </p>
+          <QuizProgressSummary total={feQuizzes.length} />
+        </header>
+
+        <ul className="grid gap-3 sm:grid-cols-2 max-w-3xl">
+          {feQuizzes.map((q) => {
+            const lesson = findFeLesson(q.lesson);
+            return (
+              <li key={q.slug}>
+                <Link
+                  href={`/fe/quiz/${q.slug}`}
+                  className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[var(--muted-foreground)]">
+                      第 {q.order} 問
+                    </span>
+                    <span className="text-xs text-[var(--muted-foreground)]">
+                      / {q.kind === "trace" ? "出力を答える" : "空欄補充"}
+                    </span>
+                    <QuizStatusBadge slug={q.slug} />
+                  </div>
+                  <div className="mt-1 font-semibold">{q.shortTitle}</div>
+                  <p
+                    className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                    style={{ textWrap: "pretty" }}
+                  >
+                    {q.challenge}
+                  </p>
+                  {lesson && (
+                    <div className="mt-3 text-[11px] text-[var(--muted-foreground)]">
+                      関連レッスン: {lesson.shortTitle}
+                    </div>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        <p
+          className="mt-10 max-w-3xl text-sm text-[var(--muted-foreground)]"
+          style={{ textWrap: "pretty" }}
+        >
+          解けなかった構文は
+          <Link
+            href="/fe/lessons"
+            className="underline underline-offset-4 hover:opacity-80"
+          >
+            構文別レッスン
+          </Link>
+          に戻って読み直すのが近道です。自分でコードを書き換えて確かめたい場合は
+          <Link
+            href={sectionMeta.path}
+            className="underline underline-offset-4 hover:opacity-80"
+          >
+            実行シミュレーター
+          </Link>
+          へ。
+        </p>
+
+        <div className="max-w-3xl">
+          <AffiliateBooks
+            topicSlug="fe-quiz"
+            domain="fe"
+            heading="もっと問題を解きたい方へ（おすすめ書籍）"
+          />
+        </div>
+      </Container>
+    </div>
+  );
+}

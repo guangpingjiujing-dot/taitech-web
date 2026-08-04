@@ -130,6 +130,14 @@ export default function FeLessonsIndexPage() {
           className="mt-10 max-w-3xl text-sm text-[var(--muted-foreground)]"
           style={{ textWrap: "pretty" }}
         >
+          読み終えたら
+          <Link
+            href="/fe/quiz"
+            className="underline underline-offset-4 hover:opacity-80"
+          >
+            練習問題
+          </Link>
+          で出力を当てられるか試してみてください。
           エディタで自由にコードを書いて試したい場合は、
           <Link
             href={sectionMeta.path}

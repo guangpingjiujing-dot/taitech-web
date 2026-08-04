@@ -5,6 +5,7 @@ import {
   whyNeedRdbTopics,
 } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
+import { feQuizzes } from "@/content/fe/quiz";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
 
@@ -130,6 +131,19 @@ export function TopicNav({
                     </div>
                     <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                       Python / TypeScript と読み比べる
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/quiz"
+                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                  >
+                    <div className="font-semibold group-hover:underline underline-offset-4">
+                      練習問題 {feQuizzes.length} 問
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                      出力を当てられるか試す
                     </div>
                   </Link>
                 </li>

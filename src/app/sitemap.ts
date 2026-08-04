@@ -3,6 +3,7 @@ import { site } from "@/lib/site";
 import { topics } from "@/content/topics";
 import { sections, dataModelingCategories } from "@/content/sections";
 import { feLessons } from "@/content/fe/lessons";
+import { feQuizzes } from "@/content/fe/quiz";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -14,6 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/fe/transpile",
     "/fe/lessons",
     ...feLessons.map((l) => `/fe/lessons/${l.slug}`),
+    "/fe/quiz",
+    ...feQuizzes.map((q) => `/fe/quiz/${q.slug}`),
   ];
 
   const priorityFor = (p: string): number => {

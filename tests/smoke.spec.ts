@@ -49,6 +49,17 @@ const PAGES = [
   "/fe/lessons/for",
   "/fe/lessons/array",
   "/fe/lessons/function",
+  "/fe/quiz",
+  "/fe/quiz/assign-swap",
+  "/fe/quiz/operator-precedence",
+  "/fe/quiz/elseif-first-match",
+  "/fe/quiz/boundary-operator",
+  "/fe/quiz/while-loop-count",
+  "/fe/quiz/while-exact-repeat",
+  "/fe/quiz/for-loop-step",
+  "/fe/quiz/array-one-based",
+  "/fe/quiz/array-reverse-scan",
+  "/fe/quiz/function-return-flow",
   "/privacy",
   "/terms",
   "/contact",
@@ -433,4 +444,94 @@ test("FE Transpile page: side-by-side view renders Python and TypeScript", async
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
+/**
+ * 選択肢のクリックはハイドレーション前だと React の state に届かず、
+ * 「答え合わせ」が disabled のままになる (負荷が高いと再現する)。
+ * ボタンが enabled になるまでクリックを再試行してから押す。
+ */
+async function answerQuiz(page: Page, choiceText: string) {
+  const submit = page.getByRole("button", { name: "答え合わせ" });
+  await expect(async () => {
+    await page.getByText(choiceText, { exact: true }).first().click();
+    await expect(submit).toBeEnabled({ timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+  await submit.click();
+}
 
+/** 解答系のテストは JS が要るので、バンドル取得まで待ってから触る */
+async function gotoQuiz(page: Page, path: string) {
+  await page.goto(path, { waitUntil: "networkidle" });
+}
+
+test("FE Quiz: correct answer reveals the explanation", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await gotoQuiz(page, "/fe/quiz/array-one-based");
+
+  // 解答前は解説が見えていないこと (DOM には存在する = SEO 用)
+  const explanation = page.getByRole("heading", { name: "解説" });
+  await expect(explanation).toBeHidden();
+  await expect(page.getByRole("button", { name: "答え合わせ" })).toBeDisabled();
+
+  // 正解 (イ) を選んで答え合わせ
+  await answerQuiz(page, "40\n60");
+
+  await expect(page.getByRole("status")).toHaveText("正解");
+  await expect(explanation).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /実行シミュレーターで開く/ }),
+  ).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Quiz: wrong answer shows the correct choice and can be retried", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await gotoQuiz(page, "/fe/quiz/for-loop-step");
+
+  // 誤答 (ア = 6) を選ぶ。正解は ウ = 12
+  await answerQuiz(page, "6");
+  await expect(page.getByRole("status")).toHaveText("不正解 — 正解は ウ");
+  await expect(page.getByRole("heading", { name: "解説" })).toBeVisible();
+
+  await page.getByRole("button", { name: "もう一度考える" }).click();
+  await expect(page.getByRole("heading", { name: "解説" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "答え合わせ" })).toBeDisabled();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE Quiz: progress is remembered on the index page", async ({ page }) => {
+  await gotoQuiz(page, "/fe/quiz/assign-swap");
+  await answerQuiz(page, "8\n8");
+  await expect(page.getByRole("status")).toHaveText("正解");
+
+  await gotoQuiz(page, "/fe/quiz");
+  await expect(page.getByRole("status")).toContainText("1 問正解");
+  await expect(
+    page.getByRole("link", { name: /変数の入れ替え/ }).getByText("正解"),
+  ).toBeVisible();
+});
+
+test("FE pages show FE affiliate books with the required disclosure", async ({
+  page,
+}) => {
+  for (const path of ["/fe", "/fe/transpile", "/fe/lessons/array"]) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    const links = page.locator('a[href*="amazon.co.jp"]');
+    const count = await links.count();
+    expect(count, `${path} should link to at least one book`).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const href = await links.nth(i).getAttribute("href");
+      // Amazon アソシエイト ID が落ちていないこと (AGENTS.md ガードレール)
+      expect(href, path).toContain("tag=taitech-22");
+    }
+    // 景表法 / Amazon 運営規約で必須の明示
+    await expect(
+      page.getByText("本セクションはAmazonアソシエイトのリンクを含みます。"),
+    ).toBeVisible();
+    // RDB 向けの書籍が FE ページに混ざっていないこと
+    await expect(page.getByText("達人に学ぶDB設計徹底指南書")).toHaveCount(0);
+  }
+});

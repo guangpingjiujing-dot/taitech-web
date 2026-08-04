@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type SeriesKey = "why-need-rdb" | "rdb-index" | "normalization" | "er-diagram";
+type SeriesKey =
+  | "why-need-rdb"
+  | "rdb-index"
+  | "normalization"
+  | "er-diagram"
+  | "fe";
 
 type Series = {
   key: SeriesKey;
@@ -29,6 +34,11 @@ const SERIES: Series[] = [
     key: "er-diagram",
     label: "変なER図",
     href: "/data-modeling/er-diagram",
+  },
+  {
+    key: "fe",
+    label: "基本情報 擬似言語",
+    href: "/fe",
   },
 ];
 

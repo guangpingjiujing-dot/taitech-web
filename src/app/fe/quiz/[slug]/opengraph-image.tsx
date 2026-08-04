@@ -1,13 +1,13 @@
 import { ImageResponse } from "next/og";
-import { feLessons, findFeLesson } from "@/content/fe/lessons";
+import { feQuizzes, findFeQuiz } from "@/content/fe/quiz";
 import { ogSafePseudoCode } from "@/lib/og/pseudo-code";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "基本情報 擬似言語 構文別レッスン";
+export const alt = "基本情報 擬似言語 練習問題";
 
 export function generateStaticParams() {
-  return feLessons.map((l) => ({ slug: l.slug }));
+  return feQuizzes.map((q) => ({ slug: q.slug }));
 }
 
 export default async function OGImage({
@@ -16,11 +16,11 @@ export default async function OGImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const lesson = findFeLesson(slug);
-  const title = lesson?.shortTitle ?? "構文別レッスン";
-  const codePreview = ogSafePseudoCode(lesson?.sampleCode ?? "")
+  const quiz = findFeQuiz(slug);
+  const title = quiz?.shortTitle ?? "練習問題";
+  const codePreview = ogSafePseudoCode(quiz?.code ?? "")
     .split("\n")
-    .slice(0, 6)
+    .slice(0, 7)
     .filter((l) => l.length > 0);
 
   return new ImageResponse(
@@ -34,7 +34,7 @@ export default async function OGImage({
           fontFamily: "sans-serif",
         }}
       >
-        {/* Left: title + label */}
+        {/* Left: question label + title */}
         <div
           style={{
             width: "52%",
@@ -55,7 +55,7 @@ export default async function OGImage({
               textTransform: "uppercase",
             }}
           >
-            FE · 科目 B · Lesson {lesson?.order ?? ""}
+            FE · 科目 B · Quiz {quiz?.order ?? ""}
           </div>
           <div
             style={{
@@ -79,7 +79,9 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            基本情報 擬似言語 構文別レッスン
+            {quiz?.kind === "fill"
+              ? "空欄に入る記述はどれか"
+              : "このコードの出力はどれか"}
           </div>
           <div
             style={{
@@ -91,10 +93,10 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            taitech.dev / fe / lessons / {slug}
+            taitech.dev / fe / quiz / {slug}
           </div>
         </div>
-        {/* Right: sample code */}
+        {/* Right: the question code */}
         <div
           style={{
             width: "48%",

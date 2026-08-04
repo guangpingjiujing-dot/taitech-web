@@ -1,14 +1,24 @@
-import { booksForTopic } from "@/content/books";
+import { booksForTopic, type BookDomain } from "@/content/books";
 import { AmazonLink } from "@/components/cta/AmazonLink";
 
-export function AffiliateBooks({ topicSlug }: { topicSlug: string }) {
-  const items = booksForTopic(topicSlug);
+export function AffiliateBooks({
+  topicSlug,
+  domain = "rdb",
+  limit,
+  heading = "もっと学びたい方へ（おすすめ書籍）",
+}: {
+  topicSlug: string;
+  domain?: BookDomain;
+  limit?: number;
+  heading?: string;
+}) {
+  const items = booksForTopic(topicSlug, { domain, limit });
   if (items.length === 0) return null;
 
   return (
     <section className="mt-16">
       <h2 className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
-        もっと学びたい方へ（おすすめ書籍）
+        {heading}
       </h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((b) => (

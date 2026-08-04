@@ -552,6 +552,116 @@ export function FeLessonJsonLd({
   );
 }
 
+/**
+ * 練習問題 1 問分の JSON-LD。schema.org の Quiz (Education Q&A) は
+ * 「1 つの Question に acceptedAnswer + suggestedAnswer 群」という形を取る。
+ * 解説は正解 Answer の comment に載せる。
+ */
+export function FeQuizJsonLd({
+  path,
+  name,
+  description,
+  keywords,
+  breadcrumb,
+  question,
+  choices,
+  answer,
+  explanation,
+  educationalAlignment,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  keywords: string[];
+  breadcrumb: { name: string; item: string }[];
+  question: string;
+  choices: { id: string; text: string }[];
+  answer: string;
+  explanation: string;
+  /** 関連する構文別レッスンの表示名 */
+  educationalAlignment: string;
+}) {
+  const url = `${site.url}${path}`;
+  const accepted = choices.find((c) => c.id === answer);
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      educationalLevel: "初学者〜基本情報技術者試験受験者",
+      educationalUse: "自習・試験対策",
+      learningResourceType: "Quiz",
+      about: { "@type": "Thing", name: educationalAlignment },
+      keywords: keywords.join(", "),
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+      dateModified: BUILD_DATE,
+      isPartOf: {
+        "@type": "CollectionPage",
+        name: sections.fe.label,
+        url: `${site.url}${sections.fe.path}`,
+      },
+      hasPart: [
+        {
+          "@type": "Question",
+          eduQuestionType: "Multiple choice",
+          name: question,
+          text: question,
+          answerCount: 1,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `${answer} ${accepted?.text ?? ""}`.trim(),
+            inLanguage: "ja-JP",
+            comment: { "@type": "Comment", text: explanation },
+            author: AUTHOR_PERSON,
+          },
+          suggestedAnswer: choices
+            .filter((c) => c.id !== answer)
+            .map((c) => ({
+              "@type": "Answer",
+              text: `${c.id} ${c.text}`,
+              inLanguage: "ja-JP",
+            })),
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      author: AUTHOR_PERSON,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumb.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.name,
+        item: b.item,
+      })),
+    },
+  ];
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
 export function TopicJsonLd({
   section,
   slug,

@@ -3,10 +3,13 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Playground } from "@/components/fe/Playground";
+import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
+import { FeSidebar } from "@/components/fe/FeSidebar";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { feLessons } from "@/content/fe/lessons";
+import { feQuizzes } from "@/content/fe/quiz";
 
 const sectionMeta = sections.fe;
 
@@ -72,161 +75,217 @@ export default async function FeTopPage({
         faq={FAQ}
       />
       <Container size="wide">
-        <header className="mb-6">
-          <Eyebrow>基本情報技術者試験</Eyebrow>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
-            擬似言語をブラウザで動かせる 実行シミュレーター
-          </h1>
-          <div
-            className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
-            style={{ textWrap: "pretty" }}
-          >
-            <p>科目B (プログラミング問題) の擬似言語をその場で書いて実行できます。</p>
-            <p>
-              一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられます。
-            </p>
-            <p className="text-xs text-[var(--muted-foreground)]">
-              IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
-            </p>
-          </div>
-        </header>
+        <div className="grid gap-8 xl:gap-10 xl:grid-cols-[minmax(0,1fr)_15rem]">
+          <div className="min-w-0">
+            <header className="mb-6">
+              <Eyebrow>基本情報技術者試験</Eyebrow>
+              <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                擬似言語をブラウザで動かせる 実行シミュレーター
+              </h1>
+              <div
+                className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
+                style={{ textWrap: "pretty" }}
+              >
+                <p>科目B (プログラミング問題) の擬似言語をその場で書いて実行できます。</p>
+                <p>
+                  一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられます。
+                </p>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
+                </p>
+              </div>
+            </header>
 
-        <Playground initialCode={incomingCode} />
+            <Playground initialCode={incomingCode} />
 
-        <section className="mt-16 max-w-3xl">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-            擬似言語 (基本情報 科目B) とは
-          </h2>
-          <div
-            className="mt-4 space-y-4 text-[var(--foreground)] leading-relaxed"
-            style={{ textWrap: "pretty" }}
-          >
-            <p>
-              基本情報技術者試験の科目 B では、特定のプログラミング言語ではなく、IPA
-              が定義した独自の「擬似言語」でアルゴリズムが出題されます。
-            </p>
-            <p>
-              C や Java のような厳密な文法ではなく、日本語混じりの読みやすい記法で書かれます。
-              初学者でも「何をしているか」を追いやすいのが特徴です。
-            </p>
-            <p>
-              しかし紙面で追うだけでは、変数の値がどう変化するか、ループが何回まわるか、
-              関数呼び出しでスタックがどう積まれるか、といった<strong>動的な挙動</strong>が掴みにくい面があります。
-            </p>
-            <p>
-              このツールはその「動き」を可視化して、擬似言語のコードが実行時に何をしているかを直感的に理解するためのものです。
-            </p>
-          </div>
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                擬似言語 (基本情報 科目B) とは
+              </h2>
+              <div
+                className="mt-4 space-y-4 text-[var(--foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
+              >
+                <p>
+                  基本情報技術者試験の科目 B では、特定のプログラミング言語ではなく、IPA
+                  が定義した独自の「擬似言語」でアルゴリズムが出題されます。
+                </p>
+                <p>
+                  C や Java のような厳密な文法ではなく、日本語混じりの読みやすい記法で書かれます。
+                  初学者でも「何をしているか」を追いやすいのが特徴です。
+                </p>
+                <p>
+                  しかし紙面で追うだけでは、変数の値がどう変化するか、ループが何回まわるか、
+                  関数呼び出しでスタックがどう積まれるか、といった<strong>動的な挙動</strong>が掴みにくい面があります。
+                </p>
+                <p>
+                  このツールはその「動き」を可視化して、擬似言語のコードが実行時に何をしているかを直感的に理解するためのものです。
+                </p>
+              </div>
 
-          <h3 className="mt-10 text-lg font-bold tracking-tight">
-            主要構文の全体像
-          </h3>
-          <p
-            className="mt-2 text-sm text-[var(--muted-foreground)]"
-            style={{ textWrap: "pretty" }}
-          >
-            IPA 公式仕様書の表記に沿った、主要な構文をまとめます。
-          </p>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-[var(--border)] text-left text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-                  <th className="py-2 pr-3 font-semibold">構文</th>
-                  <th className="py-2 pr-3 font-semibold">記述例</th>
-                  <th className="py-2 font-semibold">意味</th>
-                </tr>
-              </thead>
-              <tbody className="align-top">
-                {SYNTAX_TABLE.map((row) => (
-                  <tr
-                    key={row.name}
-                    className="border-b border-[var(--border)]"
-                  >
-                    <td className="py-2 pr-3 whitespace-nowrap font-semibold">
-                      {row.name}
-                    </td>
-                    <td className="py-2 pr-3">
-                      <code className="whitespace-pre-wrap rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                        {row.example}
-                      </code>
-                    </td>
-                    <td
-                      className="py-2 text-[var(--muted-foreground)]"
-                      style={{ textWrap: "pretty" }}
+              <h3 className="mt-10 text-lg font-bold tracking-tight">
+                主要構文の全体像
+              </h3>
+              <p
+                className="mt-2 text-sm text-[var(--muted-foreground)]"
+                style={{ textWrap: "pretty" }}
+              >
+                IPA 公式仕様書の表記に沿った、主要な構文をまとめます。
+              </p>
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--border)] text-left text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
+                      <th className="py-2 pr-3 font-semibold">構文</th>
+                      <th className="py-2 pr-3 font-semibold">記述例</th>
+                      <th className="py-2 font-semibold">意味</th>
+                    </tr>
+                  </thead>
+                  <tbody className="align-top">
+                    {SYNTAX_TABLE.map((row) => (
+                      <tr
+                        key={row.name}
+                        className="border-b border-[var(--border)]"
+                      >
+                        <td className="py-2 pr-3 whitespace-nowrap font-semibold">
+                          {row.name}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <code className="whitespace-pre-wrap rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
+                            {row.example}
+                          </code>
+                        </td>
+                        <td
+                          className="py-2 text-[var(--muted-foreground)]"
+                          style={{ textWrap: "pretty" }}
+                        >
+                          {row.meaning}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p
+                className="mt-4 text-sm text-[var(--muted-foreground)]"
+                style={{ textWrap: "pretty" }}
+              >
+                配列は必ず 1 番目から始まります (0 始まりではありません)。
+                Python / TypeScript に変換する際は自動的に <code>-1</code>{" "}
+                が付与され、注釈コメントも生成されるので違いを直感的に確認できます。
+              </p>
+            </section>
+
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                もっと詳しく — 構文別レッスン
+              </h2>
+              <p className="mt-3 text-sm text-[var(--muted-foreground)]">
+                各構文の詳しい解説と、埋め込みエディタで動かせる例題を用意しています。
+              </p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {feLessons.map((l) => (
+                  <li key={l.slug}>
+                    <Link
+                      href={`/fe/lessons/${l.slug}`}
+                      className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
                     >
-                      {row.meaning}
-                    </td>
-                  </tr>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        レッスン {l.order}
+                      </div>
+                      <div className="mt-1 font-semibold">{l.shortTitle}</div>
+                      <p
+                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                        style={{ textWrap: "pretty" }}
+                      >
+                        {l.description}
+                      </p>
+                    </Link>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-          <p
-            className="mt-4 text-sm text-[var(--muted-foreground)]"
-            style={{ textWrap: "pretty" }}
-          >
-            配列は必ず 1 番目から始まります (0 始まりではありません)。
-            Python / TypeScript に変換する際は自動的に <code>-1</code>{" "}
-            が付与され、注釈コメントも生成されるので違いを直感的に確認できます。
-          </p>
-        </section>
-
-        <section className="mt-16 max-w-3xl">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-            もっと詳しく — 構文別レッスン
-          </h2>
-          <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-            各構文の詳しい解説と、埋め込みエディタで動かせる例題を用意しています。
-          </p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {feLessons.map((l) => (
-              <li key={l.slug}>
+              </ul>
+              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
                 <Link
-                  href={`/fe/lessons/${l.slug}`}
-                  className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                  href="/fe/lessons"
+                  className="underline underline-offset-4 hover:opacity-80"
                 >
-                  <div className="text-xs text-[var(--muted-foreground)]">
-                    レッスン {l.order}
-                  </div>
-                  <div className="mt-1 font-semibold">{l.shortTitle}</div>
-                  <p
-                    className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-                    style={{ textWrap: "pretty" }}
-                  >
-                    {l.description}
-                  </p>
+                  レッスン一覧を開く →
                 </Link>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 text-sm text-[var(--muted-foreground)]">
-            <Link
-              href="/fe/lessons"
-              className="underline underline-offset-4 hover:opacity-80"
-            >
-              レッスン一覧を開く →
-            </Link>
-          </p>
-        </section>
+              </p>
+            </section>
 
-        <section className="mt-16 max-w-3xl">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-            さらに深く比較したい
-          </h2>
-          <p
-            className="mt-3 text-sm text-[var(--foreground)] leading-relaxed"
-            style={{ textWrap: "pretty" }}
-          >
-            擬似言語と Python / TypeScript を並べて読み比べたい場合は、
-            <Link
-              href="/fe/transpile"
-              className="underline underline-offset-4 hover:opacity-80"
-            >
-              多言語横並び比較ツール
-            </Link>
-            を用意しています。3 言語同時ビューで、構文ごとの差分を目で追えます。
-          </p>
-        </section>
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                読めるようになったら — 練習問題 {feQuizzes.length} 問
+              </h2>
+              <p
+                className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
+              >
+                コードを目で追って出力を答える 4 択のオリジナル問題です。
+                解答すると解説と、そのコードを実行シミュレーターで開くリンクが出ます。
+              </p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {feQuizzes.slice(0, 4).map((q) => (
+                  <li key={q.slug}>
+                    <Link
+                      href={`/fe/quiz/${q.slug}`}
+                      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                    >
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        第 {q.order} 問
+                      </div>
+                      <div className="mt-1 font-semibold">{q.shortTitle}</div>
+                      <p
+                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                        style={{ textWrap: "pretty" }}
+                      >
+                        {q.challenge}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
+                <Link
+                  href="/fe/quiz"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  練習問題一覧を開く（全 {feQuizzes.length} 問）→
+                </Link>
+              </p>
+            </section>
+
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                さらに深く比較したい
+              </h2>
+              <p
+                className="mt-3 text-sm text-[var(--foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
+              >
+                擬似言語と Python / TypeScript を並べて読み比べたい場合は、
+                <Link
+                  href="/fe/transpile"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  多言語横並び比較ツール
+                </Link>
+                を用意しています。3 言語同時ビューで、構文ごとの差分を目で追えます。
+              </p>
+            </section>
+
+            <div className="max-w-3xl">
+              <AffiliateBooks
+                topicSlug="fe-playground"
+                domain="fe"
+                heading="試験対策に使える書籍"
+              />
+            </div>
+          </div>
+
+          <FeSidebar topicSlug="fe-playground" from="xl" />
+        </div>
       </Container>
     </div>
   );
