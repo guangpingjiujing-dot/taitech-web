@@ -152,7 +152,11 @@ function PlaygroundInner({
         : transpileToTypeScript(ast);
     } catch (e) {
       if (e instanceof PseudoLexError || e instanceof PseudoParseError) {
-        return `// 変換できません (構文エラー)\n// ${e.message}`;
+        // message は複数行 (ヒント付き) になりうるので全行をコメント化する
+        return `// 変換できません (構文エラー)\n${e.message
+          .split("\n")
+          .map((l) => `// ${l}`)
+          .join("\n")}`;
       }
       return `// 変換に失敗しました`;
     }

@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest";
 import { tokenize } from "./lexer";
 import { PseudoLexError } from "./errors";
 
+/** tokenize が投げた PseudoLexError を返す。投げなければテストを失敗させる */
+function lexErr(source: string): PseudoLexError {
+  try {
+    tokenize(source);
+  } catch (e) {
+    if (e instanceof PseudoLexError) return e;
+    throw e;
+  }
+  throw new Error(`tokenize(${JSON.stringify(source)}) did not throw`);
+}
+
 describe("lexer", () => {
   it("tokenizes integer literals with position", () => {
     const tokens = tokenize("42");
@@ -138,6 +149,49 @@ describe("lexer", () => {
       "EOF",
     ]);
     expect(t[2].value).toBe("合計");
+  });
+
+  it("rejects hiragana identifiers with a dedicated message", () => {
+    const err = lexErr("文字列型： あいさつ");
+    // 名前全体を名指しし、カタカナ化した候補まで出す
+    expect(err.message).toContain("ひらがなは使えません: 'あいさつ'");
+    expect(err.message).toContain("'あいさつ' → 'アイサツ'");
+    // 位置は違反文字ではなく名前の先頭を指す
+    expect(err.pos).toEqual({ line: 1, column: 7 });
+  });
+
+  it("points at the head of a mixed kanji+hiragana identifier", () => {
+    const err = lexErr("挨拶する ← 1");
+    expect(err.message).toContain("ひらがなは使えません: '挨拶する'");
+    // 混在名は送り仮名を落とす。'挨拶スル' のような機械的カタカナ化はしない
+    expect(err.message).toContain("'挨拶する' → '挨拶'");
+    expect(err.pos).toEqual({ line: 1, column: 1 });
+  });
+
+  it("omits the example when the rewrite would not be a valid identifier", () => {
+    // 後方スキャンが数字まで遡るため word は '1あ'。'1' は識別子として不正
+    const err = lexErr("1あ");
+    expect(err.message).toContain("ひらがなは使えません: '1あ'");
+    expect(err.message).not.toContain("→");
+  });
+
+  it("does not flag hiragana inside string literals or comments", () => {
+    expect(() =>
+      tokenize(
+        [
+          '文字列型: 挨拶 ← "こんにちは"',
+          "// ここに説明を書く",
+          "/* あいさつを表示する */",
+          "print(挨拶)",
+        ].join("\n"),
+      ),
+    ).not.toThrow();
+  });
+
+  it("keeps the generic message for non-hiragana unexpected chars", () => {
+    expect(() => tokenize("x ← @")).toThrow(/予期しない文字 '@' です/);
+    // 濁点単体 ゛(U+309B) は「ひらがな」とは呼ばない
+    expect(() => tokenize("x ← ゛")).toThrow(/予期しない文字 '゛' です/);
   });
 
   it("recognises ○ marker for function/procedure", () => {

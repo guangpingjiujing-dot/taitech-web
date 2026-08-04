@@ -177,7 +177,7 @@ class Parser {
   private parseBinding(): { name: string; init: Expr | null } {
     const nameTk = this.expect(
       "IDENT",
-      "変数名は英字/アンダースコアで始まる ASCII 名か、漢字/カタカナで書きます。",
+      "変数名は英字/アンダースコアで始まる ASCII 名か、漢字/カタカナで書きます (ひらがなは「を」「から」等のキーワードと衝突するため使えません)。",
     );
     let init: Expr | null = null;
     if (this.match("ASSIGN")) {

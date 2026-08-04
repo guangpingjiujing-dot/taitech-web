@@ -2,10 +2,13 @@ import type { Position } from "./ast";
 
 export class PseudoLexError extends Error {
   readonly pos: Position;
-  constructor(message: string, pos: Position) {
-    super(`${pos.line}行目 ${pos.column}文字目: ${message}`);
+  readonly hint: string | undefined;
+  constructor(message: string, pos: Position, hint?: string) {
+    const hintText = hint ? `\nヒント: ${hint}` : "";
+    super(`${pos.line}行目 ${pos.column}文字目: ${message}${hintText}`);
     this.name = "PseudoLexError";
     this.pos = pos;
+    this.hint = hint;
   }
 }
 

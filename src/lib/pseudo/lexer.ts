@@ -129,6 +129,44 @@ function isJpIdentCont(ch: string): boolean {
   return isKanjiOrKatakana(ch) || isDigit(ch);
 }
 
+// ひらがなは識別子に使えない。`を` `から` `まで` `ずつ` がキーワードなので、
+// 許すと `カウンタを1から3まで1ずつ増やす` が丸ごと 1 識別子に食われる。
+// 素の「予期しない文字」では原因が伝わらないため、専用メッセージを出す。
+function isHiragana(ch: string): boolean {
+  const code = ch.codePointAt(0) ?? 0;
+  // ぁ(3041)〜ゖ(3096) のみ。゛゜ (309b-309c) や ゟ (309f) は
+  // 「ひらがな」と呼ぶと不正確なので generic なエラーに流す
+  return code >= 0x3041 && code <= 0x3096;
+}
+
+function isNameChar(ch: string): boolean {
+  return isHiragana(ch) || isKanjiOrKatakana(ch) || isAsciiIdentCont(ch);
+}
+
+function toKatakana(s: string): string {
+  return s.replace(/[ぁ-ゖ]/g, (c) =>
+    String.fromCodePoint((c.codePointAt(0) ?? 0) + 0x60),
+  );
+}
+
+function isValidIdent(s: string): boolean {
+  if (s.length === 0) return false;
+  const head = s[0];
+  if (!isAsciiIdentStart(head) && !isJpIdentStart(head)) return false;
+  return [...s].every((c) => isAsciiIdentCont(c) || isJpIdentCont(c));
+}
+
+// 書き換え候補。全部ひらがななら音をカタカナに移し (あいさつ → アイサツ)、
+// 漢字混じりなら送り仮名を落とす (挨拶する → 挨拶)。混在名を機械的に
+// カタカナ化すると「挨拶スル」のような不自然な日本語になるため。
+function suggestName(word: string): string | null {
+  const suggestion = /^[ぁ-ゖ]+$/.test(word)
+    ? toKatakana(word)
+    : word.replace(/[ぁ-ゖ]/g, "");
+  if (suggestion === word || !isValidIdent(suggestion)) return null;
+  return suggestion;
+}
+
 export function tokenize(source: string): Token[] {
   const tokens: Token[] = [];
   let i = 0;
@@ -331,6 +369,24 @@ export function tokenize(source: string): Token[] {
       const value = source.slice(start, i);
       tokens.push({ kind: "IDENT", value, pos: startPos });
       continue;
+    }
+
+    // ひらがな: 名前全体を切り出して「ひらがなは使えない」と名指しする。
+    // `挨拶する` のように途中から始まる場合もあるので前方向にも遡る。
+    if (isHiragana(ch)) {
+      let s = i;
+      while (s > 0 && isNameChar(source[s - 1])) s--;
+      let e = i;
+      while (e < source.length && isNameChar(source[e])) e++;
+      const word = source.slice(s, e);
+      const suggestion = suggestName(word);
+      throw new PseudoLexError(
+        `変数名・関数名にひらがなは使えません: '${word}'`,
+        { line, column: column - (i - s) },
+        `「を」「から」「まで」「ずつ」がキーワードなので、ひらがなの名前は区別できません。` +
+          `カタカナ・漢字・英字に書き換えてください` +
+          (suggestion ? `。例: '${word}' → '${suggestion}'` : "。"),
+      );
     }
 
     throw new PseudoLexError(
