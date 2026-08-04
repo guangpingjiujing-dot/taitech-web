@@ -40,3 +40,51 @@ export function recordFeQuizResult(slug: string, result: FeQuizResult): void {
     // 保存できなくても解答体験は継続させる
   }
 }
+
+/* ---------------------------------------------------------------------------
+   購読用のミニストア
+
+   一覧ページではバッジが 20 個並ぶ。各々が localStorage を読んでリスナーを
+   張ると 20 回の read と 40 個のリスナーになるので、スナップショットを 1 つに
+   まとめて useSyncExternalStore から共有する。
+--------------------------------------------------------------------------- */
+
+let snapshot: FeQuizProgress = {};
+let loaded = false;
+const listeners = new Set<() => void>();
+const EMPTY: FeQuizProgress = {};
+
+function refresh() {
+  snapshot = readFeQuizProgress();
+  loaded = true;
+  for (const l of listeners) l();
+}
+
+export function subscribeFeQuizProgress(onChange: () => void): () => void {
+  if (listeners.size === 0) {
+    refresh();
+    window.addEventListener(FE_QUIZ_PROGRESS_EVENT, refresh);
+    window.addEventListener("storage", refresh);
+  } else if (!loaded) {
+    refresh();
+  }
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+    if (listeners.size === 0) {
+      window.removeEventListener(FE_QUIZ_PROGRESS_EVENT, refresh);
+      window.removeEventListener("storage", refresh);
+      loaded = false;
+    }
+  };
+}
+
+/** クライアント用スナップショット。同一参照を返さないと無限ループになる */
+export function getFeQuizProgressSnapshot(): FeQuizProgress {
+  return loaded ? snapshot : EMPTY;
+}
+
+/** SSR / ハイドレーション時は常に空 (localStorage を読めないため) */
+export function getFeQuizProgressServerSnapshot(): FeQuizProgress {
+  return EMPTY;
+}

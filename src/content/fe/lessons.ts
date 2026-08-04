@@ -14,6 +14,8 @@ export interface FeLessonMeta {
   title: string;
   shortTitle: string;
   description: string;
+  /** 一覧カード用の 1 行要約。description (meta 用) の使い回しだと同じ書き出しが 6 枚並ぶ */
+  cardSummary: string;
   definition: string;
   keywords: string[];
   sampleCode: string;
@@ -28,6 +30,7 @@ export const feLessons: readonly FeLessonMeta[] = [
     shortTitle: "変数と型",
     description:
       "基本情報 (FE) 科目 B の擬似言語における変数宣言と型の書き方。整数型・実数型・文字列型・論理型と代入 (←) の使い方をブラウザで実行しながら学ぶ。",
+    cardSummary: "整数型・実数型・文字列型・論理型の宣言と、← による代入",
     definition:
       "擬似言語の変数は「型: 名前 ← 初期値」の形で宣言する。← は代入を表し、右辺の値を左辺の変数に入れる。宣言と初期化はまとめて一行に書ける。",
     keywords: [
@@ -56,6 +59,7 @@ print(合計)
     shortTitle: "条件分岐 (if)",
     description:
       "基本情報 (FE) 科目 B で出題される if / elseif / else / endif の書き方。条件式のカッコ、複数条件の組み立て方をブラウザで動かしながら理解する。",
+    cardSummary: "条件式のカッコ、elseif の評価順、endif の必要性",
     definition:
       "擬似言語の条件分岐は if (条件) から始まり、endif で閉じる。else if (中間分岐) は elseif、else (それ以外) は else を挟む。条件式は必ず () で囲む。",
     keywords: [
@@ -86,6 +90,7 @@ endif
     shortTitle: "繰り返し (while)",
     description:
       "基本情報 (FE) 科目 B で頻出の while ループ。条件が真の間くり返す構文と、ループ変数を必ず更新して無限ループを避ける書き方を、実行して確かめながら学ぶ。",
+    cardSummary: "条件が真の間くり返す。無限ループを避けるための更新",
     definition:
       "while (条件) から endwhile までを、条件が真である間くり返す。ループ本体で条件に絡む変数を更新しないと、条件は永遠に真のままとなり無限ループになる。",
     keywords: [
@@ -116,6 +121,7 @@ print(合計)
     shortTitle: "繰り返し (for)",
     description:
       "基本情報 (FE) 科目 B の擬似言語独自の「for (i を 1 から n まで 1 ずつ増やす)」構文。始まりと終わりを含むかどうか、減らす方向、境界条件をブラウザで動かして確認する。",
+    cardSummary: "「〜から〜まで〜ずつ増やす」。終了値を含む閉区間",
     definition:
       "for (変数 を 開始 から 終了 まで 増分 ずつ 増やす / 減らす) から endfor までを、変数が終了値になるまでくり返す。開始値も終了値も含む閉区間で、Python の range とは境界の扱いが違う。",
     keywords: [
@@ -144,6 +150,7 @@ print(合計)
     shortTitle: "配列 (1 始まり)",
     description:
       "基本情報 (FE) 科目 B の擬似言語における配列の宣言・要素アクセス・繰り返しでの走査。添字が 1 から始まる仕様に注意し、Python / TypeScript との違いをブラウザで確認する。",
+    cardSummary: "添字が 1 始まりの理由と、for との組み合わせ方",
     definition:
       "擬似言語の配列は「型の配列: 名前 ← {要素1, 要素2, ...}」で宣言する。添字は 1 から始まり、arr[1] が先頭要素、arr[要素数] が末尾要素になる。0 番目の要素は存在しない。",
     keywords: [
@@ -171,6 +178,7 @@ print(合計)
     shortTitle: "関数と手続き",
     description:
       "基本情報 (FE) 科目 B の擬似言語における関数 / 手続き定義。○ から始まる書き方、引数の宣言、return による戻り値の返し方を、ブラウザで実行しながら理解する。",
+    cardSummary: "○ で始まる定義、引数の宣言、return の戻り方",
     definition:
       "擬似言語の関数定義は ○ から始まる。戻り値を持つ関数は「○戻り値型: 名前(引数の型: 引数名, ...)」、戻り値のない手続きは「○名前(引数の型: 引数名, ...)」と書く。return で呼び出し元に値を返す。",
     keywords: [

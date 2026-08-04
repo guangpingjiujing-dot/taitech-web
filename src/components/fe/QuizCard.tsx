@@ -145,7 +145,10 @@ export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
         <div className="mt-6 flex flex-wrap gap-3">
           <Button asChild size="sm">
             <Link
-              href={`/fe?code=${encodeURIComponent(feQuizRunnableCode(quiz))}`}
+              href={`/fe?code=${encodeURIComponent(
+                feQuizRunnableCode(quiz),
+              )}&from=${encodeURIComponent(`/fe/quiz/${quiz.slug}`)}`}
+              rel="nofollow"
             >
               このコードを実行シミュレーターで開く →
             </Link>

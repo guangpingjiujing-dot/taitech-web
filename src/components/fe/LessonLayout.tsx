@@ -6,9 +6,11 @@ import { MentorCTA } from "@/components/cta/MentorCTA";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { FAQ } from "@/components/layout/FAQ";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 import { sections } from "@/content/sections";
 import {
+  feLessons,
   feLessonNeighbors,
   type FeLessonMeta,
   type FeLessonSlug,
@@ -19,9 +21,12 @@ const sectionMeta = sections.fe;
 
 export function FeLessonLayout({
   lesson,
+  faq,
   children,
 }: {
   lesson: FeLessonMeta;
+  /** JSON-LD の FAQPage と同じ内容。可視でも必ず出す (Google のガイドライン要件) */
+  faq?: { q: string; a: string }[];
   children: React.ReactNode;
 }) {
   const { prev, next } = feLessonNeighbors(lesson.slug);
@@ -49,6 +54,8 @@ export function FeLessonLayout({
 
           <div className="prose-jp mt-10 max-w-none">{children}</div>
 
+          {faq && faq.length > 0 && <FAQ items={faq} />}
+
           <LessonNextActions lessonSlug={lesson.slug} />
 
           <PrevNextCards
@@ -72,7 +79,7 @@ export function FeLessonLayout({
             heading="この構文をもっと練習する（おすすめ書籍）"
           />
 
-          <MentorCTA />
+          <MentorCTA variant="fe" />
         </article>
 
         <FeSidebar topicSlug={`fe-${lesson.slug}`} />
@@ -112,7 +119,7 @@ function LessonNextActions({ lessonSlug }: { lessonSlug: FeLessonSlug }) {
     {
       href: "/fe/lessons",
       label: "レッスン一覧へ",
-      hint: "他 5 本の構文レッスンを見る",
+      hint: `他 ${feLessons.length - 1} 本の構文レッスンを見る`,
     },
   ];
   return (

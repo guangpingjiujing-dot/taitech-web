@@ -18,6 +18,8 @@ import {
 import { Button } from "@/components/ui/Button";
 
 const EDITOR_HEIGHT = "460px";
+/** モバイル (≤900px) では変数ペインが画面内に入らなくなるので低くする */
+const EDITOR_HEIGHT_MOBILE = "260px";
 
 const PseudoEditor = dynamic(
   () => import("./PseudoEditor").then((m) => m.PseudoEditor),
@@ -28,7 +30,7 @@ function EditorSkeleton() {
   return (
     <div
       style={{
-        height: EDITOR_HEIGHT,
+        height: "var(--fe-editor-height)",
         border: "1px solid var(--color-border, #e5e7eb)",
         borderRadius: "8px",
         background: "var(--color-muted, #f9fafb)",
@@ -50,15 +52,19 @@ export interface PlaygroundProps {
    *  リンクを Playground 下部に表示する。/fe 本体では既に本体なので
    *  出す必要が無く、default は false。 */
   showOpenInFullEditor?: boolean;
+  /** 読み物に埋め込むときの縮小版。テンプレート挿入ツールバーを畳む
+   *  (レッスン中に「テンプレートを挿入」は使われず、縦幅とノイズだけ増える) */
+  compact?: boolean;
 }
 
 export function Playground({
   initialCode,
   showOpenInFullEditor = false,
+  compact = false,
 }: PlaygroundProps) {
   return (
     <PlaygroundStoreProvider initialCode={initialCode ?? DEFAULT_CODE}>
-      <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} />
+      <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} compact={compact} />
     </PlaygroundStoreProvider>
   );
 }
@@ -109,8 +115,10 @@ const SNIPPETS: Snippet[] = [
 
 function PlaygroundInner({
   showOpenInFullEditor,
+  compact,
 }: {
   showOpenInFullEditor: boolean;
+  compact: boolean;
 }) {
   const code = usePlayground((s) => s.code);
   const setCode = usePlayground((s) => s.setCode);
@@ -155,11 +163,12 @@ function PlaygroundInner({
       <div
         className="fe-playground-grid"
         style={{
+          ["--fe-editor-height" as string]: EDITOR_HEIGHT,
           display: "grid",
           columnGap: "16px",
           rowGap: "8px",
           gridTemplateColumns: "minmax(0, 1fr) 320px",
-          gridTemplateRows: `auto ${EDITOR_HEIGHT}`,
+          gridTemplateRows: "auto var(--fe-editor-height)",
           alignItems: "stretch",
         }}
       >
@@ -170,15 +179,23 @@ function PlaygroundInner({
           <div>
             <StatusBadge status={status} />
           </div>
-          <span
+          {!compact && (
+            <span
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--color-muted-foreground, #6b7280)",
+              }}
+            >
+              テンプレートを挿入
+            </span>
+          )}
+          <div
             style={{
-              fontSize: "0.75rem",
-              color: "var(--color-muted-foreground, #6b7280)",
+              display: compact ? "none" : "flex",
+              gap: "4px",
+              flexWrap: "wrap",
             }}
           >
-            テンプレートを挿入
-          </span>
-          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
             {SNIPPETS.map((s) => (
               <button
                 key={s.label}
@@ -205,6 +222,7 @@ function PlaygroundInner({
             ので、右ツールバーは alignSelf: end で下寄せにして変数ペインとの
             隙間を最小化する */}
         <div
+          className="fe-playground-controls"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -257,7 +275,7 @@ function PlaygroundInner({
           onChange={setCode}
           highlightLine={highlight.line}
           highlightVersion={highlight.version}
-          height={EDITOR_HEIGHT}
+          height="var(--fe-editor-height)"
           onReady={({ insertText: insert }) => {
             editorInsertRef.current = insert;
           }}
@@ -361,20 +379,23 @@ function PlaygroundInner({
           </Panel>
 
           <Panel title="出力" height="160px">
-            {output.length === 0 ? (
-              <Empty>まだ出力はありません (print で表示します)</Empty>
-            ) : (
-              <pre
-                style={{
-                  margin: 0,
-                  fontFamily: "var(--font-geist-mono), monospace",
-                  fontSize: "0.9rem",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {output.map((o) => o.text).join("\n")}
-              </pre>
-            )}
+            {/* ステップ実行で増える出力を読み上げに通知する */}
+            <div aria-live="polite" aria-atomic="false">
+              {output.length === 0 ? (
+                <Empty>まだ出力はありません (print で表示します)</Empty>
+              ) : (
+                <pre
+                  style={{
+                    margin: 0,
+                    fontFamily: "var(--font-geist-mono), monospace",
+                    fontSize: "0.9rem",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {output.map((o) => o.text).join("\n")}
+                </pre>
+              )}
+            </div>
           </Panel>
         </div>
       </div>
@@ -417,23 +438,16 @@ function PlaygroundInner({
              * 黒地に黒文字 + 下線になるのを回避 */
             className="text-[var(--primary-foreground)]! no-underline! hover:no-underline!"
           >
-            <Link href={`/fe?code=${encodeURIComponent(code)}`}>
+            <Link
+              href={`/fe?code=${encodeURIComponent(code)}`}
+              rel="nofollow"
+            >
               このコードを実行シミュレーターで開く →
             </Link>
           </Button>
         </div>
       )}
 
-      <style>{`
-        @media (max-width: 900px) {
-          .fe-playground-grid {
-            /* モバイルは 1 カラム縦積み: 左ツールバー → 右ツールバー →
-               エディタ → 右パネル の順に並ぶ。row 2 の固定高さも解除 */
-            grid-template-columns: minmax(0, 1fr) !important;
-            grid-template-rows: auto !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

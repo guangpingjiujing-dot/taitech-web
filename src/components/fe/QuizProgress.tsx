@@ -1,36 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
-  FE_QUIZ_PROGRESS_EVENT,
-  readFeQuizProgress,
+  getFeQuizProgressServerSnapshot,
+  getFeQuizProgressSnapshot,
+  subscribeFeQuizProgress,
   type FeQuizProgress,
 } from "@/lib/fe/quizProgress";
 
-/** localStorage の進捗を購読する。SSR / マウント前は必ず空を返す */
-function useFeQuizProgress(): { progress: FeQuizProgress; mounted: boolean } {
-  const [progress, setProgress] = useState<FeQuizProgress>({});
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const sync = () => setProgress(readFeQuizProgress());
-    sync();
-    setMounted(true);
-    window.addEventListener(FE_QUIZ_PROGRESS_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(FE_QUIZ_PROGRESS_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-
-  return { progress, mounted };
+/**
+ * localStorage の進捗を購読する。
+ * 一覧では 20 個のバッジが同時にマウントされるので、
+ * 読み取りとリスナーは `quizProgress.ts` のストアに 1 本化している。
+ * SSR とハイドレーション直後は必ず空を返す (mismatch 防止)。
+ */
+function useFeQuizProgress(): FeQuizProgress {
+  return useSyncExternalStore(
+    subscribeFeQuizProgress,
+    getFeQuizProgressSnapshot,
+    getFeQuizProgressServerSnapshot,
+  );
 }
 
 export function QuizStatusBadge({ slug }: { slug: string }) {
-  const { progress, mounted } = useFeQuizProgress();
-  const result = progress[slug];
-  if (!mounted || !result) return null;
+  const result = useFeQuizProgress()[slug];
+  if (!result) return null;
   return (
     <span
       className={
@@ -45,8 +39,7 @@ export function QuizStatusBadge({ slug }: { slug: string }) {
 }
 
 export function QuizProgressSummary({ total }: { total: number }) {
-  const { progress, mounted } = useFeQuizProgress();
-  if (!mounted) return null;
+  const progress = useFeQuizProgress();
   const answered = Object.keys(progress).length;
   if (answered === 0) return null;
   const correct = Object.values(progress).filter((r) => r === "correct").length;

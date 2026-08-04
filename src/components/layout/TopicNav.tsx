@@ -23,11 +23,15 @@ type Group = {
 
 export function TopicNav({
   section,
-  currentSlug,
+  currentPath,
   hideOtherSection = false,
 }: {
   section: SectionKey;
-  currentSlug?: string;
+  /**
+   * 現在の pathname。項目の path と突き合わせて現在地をハイライトする。
+   * slug 比較にすると topics レジストリを持たない FE で常に外れるので path で比較する。
+   */
+  currentPath?: string;
   /** true にすると末尾の「他のシリーズ」ブロックを描画しない (Hub で両セクションを並べる時に使う) */
   hideOtherSection?: boolean;
 }) {
@@ -48,6 +52,8 @@ export function TopicNav({
           ]
         : section === "fe"
           ? [
+              // ツールと読み物を同じ見出しの下に混ぜない (ツールが「構文別レッスン」配下に見えてしまう)
+              { key: "fe-tools", label: "ツール", items: [] },
               {
                 key: "fe-lessons",
                 label: "構文別レッスン",
@@ -56,6 +62,11 @@ export function TopicNav({
                   path: `/fe/lessons/${l.slug}`,
                   shortTitle: l.shortTitle,
                 })),
+              },
+              {
+                key: "fe-quiz",
+                label: `練習問題 ${feQuizzes.length} 問`,
+                items: [],
               },
             ]
           : Object.values(dataModelingCategories).map((c) => ({
@@ -106,7 +117,7 @@ export function TopicNav({
                 </Link>
               </li>
             )}
-            {g.key === "fe-lessons" && (
+            {g.key === "fe-tools" && (
               <>
                 <li>
                   <Link
@@ -134,23 +145,35 @@ export function TopicNav({
                     </div>
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/fe/quiz"
-                    className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
-                  >
-                    <div className="font-semibold group-hover:underline underline-offset-4">
-                      練習問題 {feQuizzes.length} 問
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
-                      出力を当てられるか試す
-                    </div>
-                  </Link>
-                </li>
               </>
             )}
+            {g.key === "fe-lessons" && (
+              <li>
+                <Link
+                  href="/fe/lessons"
+                  className="block border-l-2 -ml-px border-transparent px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                >
+                  レッスン一覧
+                </Link>
+              </li>
+            )}
+            {g.key === "fe-quiz" && (
+              <li>
+                <Link
+                  href="/fe/quiz"
+                  className="group block border-l-2 -ml-px border-transparent px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                >
+                  <div className="font-semibold group-hover:underline underline-offset-4">
+                    練習問題をすべて見る
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                    出力を当てられるか試す
+                  </div>
+                </Link>
+              </li>
+            )}
             {g.items.map((t) => {
-              const active = t.slug === currentSlug;
+              const active = t.path === currentPath;
               return (
                 <li key={t.slug}>
                   <Link

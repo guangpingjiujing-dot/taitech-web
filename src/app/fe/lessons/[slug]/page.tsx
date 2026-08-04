@@ -83,7 +83,7 @@ export default async function FeLessonPage({
         ]}
         faq={faq}
       />
-      <FeLessonLayout lesson={lesson}>
+      <FeLessonLayout lesson={lesson} faq={faq}>
         <Body />
       </FeLessonLayout>
     </>

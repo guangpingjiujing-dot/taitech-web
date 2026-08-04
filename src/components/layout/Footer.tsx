@@ -2,15 +2,24 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { site } from "@/lib/site";
 import { topics } from "@/content/topics";
+import { feQuizzes } from "@/content/fe/quiz";
 
 export function Footer() {
   const basics = topics.filter((t) => t.level === "basic");
   const advanced = topics.filter((t) => t.level === "advanced");
+  // FE は topics レジストリを持たないので個別に列挙する。
+  // フッターは全ページ・全ブレークポイントに出るので、モバイルから FE に入る唯一の導線でもある。
+  const feLinks = [
+    { href: "/fe", label: "実行シミュレーター" },
+    { href: "/fe/lessons", label: "構文別レッスン" },
+    { href: "/fe/quiz", label: `練習問題 ${feQuizzes.length} 問` },
+    { href: "/fe/transpile", label: "多言語横並び比較" },
+  ];
 
   return (
     <footer className="mt-24 border-t border-[var(--border)] bg-[var(--background)]">
       <Container size="wide" className="py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
             <div className="text-lg font-bold">{site.name}</div>
             <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed">
@@ -49,6 +58,23 @@ export function Footer() {
                     className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   >
                     {t.shortTitle}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
+              基本情報 擬似言語
+            </div>
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {feLinks.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  >
+                    {l.label}
                   </Link>
                 </li>
               ))}

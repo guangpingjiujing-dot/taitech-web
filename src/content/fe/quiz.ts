@@ -24,6 +24,11 @@ export interface FeQuizMeta {
   lesson: FeLessonSlug;
   /** trace = 出力を答える / fill = 空欄に入る記述を選ぶ */
   kind: "trace" | "fill";
+  /**
+   * basic = レッスンを読めば解ける基礎 / exam = 本番の科目 B 相当。
+   * 一覧で 2 層に分けて「どこから難化するか」を見せるために持つ。
+   */
+  tier: "basic" | "exam";
   title: string;
   shortTitle: string;
   description: string;
@@ -47,6 +52,7 @@ export const feQuizzes: readonly FeQuizMeta[] = [
   {
     slug: "assign-swap",
     order: 1,
+    tier: "basic",
     lesson: "variable",
     kind: "trace",
     title: "変数の入れ替えで値が消える — 基本情報 擬似言語 練習問題",
@@ -82,6 +88,7 @@ print(y)
   {
     slug: "operator-precedence",
     order: 2,
+    tier: "basic",
     lesson: "variable",
     kind: "trace",
     title: "演算子の優先順位と mod — 基本情報 擬似言語 練習問題",
@@ -115,6 +122,7 @@ print(b)
   {
     slug: "elseif-first-match",
     order: 3,
+    tier: "basic",
     lesson: "if",
     kind: "trace",
     title: "elseif はどの分岐が実行される? — 基本情報 擬似言語 練習問題",
@@ -152,6 +160,7 @@ endif
   {
     slug: "boundary-operator",
     order: 4,
+    tier: "basic",
     lesson: "if",
     kind: "fill",
     title: "「18 歳以上」を正しく書ける? 境界の比較演算子 — 基本情報 擬似言語 練習問題",
@@ -194,6 +203,7 @@ endif
   {
     slug: "while-loop-count",
     order: 5,
+    tier: "basic",
     lesson: "while",
     kind: "trace",
     title: "while を抜けた後のカウンタの値 — 基本情報 擬似言語 練習問題",
@@ -231,6 +241,7 @@ print(i)
   {
     slug: "while-exact-repeat",
     order: 6,
+    tier: "basic",
     lesson: "while",
     kind: "fill",
     title: "ちょうど 3 回繰り返す while の条件 — 基本情報 擬似言語 練習問題",
@@ -271,6 +282,7 @@ endwhile
   {
     slug: "for-loop-step",
     order: 7,
+    tier: "basic",
     lesson: "for",
     kind: "trace",
     title: "for の「〜まで」は終了値を含む? — 基本情報 擬似言語 練習問題",
@@ -305,6 +317,7 @@ print(合計)
   {
     slug: "array-one-based",
     order: 8,
+    tier: "basic",
     lesson: "array",
     kind: "trace",
     title: "配列の添字は 1 始まり — 基本情報 擬似言語 練習問題",
@@ -337,6 +350,7 @@ print(得点[3])
   {
     slug: "array-reverse-scan",
     order: 9,
+    tier: "basic",
     lesson: "array",
     kind: "fill",
     title: "配列を逆順に走査する for の書き方 — 基本情報 擬似言語 練習問題",
@@ -375,6 +389,7 @@ endfor
   {
     slug: "function-return-flow",
     order: 10,
+    tier: "basic",
     lesson: "function",
     kind: "trace",
     title: "return に到達すると関数はどうなる? — 基本情報 擬似言語 練習問題",
@@ -416,6 +431,7 @@ print(符号(0))
   {
     slug: "linked-list-traverse",
     order: 11,
+    tier: "exam",
     lesson: "while",
     kind: "trace",
     title: "配列 2 本で表した連結リストをたどる — 基本情報 擬似言語 練習問題",
@@ -452,6 +468,7 @@ endwhile
   {
     slug: "insertion-sort-inner",
     order: 12,
+    tier: "exam",
     lesson: "array",
     kind: "fill",
     title: "挿入ソートの内側ループを完成させる — 基本情報 擬似言語 練習問題",
@@ -508,6 +525,7 @@ print(数値)
   {
     slug: "stack-push-pop",
     order: 13,
+    tier: "exam",
     lesson: "array",
     kind: "trace",
     title: "配列で作ったスタックの操作列を追う — 基本情報 擬似言語 練習問題",
@@ -552,6 +570,7 @@ print(頂上)
   {
     slug: "queue-ring-buffer",
     order: 14,
+    tier: "exam",
     lesson: "array",
     kind: "trace",
     title: "リングバッファのキューで添字が一周する — 基本情報 擬似言語 練習問題",
@@ -599,6 +618,7 @@ print(個数)
   {
     slug: "selection-sort-swaps",
     order: 15,
+    tier: "exam",
     lesson: "for",
     kind: "trace",
     title: "二重ループの整列で交換は何回起きる? — 基本情報 擬似言語 練習問題",
@@ -641,6 +661,7 @@ print(交換)
   {
     slug: "merge-two-sorted",
     order: 16,
+    tier: "exam",
     lesson: "for",
     kind: "trace",
     title: "整列済みの 2 配列を先頭から併合する — 基本情報 擬似言語 練習問題",
@@ -683,6 +704,7 @@ endfor
   {
     slug: "while-search-not-found",
     order: 17,
+    tier: "exam",
     lesson: "while",
     kind: "trace",
     title: "見つからなかったときの while 探索の添字 — 基本情報 擬似言語 練習問題",
@@ -718,6 +740,7 @@ print(i)
   {
     slug: "fib-recursion",
     order: 18,
+    tier: "exam",
     lesson: "function",
     kind: "trace",
     title: "2 回自分を呼ぶ再帰関数の戻り値 — 基本情報 擬似言語 練習問題",
@@ -753,6 +776,7 @@ print(フィボ(6))
   {
     slug: "leap-year",
     order: 19,
+    tier: "exam",
     lesson: "if",
     kind: "fill",
     title: "うるう年の判定条件を組み立てる — 基本情報 擬似言語 練習問題",
@@ -801,6 +825,7 @@ print(判定(2024))
   {
     slug: "indirect-index",
     order: 20,
+    tier: "exam",
     lesson: "array",
     kind: "trace",
     title: "配列の添字に別の配列の値を使う — 基本情報 擬似言語 練習問題",
@@ -855,6 +880,10 @@ export function feQuizNeighbors(slug: string): {
     prev: idx > 0 ? feQuizzes[idx - 1] : null,
     next: idx >= 0 && idx < feQuizzes.length - 1 ? feQuizzes[idx + 1] : null,
   };
+}
+
+export function feQuizzesByTier(tier: FeQuizMeta["tier"]): FeQuizMeta[] {
+  return feQuizzes.filter((q) => q.tier === tier);
 }
 
 export function feQuizzesForLesson(lesson: FeLessonSlug): FeQuizMeta[] {

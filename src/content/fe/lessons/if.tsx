@@ -61,7 +61,7 @@ endif`}</code>
         を押していくと、どの分岐に入るかを目で追えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor compact />
       </div>
       <p>
         <code>点数</code> を 90 や 55 に書き換えて再実行すると、
@@ -100,7 +100,7 @@ endif`}</code>
         例えば「気温が 15℃ 以上かつ 30℃ 未満」は次のように書けます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={rangeCode} showOpenInFullEditor />
+        <Playground initialCode={rangeCode} showOpenInFullEditor compact />
       </div>
       <p>
         条件式は左から順に評価されます。<code>and</code> は両方が真のときだけ真、

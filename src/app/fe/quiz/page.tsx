@@ -5,14 +5,16 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { QuizProgressSummary, QuizStatusBadge } from "@/components/fe/QuizProgress";
+import { FeSidebar } from "@/components/fe/FeSidebar";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
-import { feQuizzes } from "@/content/fe/quiz";
+import { feQuizzes, feQuizzesByTier, type FeQuizMeta } from "@/content/fe/quiz";
 import { findFeLesson } from "@/content/fe/lessons";
 
-const PAGE_TITLE = "基本情報 擬似言語 練習問題（科目B オリジナル 10 問）｜taitech.dev";
-const PAGE_DESCRIPTION =
-  "基本情報技術者試験 (FE) 科目 B の擬似言語をトレースして答えるオリジナル練習問題 10 問。変数・条件分岐・while・for・配列・関数の頻出パターンを 4 択で確認し、解説と実行シミュレーターで答え合わせまでできる無料教材。";
+// 問題数はレジストリから導出する (数を直書きすると増やしたときに矛盾する)
+const QUIZ_COUNT = feQuizzes.length;
+const PAGE_TITLE = `基本情報 擬似言語 練習問題（科目B オリジナル ${QUIZ_COUNT} 問）｜taitech.dev`;
+const PAGE_DESCRIPTION = `基本情報技術者試験 (FE) 科目 B の擬似言語をトレースして答えるオリジナル練習問題 ${QUIZ_COUNT} 問。変数・条件分岐・while・for・配列・関数の頻出パターンから、連結リスト・整列・再帰といった本番相当の出題まで 4 択で確認できる。解説と実行シミュレーターで答え合わせまでできる無料教材。`;
 
 export const metadata: Metadata = {
   title: { absolute: PAGE_TITLE },
@@ -83,6 +85,8 @@ export default function FeQuizIndexPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <Container size="wide">
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+          <div className="min-w-0">
         <Breadcrumb
           className="mb-6"
           items={[
@@ -111,41 +115,24 @@ export default function FeQuizIndexPage() {
           <QuizProgressSummary total={feQuizzes.length} />
         </header>
 
-        <ul className="grid gap-3 sm:grid-cols-2 max-w-3xl">
-          {feQuizzes.map((q) => {
-            const lesson = findFeLesson(q.lesson);
-            return (
-              <li key={q.slug}>
-                <Link
-                  href={`/fe/quiz/${q.slug}`}
-                  className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-[var(--muted-foreground)]">
-                      第 {q.order} 問
-                    </span>
-                    <span className="text-xs text-[var(--muted-foreground)]">
-                      / {q.kind === "trace" ? "出力を答える" : "空欄補充"}
-                    </span>
-                    <QuizStatusBadge slug={q.slug} />
-                  </div>
-                  <div className="mt-1 font-semibold">{q.shortTitle}</div>
-                  <p
-                    className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-                    style={{ textWrap: "pretty" }}
-                  >
-                    {q.challenge}
-                  </p>
-                  {lesson && (
-                    <div className="mt-3 text-[11px] text-[var(--muted-foreground)]">
-                      関連レッスン: {lesson.shortTitle}
-                    </div>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {TIERS.map((t) => (
+          <section key={t.key} className="mt-10 first:mt-0 max-w-3xl">
+            <h2 className="text-lg font-bold tracking-tight">{t.heading}</h2>
+            <p
+              className="mt-1 text-sm text-[var(--muted-foreground)]"
+              style={{ textWrap: "pretty" }}
+            >
+              {t.lead}
+            </p>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {feQuizzesByTier(t.key).map((q) => (
+                <li key={q.slug}>
+                  <QuizIndexCard quiz={q} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
 
         <p
           className="mt-10 max-w-3xl text-sm text-[var(--muted-foreground)]"
@@ -175,7 +162,56 @@ export default function FeQuizIndexPage() {
             heading="もっと問題を解きたい方へ（おすすめ書籍）"
           />
         </div>
+          </div>
+
+          <FeSidebar topicSlug="fe-quiz" />
+        </div>
       </Container>
     </div>
+  );
+}
+
+const TIERS = [
+  {
+    key: "basic" as const,
+    heading: "基礎 — 構文が読めれば解ける",
+    lead: "構文別レッスンの内容がそのまま問われます。まずはここから。",
+  },
+  {
+    key: "exam" as const,
+    heading: "本番相当 — 科目 B と同じ土俵",
+    lead: "配列で表したデータ構造・整列・再帰など、実際の科目 B で出るパターンです。追う変数が増えるので、紙に表を書きながら解いてください。",
+  },
+];
+
+function QuizIndexCard({ quiz }: { quiz: FeQuizMeta }) {
+  const lesson = findFeLesson(quiz.lesson);
+  return (
+    <Link
+      href={`/fe/quiz/${quiz.slug}`}
+      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-[var(--muted-foreground)]">
+          第 {quiz.order} 問 / 全 {feQuizzes.length} 問
+        </span>
+        <span className="text-xs text-[var(--muted-foreground)]">
+          / {quiz.kind === "trace" ? "出力を答える" : "空欄補充"}
+        </span>
+        <QuizStatusBadge slug={quiz.slug} />
+      </div>
+      <div className="mt-1 font-semibold">{quiz.shortTitle}</div>
+      <p
+        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+        style={{ textWrap: "pretty" }}
+      >
+        {quiz.challenge}
+      </p>
+      {lesson && (
+        <div className="mt-3 text-[11px] text-[var(--muted-foreground)]">
+          関連レッスン: {lesson.shortTitle}
+        </div>
+      )}
+    </Link>
   );
 }

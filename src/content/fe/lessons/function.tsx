@@ -70,7 +70,7 @@ export default function FunctionBody() {
         で呼び出し元に戻ると消えていくのが目で追えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor compact />
       </div>
       <p>
         出力は <code>7</code> と <code>10</code> です。
@@ -83,7 +83,7 @@ export default function FunctionBody() {
         手続きの定義では、戻り値の型を書きません。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={procCode} showOpenInFullEditor />
+        <Playground initialCode={procCode} showOpenInFullEditor compact />
       </div>
       <p>
         <code>挨拶</code> は戻り値を持たないので、
@@ -116,7 +116,7 @@ endif`}</code>
         のように「自分より 1 つ小さい問題」で表せる処理と相性が良い書き方です。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={factorialCode} showOpenInFullEditor />
+        <Playground initialCode={factorialCode} showOpenInFullEditor compact />
       </div>
       <p>
         出力は <code>120</code> (= 5! = 5×4×3×2×1) です。
@@ -156,9 +156,14 @@ endif`}</code>
       <p>
         変数・条件分岐・while・for・配列・関数と、
         基本情報の擬似言語で使う主要な構文を一通り学びました。
-        次のステップはこの 3 つがおすすめです。
+        次のステップはこの 4 つがおすすめです。
       </p>
       <ul>
+        <li>
+          <Link href="/fe/quiz">練習問題</Link>{" "}
+          を解いて、コードを目で追って出力を言い当てられるか確かめる
+          (ここまで読めていれば解けるはずの基礎 10 問と、本番相当の 10 問がある)
+        </li>
         <li>
           <Link href="/fe">実行シミュレーター</Link>{" "}
           に戻り、自分でコードを書いて動かしてみる

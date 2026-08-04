@@ -3,9 +3,12 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { feLessons } from "@/content/fe/lessons";
+import { feQuizzes } from "@/content/fe/quiz";
+import { FeSidebar } from "@/components/fe/FeSidebar";
 
 const PAGE_TITLE =
   "基本情報 擬似言語 構文別レッスン一覧｜taitech.dev";
@@ -81,6 +84,8 @@ export default function FeLessonsIndexPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <Container size="wide">
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+          <div className="min-w-0">
         <Breadcrumb
           className="mb-6"
           items={[
@@ -119,7 +124,7 @@ export default function FeLessonsIndexPage() {
                   className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
                   style={{ textWrap: "pretty" }}
                 >
-                  {l.description}
+                  {l.cardSummary}
                 </p>
               </Link>
             </li>
@@ -154,6 +159,56 @@ export default function FeLessonsIndexPage() {
           </Link>
           へ進んでください。
         </p>
+
+        <section
+          aria-labelledby="lessons-next"
+          className="mt-10 max-w-3xl rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
+        >
+          <h2 id="lessons-next" className="text-sm font-bold">
+            読んだ後にやること
+          </h2>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            <li>
+              <Link
+                href="/fe/quiz"
+                className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+              >
+                <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                  練習問題 {feQuizzes.length} 問を解く →
+                </div>
+                <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                  出力を当てられるかで理解度が分かる
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={sectionMeta.path}
+                className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+              >
+                <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                  実行シミュレーターへ →
+                </div>
+                <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                  自由にコードを書いて動かす
+                </div>
+              </Link>
+            </li>
+          </ul>
+        </section>
+
+        <div className="max-w-3xl">
+          <AffiliateBooks
+            topicSlug="fe-lessons"
+            domain="fe"
+            limit={3}
+            heading="レッスンと並行して読む（おすすめ書籍）"
+          />
+        </div>
+          </div>
+
+          <FeSidebar topicSlug="fe-lessons" />
+        </div>
       </Container>
     </div>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { TranspileComparison } from "@/components/fe/TranspileComparison";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
@@ -48,9 +49,14 @@ export default function TranspilePage() {
       <Container size="wide">
         <div className="grid gap-8 2xl:gap-10 2xl:grid-cols-[minmax(0,1fr)_15rem]">
           <div className="min-w-0">
-            <div className="mb-4">
-              <BackToPlayground />
-            </div>
+            <Breadcrumb
+              className="mb-6"
+              items={[
+                { href: "/", label: "ホーム" },
+                { href: feSection.path, label: "擬似言語 実行シミュレーター" },
+                { label: "多言語横並び比較" },
+              ]}
+            />
             <header className="mb-6">
               <Eyebrow>擬似言語 → Python / TypeScript</Eyebrow>
               <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
@@ -114,26 +120,52 @@ export default function TranspilePage() {
               />
             </div>
 
-            <div className="mt-16">
-              <BackToPlayground />
-            </div>
+            <section
+              aria-labelledby="transpile-next"
+              className="mt-16 max-w-3xl rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
+            >
+              <h2 id="transpile-next" className="text-sm font-bold">
+                次に進む
+              </h2>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+                {[
+                  {
+                    href: "/fe",
+                    label: "実行シミュレーターへ",
+                    hint: "一行ずつ実行して変数を追う",
+                  },
+                  {
+                    href: "/fe/lessons",
+                    label: "構文別レッスンへ",
+                    hint: "6 本の解説を順に読む",
+                  },
+                  {
+                    href: "/fe/quiz",
+                    label: "練習問題へ",
+                    hint: "出力を当てられるか試す",
+                  },
+                ].map((a) => (
+                  <li key={a.href}>
+                    <Link
+                      href={a.href}
+                      className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
+                    >
+                      <div className="text-sm font-semibold group-hover:underline underline-offset-4">
+                        {a.label} →
+                      </div>
+                      <div className="mt-0.5 text-xs text-[var(--muted-foreground)] leading-tight">
+                        {a.hint}
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           </div>
 
           <FeSidebar topicSlug="fe-transpile" from="2xl" />
         </div>
       </Container>
     </div>
-  );
-}
-
-function BackToPlayground() {
-  return (
-    <Link
-      href="/fe"
-      className="inline-flex items-center gap-2 rounded-md border border-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)]"
-    >
-      <span aria-hidden>←</span>
-      実行シミュレーターに戻る
-    </Link>
   );
 }

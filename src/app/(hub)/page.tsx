@@ -7,6 +7,7 @@ import { HubHomeJsonLd } from "@/components/seo/JsonLd";
 import { HubTopicNav } from "@/components/layout/HubTopicNav";
 import { site } from "@/lib/site";
 import { sections } from "@/content/sections";
+import { feQuizzes } from "@/content/fe/quiz";
 
 export const metadata: Metadata = {
   title: { absolute: site.fullName },
@@ -32,7 +33,7 @@ export default function Home() {
         </aside>
         <div className="min-w-0">
           <Hero />
-          <ThreePillars />
+          <SeriesPillars />
           <MentorSection />
           <WhyThisSite />
         </div>
@@ -53,7 +54,7 @@ function Hero() {
             </h1>
             <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed">
               教科書で挫折しがちな概念を、実際に触れる図解と辞書的な厳密な定義で解説します。
-              新人エンジニアの独学から、IPAデータベーススペシャリスト対策まで、必要な深さで読める3本柱の学習サイト。
+              新人エンジニアの独学から、基本情報技術者試験・IPAデータベーススペシャリスト対策まで、必要な深さで読める4本柱の学習サイト。
               <Link
                 href="/why-need-rdb"
                 className="underline underline-offset-4 hover:text-[var(--foreground)]"
@@ -107,49 +108,59 @@ function Hero() {
 
 function HeroVisual() {
   return (
-    <div className="relative aspect-[4/3] w-full max-w-md justify-self-end">
-      <svg viewBox="0 0 480 300" className="w-full h-full" role="img" aria-label="3本柱">
+    <div className="relative aspect-[8/5] w-full max-w-md justify-self-end">
+      <svg viewBox="0 0 480 300" className="w-full h-full" role="img" aria-label="4本柱">
         <rect x="0" y="0" width="480" height="300" fill="#f2f2f0" />
-        <g transform="translate(40, 40)" fontFamily="monospace">
+        <g transform="translate(24, 40)" fontFamily="monospace">
           {/* WHY column */}
-          <rect x="0" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
-          <text x="60" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">WHY</text>
-          <line x1="14" y1="52" x2="106" y2="52" stroke="#d9d9d5" strokeWidth="1" />
-          <text x="14" y="76" fontSize="11" fontWeight="700" fill="#0a0a0a">Atomicity</text>
-          <text x="14" y="98" fontSize="11" fontWeight="700" fill="#0a0a0a">Concurrency</text>
-          <text x="14" y="120" fontSize="11" fontWeight="700" fill="#0a0a0a">Uniqueness</text>
-          <text x="14" y="142" fontSize="11" fontWeight="700" fill="#0a0a0a">FK / RI</text>
-          <text x="14" y="164" fontSize="11" fontWeight="700" fill="#0a0a0a">Durability</text>
+          <rect x="0" y="0" width="100" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="50" y="28" textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="2" fill="#6b6b68">WHY</text>
+          <line x1="12" y1="46" x2="88" y2="46" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="12" y="68" fontSize="9" fontWeight="700" fill="#0a0a0a">Atomicity</text>
+          <text x="12" y="90" fontSize="9" fontWeight="700" fill="#0a0a0a">Concurrency</text>
+          <text x="12" y="112" fontSize="9" fontWeight="700" fill="#0a0a0a">Uniqueness</text>
+          <text x="12" y="134" fontSize="9" fontWeight="700" fill="#0a0a0a">FK / RI</text>
+          <text x="12" y="156" fontSize="9" fontWeight="700" fill="#0a0a0a">Durability</text>
 
           {/* INDEX column */}
-          <rect x="140" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
-          <text x="200" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">INDEX</text>
-          <line x1="154" y1="52" x2="246" y2="52" stroke="#d9d9d5" strokeWidth="1" />
-          <text x="154" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">B-tree</text>
-          <text x="154" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Hash</text>
-          <text x="154" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">Clustered</text>
-          <text x="154" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">Composite</text>
-          <text x="154" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">Covering</text>
+          <rect x="112" y="0" width="100" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="162" y="28" textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="2" fill="#6b6b68">INDEX</text>
+          <line x1="124" y1="46" x2="200" y2="46" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="124" y="68" fontSize="10" fontWeight="700" fill="#0a0a0a">B-tree</text>
+          <text x="124" y="90" fontSize="10" fontWeight="700" fill="#0a0a0a">Hash</text>
+          <text x="124" y="112" fontSize="10" fontWeight="700" fill="#0a0a0a">Clustered</text>
+          <text x="124" y="134" fontSize="10" fontWeight="700" fill="#0a0a0a">Composite</text>
+          <text x="124" y="156" fontSize="10" fontWeight="700" fill="#0a0a0a">Covering</text>
 
           {/* MODELING column */}
-          <rect x="280" y="0" width="120" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
-          <text x="340" y="30" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="3" fill="#6b6b68">MODELING</text>
-          <line x1="294" y1="52" x2="386" y2="52" stroke="#d9d9d5" strokeWidth="1" />
-          <text x="294" y="76" fontSize="12" fontWeight="700" fill="#0a0a0a">FD</text>
-          <text x="294" y="98" fontSize="12" fontWeight="700" fill="#0a0a0a">Keys</text>
-          <text x="294" y="120" fontSize="12" fontWeight="700" fill="#0a0a0a">1NF</text>
-          <text x="294" y="142" fontSize="12" fontWeight="700" fill="#0a0a0a">2NF</text>
-          <text x="294" y="164" fontSize="12" fontWeight="700" fill="#0a0a0a">3NF</text>
+          <rect x="224" y="0" width="100" height="180" fill="#ffffff" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="274" y="28" textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="2" fill="#6b6b68">MODELING</text>
+          <line x1="236" y1="46" x2="312" y2="46" stroke="#d9d9d5" strokeWidth="1" />
+          <text x="236" y="68" fontSize="10" fontWeight="700" fill="#0a0a0a">FD</text>
+          <text x="236" y="90" fontSize="10" fontWeight="700" fill="#0a0a0a">Keys</text>
+          <text x="236" y="112" fontSize="10" fontWeight="700" fill="#0a0a0a">1NF</text>
+          <text x="236" y="134" fontSize="10" fontWeight="700" fill="#0a0a0a">2NF</text>
+          <text x="236" y="156" fontSize="10" fontWeight="700" fill="#0a0a0a">3NF</text>
+
+          {/* FE column */}
+          <rect x="336" y="0" width="100" height="180" fill="#0a0a0a" stroke="#0a0a0a" strokeWidth="1.5" />
+          <text x="386" y="28" textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="2" fill="#a3a3a0">FE / 擬似言語</text>
+          <line x1="348" y1="46" x2="424" y2="46" stroke="#3d3d3a" strokeWidth="1" />
+          <text x="348" y="68" fontSize="10" fontWeight="700" fill="#ffffff">整数型: n</text>
+          <text x="348" y="90" fontSize="10" fontWeight="700" fill="#ffffff">if / elseif</text>
+          <text x="348" y="112" fontSize="10" fontWeight="700" fill="#ffffff">while / for</text>
+          <text x="348" y="134" fontSize="10" fontWeight="700" fill="#ffffff">配列 [1..n]</text>
+          <text x="348" y="156" fontSize="10" fontWeight="700" fill="#ffffff">○関数</text>
         </g>
         <text x="240" y="250" textAnchor="middle" fontSize="11" fill="#6b6b68" fontFamily="monospace" letterSpacing="2">
-          TAITECH · 3 SERIES
+          TAITECH · 4 SERIES
         </text>
       </svg>
     </div>
   );
 }
 
-function ThreePillars() {
+function SeriesPillars() {
   const pillars = [
     {
       key: "why-need-rdb" as const,
@@ -199,15 +210,31 @@ function ThreePillars() {
         { href: "/data-modeling/normalization/why", label: "なぜ正規化が必要か" },
       ],
     },
+    {
+      key: "fe" as const,
+      seriesNumber: "SERIES 04",
+      href: sections.fe.path,
+      title: "基本情報 擬似言語 実行シミュレーター",
+      lead: "科目 B の擬似言語をブラウザで書いて動かす。一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられる。",
+      bullets: [
+        "擬似言語を一行ずつ実行して変数を可視化",
+        "構文別レッスン 6 本 (変数 / if / while / for / 配列 / 関数)",
+        `オリジナル練習問題 ${feQuizzes.length} 問 (解説つき)`,
+      ],
+      links: [
+        { href: "/fe/lessons", label: "構文別レッスン" },
+        { href: "/fe/quiz", label: "練習問題を解く" },
+      ],
+    },
   ];
 
   return (
     <section id="pillars" className="scroll-mt-16 border-b border-[var(--border)]">
       <Container size="wide" className="py-16 md:py-20">
         <h2 className="mb-10 text-2xl md:text-3xl font-bold tracking-tight">
-          3本の柱
+          4本の柱
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {pillars.map((p) => (
             <article
               key={p.key}

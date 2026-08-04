@@ -92,7 +92,7 @@ export default async function FeQuizPage({
             />
 
             <Eyebrow>
-              基本情報技術者試験 (FE) 科目 B — 練習問題 第 {quiz.order} 問
+              基本情報技術者試験 (FE) 科目 B — 練習問題 第 {quiz.order} 問 / 全 {feQuizzes.length} 問 · {quiz.tier === "basic" ? "基礎" : "本番相当"}
             </Eyebrow>
             <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
               {quiz.shortTitle}
@@ -139,7 +139,7 @@ export default async function FeQuizPage({
               heading="演習量を増やしたい方へ（おすすめ書籍）"
             />
 
-            <MentorCTA />
+            <MentorCTA variant="fe" />
           </article>
 
           <FeSidebar topicSlug="fe-quiz" />

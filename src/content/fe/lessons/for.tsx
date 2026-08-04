@@ -61,7 +61,7 @@ endfor`}</code>
         が 1, 3, 6, 10, 15 と積み上がっていくのが右側の表で追えます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor />
+        <Playground initialCode={lesson.sampleCode} showOpenInFullEditor compact />
       </div>
 
       <h2>減らす方向の for</h2>
@@ -70,7 +70,7 @@ endfor`}</code>
         <code>ずつ減らす</code> を使い、開始値を終了値より大きくします。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={decreaseCode} showOpenInFullEditor />
+        <Playground initialCode={decreaseCode} showOpenInFullEditor compact />
       </div>
       <p>
         実行すると 5, 4, 3, 2, 1 と順に出力されます。増減の方向を間違えると
@@ -85,7 +85,7 @@ endfor`}</code>
         「2 から 10 まで 2 ずつ増やす」と書けます。
       </p>
       <div className="not-prose my-6">
-        <Playground initialCode={stepTwoCode} showOpenInFullEditor />
+        <Playground initialCode={stepTwoCode} showOpenInFullEditor compact />
       </div>
       <p>
         出力は <code>30</code> (= 2+4+6+8+10) になります。

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { topics } from "@/content/topics";
 import type { SectionKey } from "@/content/sections";
 import { TopicNav } from "@/components/layout/TopicNav";
 import { cn } from "@/lib/utils";
@@ -9,7 +8,6 @@ import { cn } from "@/lib/utils";
 export function TopicNavDrawer({ section }: { section: SectionKey }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const currentSlug = topics.find((t) => t.path === pathname)?.slug;
 
   useEffect(() => {
     setOpen(false);
@@ -67,7 +65,7 @@ export function TopicNavDrawer({ section }: { section: SectionKey }) {
           aria-label="トピック一覧"
           className="relative h-full w-72 max-w-[85vw] overflow-y-auto border-r border-[var(--border)] bg-[var(--background)] p-6 shadow-xl"
         >
-          <TopicNav section={section} currentSlug={currentSlug} />
+          <TopicNav section={section} currentPath={pathname} />
         </div>
       </div>
     </>

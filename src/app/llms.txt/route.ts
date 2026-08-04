@@ -1,5 +1,7 @@
 import { site } from "@/lib/site";
 import { topicsInSection, type Topic } from "@/content/topics";
+import { feLessons } from "@/content/fe/lessons";
+import { feQuizzes } from "@/content/fe/quiz";
 import {
   sections,
   dataModelingCategories,
@@ -53,6 +55,50 @@ function renderSectionBlock(section: Section): string[] {
     );
     lines.push(``);
     return renderTopicsBlock(lines, section.key);
+  }
+
+  if (section.key === "fe") {
+    // FE は topics レジストリを持たない (lesson / quiz が独自レジストリ) ので個別に組み立てる
+    lines.push(
+      `**擬似言語 実行シミュレーター**: IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠したインタプリタをブラウザ上で動かし、コードを 1 行ずつ実行しながら変数の変化と出力を可視化できる。解析・実行・変換はすべてクライアントサイドで完結する。`,
+    );
+    lines.push(``);
+    lines.push(`### ツール`);
+    lines.push(``);
+    lines.push(
+      `- [擬似言語 実行シミュレーター](${site.url}/fe): 擬似言語を書いて実行し、一行ずつ変数の変化を追える。`,
+    );
+    lines.push(
+      `- [擬似言語 → Python / TypeScript 変換](${site.url}/fe/transpile): 同じロジックを 3 言語横並びで比較できる。配列の添字が 1 始まり → 0 始まりに変換される様子も確認できる。`,
+    );
+    lines.push(``);
+    lines.push(`### 構文別レッスン`);
+    lines.push(``);
+    lines.push(`一覧: ${site.url}/fe/lessons`);
+    lines.push(``);
+    for (const l of feLessons) {
+      lines.push(`- [${l.title}](${site.url}/fe/lessons/${l.slug}): ${l.description}`);
+    }
+    lines.push(``);
+    lines.push(`### 引用可能な定義`);
+    lines.push(``);
+    for (const l of feLessons) {
+      lines.push(`- **${l.shortTitle}**: ${l.definition}`);
+    }
+    lines.push(``);
+    lines.push(`### 練習問題 (オリジナル ${feQuizzes.length} 問)`);
+    lines.push(``);
+    lines.push(`一覧: ${site.url}/fe/quiz`);
+    lines.push(``);
+    lines.push(
+      `IPA 公式過去問の転載はしていない。全問オリジナルで、解答キーはインタプリタで実行して検証している。`,
+    );
+    lines.push(``);
+    for (const q of feQuizzes) {
+      lines.push(`- [${q.shortTitle}](${site.url}/fe/quiz/${q.slug}): ${q.challenge}`);
+    }
+    lines.push(``);
+    return lines;
   }
 
   if (section.key === "data-modeling") {

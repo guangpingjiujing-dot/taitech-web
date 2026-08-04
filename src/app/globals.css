@@ -151,3 +151,32 @@ h6 {
 .prose-jp blockquote {
   @apply border-l-2 border-[var(--foreground)] pl-4 my-4 text-[var(--muted-foreground)];
 }
+
+/* ---------------------------------------------------------------------------
+   FE 実行シミュレーター (Playground)
+
+   Playground はページ内に複数インスタンス置かれる (レッスンで 3 台) ので、
+   コンポーネント内で <style> を出すと同じ CSS が重複する。ここに一度だけ置く。
+--------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .fe-playground-grid {
+    /* モバイルは 1 カラム縦積み: 左ツールバー → 右ツールバー →
+       エディタ → 右パネル の順に並ぶ。row 2 の固定高さも解除 */
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    /* エディタを低くしないと、実行後に変数ペインが画面外へ出てしまう。
+       同じ要素の inline style で 460px を持っているので !important が要る */
+    --fe-editor-height: 260px !important;
+  }
+
+  /* 実行ボタン列は縦積みの上のほうに来るため、スクロールすると画面外へ出る。
+     追従させて「一行ずつ実行 → 変数を見る」を片手で回せるようにする */
+  .fe-playground-controls {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 5;
+    align-self: start !important;
+    background: var(--background);
+    padding-block: 6px;
+  }
+}

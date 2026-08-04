@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Playground } from "@/components/fe/Playground";
+import { Suspense } from "react";
+import { PlaygroundDeepLink } from "@/components/fe/PlaygroundDeepLink";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
+import { FAQ } from "@/components/layout/FAQ";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
@@ -34,10 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
-const FAQ = [
+const FAQ_ITEMS = [
   {
     q: "この実行シミュレーターはどんなツールですか？",
-    a: "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、その場で書いて実行し、変数の変化や呼び出しスタックを可視化できる無料の学習ツールです。Python / TypeScript への変換もワンボタンで行えます。",
+    a: "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、その場で書いて実行し、一行ずつ進めながら変数の変化と出力を可視化できる無料の学習ツールです。Python / TypeScript への変換もワンボタンで行えます。",
   },
   {
     q: "対応している擬似言語の仕様はどれですか？",
@@ -53,15 +55,7 @@ const FAQ = [
   },
 ];
 
-export default async function FeTopPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const rawCode = sp.code;
-  const incomingCode =
-    typeof rawCode === "string" && rawCode.length > 0 ? rawCode : undefined;
+export default function FeTopPage() {
   return (
     <div className="py-8 lg:py-12">
       <FePlaygroundJsonLd
@@ -72,7 +66,7 @@ export default async function FeTopPage({
           { name: "ホーム", item: site.url },
           { name: sectionMeta.shortLabel, item: `${site.url}${sectionMeta.path}` },
         ]}
-        faq={FAQ}
+        faq={FAQ_ITEMS}
       />
       <Container size="wide">
         <div className="grid gap-8 xl:gap-10 xl:grid-cols-[minmax(0,1fr)_15rem]">
@@ -96,7 +90,11 @@ export default async function FeTopPage({
               </div>
             </header>
 
-            <Playground initialCode={incomingCode} />
+            {/* ?code= の読み取りはクライアント側 (PlaygroundDeepLink) に置く。
+                server の searchParams で受けるとこのページが Dynamic になる */}
+            <Suspense fallback={<div style={{ minHeight: "560px" }} />}>
+              <PlaygroundDeepLink />
+            </Suspense>
 
             <section className="mt-16 max-w-3xl">
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
@@ -198,7 +196,7 @@ export default async function FeTopPage({
                         className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
                         style={{ textWrap: "pretty" }}
                       >
-                        {l.description}
+                        {l.cardSummary}
                       </p>
                     </Link>
                   </li>
@@ -274,6 +272,10 @@ export default async function FeTopPage({
                 を用意しています。3 言語同時ビューで、構文ごとの差分を目で追えます。
               </p>
             </section>
+
+            <div className="max-w-3xl">
+              <FAQ items={FAQ_ITEMS} />
+            </div>
 
             <div className="max-w-3xl">
               <AffiliateBooks
