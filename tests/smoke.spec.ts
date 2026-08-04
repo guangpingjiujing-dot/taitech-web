@@ -60,6 +60,16 @@ const PAGES = [
   "/fe/quiz/array-one-based",
   "/fe/quiz/array-reverse-scan",
   "/fe/quiz/function-return-flow",
+  "/fe/quiz/linked-list-traverse",
+  "/fe/quiz/insertion-sort-inner",
+  "/fe/quiz/stack-push-pop",
+  "/fe/quiz/queue-ring-buffer",
+  "/fe/quiz/selection-sort-swaps",
+  "/fe/quiz/merge-two-sorted",
+  "/fe/quiz/while-search-not-found",
+  "/fe/quiz/fib-recursion",
+  "/fe/quiz/leap-year",
+  "/fe/quiz/indirect-index",
   "/privacy",
   "/terms",
   "/contact",
@@ -445,17 +455,15 @@ test("FE Transpile page: side-by-side view renders Python and TypeScript", async
 });
 
 /**
- * 選択肢のクリックはハイドレーション前だと React の state に届かず、
- * 「答え合わせ」が disabled のままになる (負荷が高いと再現する)。
- * ボタンが enabled になるまでクリックを再試行してから押す。
+ * 選択肢は押した時点で即採点される。ただしハイドレーション前のクリックは
+ * React の state に届かないので、判定 (role=status) が出るまで押し直す。
  */
 async function answerQuiz(page: Page, choiceText: string) {
-  const submit = page.getByRole("button", { name: "答え合わせ" });
+  const verdict = page.getByRole("status");
   await expect(async () => {
-    await page.getByText(choiceText, { exact: true }).first().click();
-    await expect(submit).toBeEnabled({ timeout: 2_000 });
+    await page.getByRole("button", { name: choiceText }).click();
+    await expect(verdict).toBeVisible({ timeout: 2_000 });
   }).toPass({ timeout: 30_000 });
-  await submit.click();
 }
 
 /** 解答系のテストは JS が要るので、バンドル取得まで待ってから触る */
@@ -470,10 +478,10 @@ test("FE Quiz: correct answer reveals the explanation", async ({ page }) => {
   // 解答前は解説が見えていないこと (DOM には存在する = SEO 用)
   const explanation = page.getByRole("heading", { name: "解説" });
   await expect(explanation).toBeHidden();
-  await expect(page.getByRole("button", { name: "答え合わせ" })).toBeDisabled();
+  await expect(page.getByRole("status")).toHaveCount(0);
 
-  // 正解 (イ) を選んで答え合わせ
-  await answerQuiz(page, "40\n60");
+  // 正解 (イ) を押すとその場で採点される
+  await answerQuiz(page, "イ 40\n60");
 
   await expect(page.getByRole("status")).toHaveText("正解");
   await expect(explanation).toBeVisible();
@@ -490,21 +498,21 @@ test("FE Quiz: wrong answer shows the correct choice and can be retried", async 
   const { errors, warnings } = watchConsole(page);
   await gotoQuiz(page, "/fe/quiz/for-loop-step");
 
-  // 誤答 (ア = 6) を選ぶ。正解は ウ = 12
-  await answerQuiz(page, "6");
+  // 誤答 (ア = 6) を押す。正解は ウ = 12
+  await answerQuiz(page, "ア 6");
   await expect(page.getByRole("status")).toHaveText("不正解 — 正解は ウ");
   await expect(page.getByRole("heading", { name: "解説" })).toBeVisible();
 
   await page.getByRole("button", { name: "もう一度考える" }).click();
   await expect(page.getByRole("heading", { name: "解説" })).toBeHidden();
-  await expect(page.getByRole("button", { name: "答え合わせ" })).toBeDisabled();
+  await expect(page.getByRole("status")).toHaveCount(0);
   expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
 test("FE Quiz: progress is remembered on the index page", async ({ page }) => {
   await gotoQuiz(page, "/fe/quiz/assign-swap");
-  await answerQuiz(page, "8\n8");
+  await answerQuiz(page, "イ 8\n8");
   await expect(page.getByRole("status")).toHaveText("正解");
 
   await gotoQuiz(page, "/fe/quiz");

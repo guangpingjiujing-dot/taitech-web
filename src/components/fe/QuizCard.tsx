@@ -18,23 +18,23 @@ import { recordFeQuizResult } from "@/lib/fe/quizProgress";
  * 解答前の人間には見せないため (docs/fe-playground/04-quiz-design.md §7)。
  */
 export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
-  const [selected, setSelected] = useState<FeQuizChoiceId | null>(null);
-  const [answered, setAnswered] = useState(false);
+  /** 選んだ選択肢。null = 未解答。押した時点で即採点する */
+  const [picked, setPicked] = useState<FeQuizChoiceId | null>(null);
   const groupId = useId();
   const lesson = findFeLesson(quiz.lesson);
   const correct = quiz.choices.find((c) => c.id === quiz.answer)!;
-  const isCorrect = answered && selected === quiz.answer;
+  const answered = picked !== null;
+  const isCorrect = picked === quiz.answer;
 
-  const submit = () => {
-    if (!selected) return;
-    setAnswered(true);
-    recordFeQuizResult(quiz.slug, selected === quiz.answer ? "correct" : "incorrect");
+  // 選択肢は radio ではなく button。radio だとキーボードの矢印キーで
+  // フォーカス移動しただけで選択が確定し、意図せず採点されてしまうため。
+  const answer = (id: FeQuizChoiceId) => {
+    if (answered) return;
+    setPicked(id);
+    recordFeQuizResult(quiz.slug, id === quiz.answer ? "correct" : "incorrect");
   };
 
-  const retry = () => {
-    setAnswered(false);
-    setSelected(null);
-  };
+  const retry = () => setPicked(null);
 
   return (
     <div>
@@ -50,38 +50,35 @@ export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
         <code>{quiz.code.trimEnd()}</code>
       </pre>
 
-      <fieldset className="mt-6" disabled={answered}>
-        <legend className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+      <div className="mt-6" role="group" aria-labelledby={`${groupId}-choices`}>
+        <div
+          id={`${groupId}-choices`}
+          className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]"
+        >
           解答を選ぶ
-        </legend>
+        </div>
         <ul className="mt-3 space-y-2">
           {quiz.choices.map((c) => {
-            const checked = selected === c.id;
             const reveal = answered && c.id === quiz.answer;
-            const wrongPick = answered && checked && c.id !== quiz.answer;
+            const wrongPick = picked === c.id && c.id !== quiz.answer;
             return (
               <li key={c.id}>
-                <label
+                <button
+                  type="button"
+                  onClick={() => answer(c.id)}
+                  aria-disabled={answered}
                   className={[
-                    "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+                    "flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors",
                     reveal
                       ? "border-[var(--foreground)] bg-[var(--muted)]/60"
                       : wrongPick
                         ? "border-[var(--border-strong)] bg-[var(--muted)]/30 line-through decoration-1"
-                        : checked
-                          ? "border-[var(--foreground)]"
+                        : answered
+                          ? "border-[var(--border)] opacity-60"
                           : "border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40",
-                    answered ? "cursor-default" : "",
+                    answered ? "cursor-default" : "cursor-pointer",
                   ].join(" ")}
                 >
-                  <input
-                    type="radio"
-                    name={groupId}
-                    value={c.id}
-                    checked={checked}
-                    onChange={() => setSelected(c.id)}
-                    className="sr-only"
-                  />
                   <span className="mt-px shrink-0 font-bold">{c.id}</span>
                   <span className="min-w-0 flex-1 whitespace-pre-wrap font-mono text-sm leading-relaxed break-words">
                     {c.text}
@@ -91,42 +88,31 @@ export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
                       正解
                     </span>
                   )}
-                </label>
+                </button>
               </li>
             );
           })}
         </ul>
-      </fieldset>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        {!answered ? (
-          <Button type="button" onClick={submit} disabled={!selected}>
-            答え合わせ
-          </Button>
-        ) : (
-          <>
-            <span
-              className={[
-                "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-bold",
-                isCorrect
-                  ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
-                  : "border-[var(--border-strong)] text-[var(--foreground)]",
-              ].join(" ")}
-              role="status"
-            >
-              {isCorrect ? "正解" : `不正解 — 正解は ${quiz.answer}`}
-            </span>
-            <Button type="button" variant="secondary" onClick={retry}>
-              もう一度考える
-            </Button>
-          </>
-        )}
-        {!answered && !selected && (
-          <span className="text-xs text-[var(--muted-foreground)]">
-            選択肢を選ぶと答え合わせできます
-          </span>
-        )}
       </div>
+
+      {answered && (
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <span
+            className={[
+              "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-bold",
+              isCorrect
+                ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
+                : "border-[var(--border-strong)] text-[var(--foreground)]",
+            ].join(" ")}
+            role="status"
+          >
+            {isCorrect ? "正解" : `不正解 — 正解は ${quiz.answer}`}
+          </span>
+          <Button type="button" variant="secondary" onClick={retry}>
+            もう一度考える
+          </Button>
+        </div>
+      )}
 
       {/* 解説: 解答前は hidden で隠すが DOM には常に存在する (SEO / クローラ向け) */}
       <section
