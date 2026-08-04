@@ -204,6 +204,19 @@ lesson 本文 (LessonLayout の `<div className="prose-jp mt-10 max-w-none">`) �
    01-02 は実装前のスナップショットで stale (top に警告あり)
 9. `analytics/reports/*.md`: GA4/GSC の月次データレビュー
 
+# Zenn 記事のドラフト依頼
+
+Zenn (@taitech) 記事の SSoT は **`../zenn/`** (github.com/guangpingjiujing-dot/zenn、private)。
+このリポジトリで Zenn 記事の依頼を受けたら、**書く場所は `../zenn/articles/<slug>.md`**。
+詳細ルールは `../zenn/AGENTS.md` を参照。特に:
+
+- **Qiita と同一本文を出さない**。どちらも canonical を張れないので素の重複になり、
+  誘導先の taitech.dev も含めて 3 つで共食いする。同じ題材なら切り口を変えて書き下ろす
+  (Qiita = 読者の課題・解説、Zenn = 実装の詳細)
+- **本文に絵文字を使わない**。frontmatter の `emoji` だけは Zenn の必須項目なので入れる
+- `published: true` で push した瞬間に公開される。下書きは必ず `false`
+- ファイル名がそのまま URL slug になるので、公開前に確定させる (12〜50 文字)
+
 # Qiita 記事のドラフト依頼
 
 Qiita (@taitech_dev) 記事のSSoTは **`../qiita/`** (github.com/guangpingjiujing-dot/qiita)。
