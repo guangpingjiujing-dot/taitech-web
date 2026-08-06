@@ -13,6 +13,14 @@ export type Section = {
   path: string;
   description: string;
   ogImageAlt: string;
+  /**
+   * SEO 用: 指定時は `<title>` と OG title に使用（未指定なら label にフォールバック）。
+   * `label` はナビ / JSON-LD の headline に使う「セクションの名前」なので短いまま維持し、
+   * 狙うクエリを含む長い文言はこちらに分離する（`topics.*.ts` の metaTitle と同じ設計）。
+   */
+  metaTitle?: string;
+  /** SEO 用: 指定時は `<meta description>` と OG description に使用（未指定なら description） */
+  metaDescription?: string;
 };
 
 export const sections: Record<SectionKey, Section> = {
@@ -33,6 +41,9 @@ export const sections: Record<SectionKey, Section> = {
     description:
       "B-tree、ハッシュ、クラスタ化、複合インデックスなど、RDBのインデックスの仕組みを図解で理解するセクション。",
     ogImageAlt: "RDBインデックス図解",
+    metaTitle: "RDBインデックスとは｜種類と仕組みを図解で一覧",
+    metaDescription:
+      "RDB のインデックスの種類と仕組みを図解で一覧。B-tree・ハッシュ・クラスタ化・複合・カバリング・部分インデックスの違いと使い分けから、実行計画と統計情報の読み方まで、12 本の記事で体系的に理解できる。",
   },
   "data-modeling": {
     key: "data-modeling",

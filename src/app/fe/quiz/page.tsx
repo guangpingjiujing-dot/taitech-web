@@ -13,11 +13,11 @@ import { findFeLesson } from "@/content/fe/lessons";
 
 // 問題数はレジストリから導出する (数を直書きすると増やしたときに矛盾する)
 const QUIZ_COUNT = feQuizzes.length;
-const PAGE_TITLE = `基本情報 擬似言語 練習問題（科目B オリジナル ${QUIZ_COUNT} 問）｜taitech.dev`;
+const PAGE_TITLE = `基本情報 擬似言語 練習問題 ${QUIZ_COUNT} 問｜科目B オリジナル`;
 const PAGE_DESCRIPTION = `基本情報技術者試験 (FE) 科目 B の擬似言語をトレースして答えるオリジナル練習問題 ${QUIZ_COUNT} 問。変数・条件分岐・while・for・配列・関数の頻出パターンから、連結リスト・整列・再帰といった本番相当の出題まで 4 択で確認できる。解説と実行シミュレーターで答え合わせまでできる無料教材。`;
 
 export const metadata: Metadata = {
-  title: { absolute: PAGE_TITLE },
+  title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   alternates: { canonical: "/fe/quiz" },
   openGraph: {

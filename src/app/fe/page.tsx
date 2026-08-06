@@ -16,13 +16,12 @@ import { feQuizzes } from "@/content/fe/quiz";
 
 const sectionMeta = sections.fe;
 
-const PAGE_TITLE =
-  "基本情報技術者試験の擬似言語をブラウザで動かせる 実行シミュレーター｜taitech.dev";
+const PAGE_TITLE = "基本情報技術者試験の擬似言語 実行シミュレーター";
 const PAGE_DESCRIPTION =
   "基本情報技術者試験 (FE) 科目B で出題される擬似言語をその場で書いて、1 行ずつ実行して変数の変化を可視化し、Python / TypeScript に変換して読み比べることができる無料の学習ツール。";
 
 export const metadata: Metadata = {
-  title: { absolute: PAGE_TITLE },
+  title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   alternates: { canonical: sectionMeta.path },
   openGraph: {

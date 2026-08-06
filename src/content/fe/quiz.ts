@@ -55,7 +55,7 @@ export const feQuizzes: readonly FeQuizMeta[] = [
     tier: "basic",
     lesson: "variable",
     kind: "trace",
-    title: "変数の入れ替えで値が消える — 基本情報 擬似言語 練習問題",
+    title: "変数の入れ替えで値が消える｜基本情報 擬似言語",
     shortTitle: "変数の入れ替え",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。2 つの変数を入れ替えようとして値が壊れるコードをトレースし、代入 (←) の実行順序を確認する。",
@@ -91,7 +91,7 @@ print(y)
     tier: "basic",
     lesson: "variable",
     kind: "trace",
-    title: "演算子の優先順位と mod — 基本情報 擬似言語 練習問題",
+    title: "演算子の優先順位と mod｜基本情報 擬似言語",
     shortTitle: "演算子の優先順位",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。掛け算と足し算が混ざった式の計算順序と、mod (剰余) の結果をトレースで確認する。",
@@ -125,7 +125,7 @@ print(b)
     tier: "basic",
     lesson: "if",
     kind: "trace",
-    title: "elseif はどの分岐が実行される? — 基本情報 擬似言語 練習問題",
+    title: "elseif はどの分岐が実行される?｜基本情報 擬似言語",
     shortTitle: "elseif の評価順",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。複数の条件が同時に成立する if / elseif で、実際に実行される分岐がどれかをトレースで確認する。",
@@ -163,7 +163,7 @@ endif
     tier: "basic",
     lesson: "if",
     kind: "fill",
-    title: "「18 歳以上」を正しく書ける? 境界の比較演算子 — 基本情報 擬似言語 練習問題",
+    title: "「18 歳以上」を表す比較演算子｜基本情報 擬似言語",
     shortTitle: "境界値と比較演算子",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。「以上」を表す比較演算子を選び、> と ≧ の境界 1 個分の違いを確認する空欄補充問題。",
@@ -206,7 +206,7 @@ endif
     tier: "basic",
     lesson: "while",
     kind: "trace",
-    title: "while を抜けた後のカウンタの値 — 基本情報 擬似言語 練習問題",
+    title: "while を抜けた後のカウンタの値｜基本情報 擬似言語",
     shortTitle: "while 終了時の変数",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。while ループを抜けた直後にカウンタ変数がいくつになっているかを、条件判定のタイミングから導く。",
@@ -244,7 +244,7 @@ print(i)
     tier: "basic",
     lesson: "while",
     kind: "fill",
-    title: "ちょうど 3 回繰り返す while の条件 — 基本情報 擬似言語 練習問題",
+    title: "ちょうど 3 回繰り返す while 条件｜基本情報 擬似言語",
     shortTitle: "回数指定の while",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。0 から数えるカウンタで「ちょうど n 回」繰り返すための while 条件を選ぶ空欄補充問題。",
@@ -285,7 +285,7 @@ endwhile
     tier: "basic",
     lesson: "for",
     kind: "trace",
-    title: "for の「〜まで」は終了値を含む? — 基本情報 擬似言語 練習問題",
+    title: "for の「〜まで」は終了値を含む?｜基本情報 擬似言語",
     shortTitle: "for の範囲と増分",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。for の「〜から〜まで〜ずつ増やす」が終了値を含むかどうかと、増分の効き方をトレースで確認する。",
@@ -320,7 +320,7 @@ print(合計)
     tier: "basic",
     lesson: "array",
     kind: "trace",
-    title: "配列の添字は 1 始まり — 基本情報 擬似言語 練習問題",
+    title: "配列の添字は 1 始まり｜基本情報 擬似言語",
     shortTitle: "配列の添字",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。配列の添字が 1 始まりであることを、要素を取り出すコードのトレースで確認する。",
@@ -353,7 +353,7 @@ print(得点[3])
     tier: "basic",
     lesson: "array",
     kind: "fill",
-    title: "配列を逆順に走査する for の書き方 — 基本情報 擬似言語 練習問題",
+    title: "配列を逆順に走査する for｜基本情報 擬似言語",
     shortTitle: "配列の逆順走査",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。配列を末尾から先頭へたどる for の初期値・終了値・増分を選ぶ空欄補充問題。",
@@ -392,7 +392,7 @@ endfor
     tier: "basic",
     lesson: "function",
     kind: "trace",
-    title: "return に到達すると関数はどうなる? — 基本情報 擬似言語 練習問題",
+    title: "return に到達した後の流れ｜基本情報 擬似言語",
     shortTitle: "return と処理の中断",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。return に到達した時点で関数を抜けることを、複数の return を持つ関数のトレースで確認する。",
@@ -434,7 +434,7 @@ print(符号(0))
     tier: "exam",
     lesson: "while",
     kind: "trace",
-    title: "配列 2 本で表した連結リストをたどる — 基本情報 擬似言語 練習問題",
+    title: "配列 2 本で表す連結リスト｜基本情報 擬似言語",
     shortTitle: "連結リストの走査",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。値の配列と「次の要素の位置」を持つ配列で表現した単方向リストを、先頭からたどって出力順を求める。科目 B 頻出のデータ構造問題。",
@@ -471,7 +471,7 @@ endwhile
     tier: "exam",
     lesson: "array",
     kind: "fill",
-    title: "挿入ソートの内側ループを完成させる — 基本情報 擬似言語 練習問題",
+    title: "挿入ソートの内側ループ｜基本情報 擬似言語",
     shortTitle: "挿入ソートの空欄",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。挿入ソートで要素を後ろへずらしながら挿入位置を探す while ループの空欄を埋める、科目 B 本番形式の空欄補充問題。",
@@ -528,7 +528,7 @@ print(数値)
     tier: "exam",
     lesson: "array",
     kind: "trace",
-    title: "配列で作ったスタックの操作列を追う — 基本情報 擬似言語 練習問題",
+    title: "配列で作るスタックの操作列｜基本情報 擬似言語",
     shortTitle: "スタックの操作",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。配列と頂上の位置でスタックを表現し、push と pop が混ざった操作列を実行した後の状態を求める。空のときの pop も含む。",
@@ -573,7 +573,7 @@ print(頂上)
     tier: "exam",
     lesson: "array",
     kind: "trace",
-    title: "リングバッファのキューで添字が一周する — 基本情報 擬似言語 練習問題",
+    title: "リングバッファのキュー｜基本情報 擬似言語",
     shortTitle: "キューと剰余",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。要素数 3 の配列を mod で循環させたキューに対し、追加と取出しが混ざった操作列を実行して最終状態を求める。",
@@ -621,7 +621,7 @@ print(個数)
     tier: "exam",
     lesson: "for",
     kind: "trace",
-    title: "二重ループの整列で交換は何回起きる? — 基本情報 擬似言語 練習問題",
+    title: "二重ループの整列で交換は何回?｜基本情報 擬似言語",
     shortTitle: "整列の交換回数",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。二重ループで配列を整列するコードを最後まで追い、要素の交換が何回実行されるかを数える。",
@@ -664,7 +664,7 @@ print(交換)
     tier: "exam",
     lesson: "for",
     kind: "trace",
-    title: "整列済みの 2 配列を先頭から併合する — 基本情報 擬似言語 練習問題",
+    title: "整列済み 2 配列の併合｜基本情報 擬似言語",
     shortTitle: "2 配列の併合",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。整列済みの 2 つの配列を先頭から比較しながら小さい順に取り出す併合処理を、添字 2 本の動きを追ってトレースする。",
@@ -707,7 +707,7 @@ endfor
     tier: "exam",
     lesson: "while",
     kind: "trace",
-    title: "見つからなかったときの while 探索の添字 — 基本情報 擬似言語 練習問題",
+    title: "見つからないときの while 探索｜基本情報 擬似言語",
     shortTitle: "探索の終了位置",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。配列に存在しない値を while で探したときの添字の最終値と、範囲外アクセスが起きない理由 (短絡評価) を確認する。",
@@ -743,7 +743,7 @@ print(i)
     tier: "exam",
     lesson: "function",
     kind: "trace",
-    title: "2 回自分を呼ぶ再帰関数の戻り値 — 基本情報 擬似言語 練習問題",
+    title: "2 回自分を呼ぶ再帰関数の戻り値｜基本情報 擬似言語",
     shortTitle: "二重の再帰呼び出し",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。1 回の呼び出しで自分自身を 2 回呼ぶ再帰関数を、終了条件から積み上げて戻り値を求める。",
@@ -779,7 +779,7 @@ print(フィボ(6))
     tier: "exam",
     lesson: "if",
     kind: "fill",
-    title: "うるう年の判定条件を組み立てる — 基本情報 擬似言語 練習問題",
+    title: "うるう年の判定条件を組み立てる｜基本情報 擬似言語",
     shortTitle: "うるう年の判定",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。「4 で割り切れる。ただし 100 で割り切れる年は除き、400 で割り切れる年は含む」という 3 段の規則を 1 つの条件式にまとめる空欄補充問題。",
@@ -828,7 +828,7 @@ print(判定(2024))
     tier: "exam",
     lesson: "array",
     kind: "trace",
-    title: "配列の添字に別の配列の値を使う — 基本情報 擬似言語 練習問題",
+    title: "配列の添字に別の配列の値を使う｜基本情報 擬似言語",
     shortTitle: "配列の間接参照",
     description:
       "基本情報技術者試験 (FE) 科目 B の擬似言語の練習問題。在庫[注文[i]] のように配列の添字へ別の配列の値を使う間接参照を追い、在庫が減る様子と品切れの判定をトレースする。",
