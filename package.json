@@ -10,7 +10,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "vitest run",
-    "test:unit:watch": "vitest"
+    "test:unit:watch": "vitest",
+    "gen:quiz-posts": "playwright test --config scripts/post-images/playwright.config.ts",
+    "gen:demo-video": "playwright test --config scripts/demo-video/playwright.config.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.4",
