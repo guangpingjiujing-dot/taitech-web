@@ -10,13 +10,16 @@ import { sections } from "@/content/sections";
 
 const sectionMeta = sections["rdb-index"];
 
+const metaTitle = sectionMeta.metaTitle ?? sectionMeta.label;
+const metaDescription = sectionMeta.metaDescription ?? sectionMeta.description;
+
 export const metadata: Metadata = {
-  title: sectionMeta.label,
-  description: sectionMeta.description,
+  title: metaTitle,
+  description: metaDescription,
   alternates: { canonical: sectionMeta.path },
   openGraph: {
-    title: sectionMeta.label,
-    description: sectionMeta.description,
+    title: metaTitle,
+    description: metaDescription,
     url: sectionMeta.path,
   },
 };

@@ -10,13 +10,12 @@ import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 
-const PAGE_TITLE =
-  "基本情報の擬似言語を Python / TypeScript に変換して比較する｜taitech.dev";
+const PAGE_TITLE = "基本情報の擬似言語を Python / TypeScript に変換";
 const PAGE_DESCRIPTION =
   "基本情報技術者試験の擬似言語コードを Python と TypeScript に同時変換し、3 言語を横並びで比較できるツール。配列の添字 (1 始まり vs 0 始まり) や for ループの書き方の違いを目で見て確認できる。";
 
 export const metadata: Metadata = {
-  title: { absolute: PAGE_TITLE },
+  title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   alternates: { canonical: "/fe/transpile" },
   openGraph: {

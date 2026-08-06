@@ -35,7 +35,7 @@ export async function generateMetadata({
   if (!lesson) return {};
   const path = `/fe/lessons/${lesson.slug}`;
   return {
-    title: { absolute: `${lesson.title}｜taitech.dev` },
+    title: lesson.title,
     description: lesson.description,
     keywords: lesson.keywords,
     alternates: { canonical: path },

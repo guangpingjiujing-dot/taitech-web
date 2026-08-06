@@ -29,7 +29,7 @@ export async function generateMetadata({
   if (!quiz) return {};
   const path = `/fe/quiz/${quiz.slug}`;
   return {
-    title: { absolute: `${quiz.title}｜taitech.dev` },
+    title: quiz.title,
     description: quiz.description,
     keywords: quiz.keywords,
     alternates: { canonical: path },

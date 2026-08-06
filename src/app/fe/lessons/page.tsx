@@ -10,13 +10,12 @@ import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 
-const PAGE_TITLE =
-  "基本情報 擬似言語 構文別レッスン一覧｜taitech.dev";
+const PAGE_TITLE = "基本情報 擬似言語 構文別レッスン一覧";
 const PAGE_DESCRIPTION =
   "基本情報技術者試験 (FE) 科目 B の擬似言語を、変数・条件分岐・while・for・配列・関数の 6 つの構文別に、ブラウザで実行して確かめながら学べる無料の解説シリーズ。";
 
 export const metadata: Metadata = {
-  title: { absolute: PAGE_TITLE },
+  title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   alternates: { canonical: "/fe/lessons" },
   openGraph: {
