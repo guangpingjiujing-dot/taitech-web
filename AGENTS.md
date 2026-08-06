@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - **Host**: Vercel。GitHub `main` への push で本番デプロイが自動発火する。
 - **Production URL**: https://taitech.dev
-- **Domain**: `taitech.dev`（Registrar/DNS 事業者の詳細は `docs/OPERATIONS.md`）。`www.taitech.dev` は 308 で apex にリダイレクト（`next.config.ts` の `redirects()` で実装）。
+- **Domain**: `taitech.dev`（Registrar/DNS 事業者の詳細は `docs/site/operations.md`）。`www.taitech.dev` は 308 で apex にリダイレクト（`next.config.ts` の `redirects()` で実装）。
 - **HTTPS**: Vercel が Let's Encrypt 相当の証明書を自動発行・更新。
 - **Preview**: main 以外のブランチを push すると Vercel が Preview デプロイを自動発行する。
 
@@ -204,21 +204,35 @@ page.locator('[role="alert"]:not(#__next-route-announcer__)') // 代替
 
 `docs/` は `.gitignore` 済み。ローカル専用の運用メモを置く場所。GitHub には公開しない。
 
-新規セッションでの推奨読み順:
-1. `docs/MONETIZATION_ROADMAP.md`: 現状ステータス・優先タスク・完了履歴（一次情報源）
-2. `docs/SEO_AUDIT.md`: SEO 現状と実装ステータス（§0 に最新の実装状況）
-3. `docs/DESIGN.md`: サイト設計・アーキテクチャ・SEO/LLMO 戦略
-4. `docs/OPERATIONS.md`: アカウント・DNS・支払い・GA4 IP フィルタ等の非公開ディテール
-5. `docs/MONETIZATION_IDEAS.md`: 収益化アイデア集（ロードマップの補足）
-6. `docs/x-posts/`, `docs/data-modeling/`: X 投稿ドラフト・データモデリング作業メモ
-   （Qiita記事のSSoTは `../qiita` (github.com/guangpingjiujing-dot/qiita) に移管済み。詳細は下の「Qiita 記事のドラフト依頼」節を参照。docs/qiita は空placeholder）
-7. `docs/er-diagram/`: 変なER図 (ER 図カテゴリ) の設計と実装ログ。
-   本セクションを触るときは `03-implementation-status.md` を一次情報に。
-   00-02 は初期設計時のスナップショットで stale (top に警告あり)
-8. `docs/fe-playground/`: 基本情報技術者試験 擬似言語カテゴリ (`/fe/*`) の設計と実装ログ。
-   **`03-implementation-status.md` が一次情報**、練習問題の作問方針は `04-quiz-design.md`。
-   01-02 は実装前のスナップショットで stale (top に警告あり)
-9. `analytics/reports/*.md`: GA4/GSC の月次データレビュー
+**索引は `docs/README.md`**。読み順とファイルの役割はそこが一次情報なので、まずそれを開く。構成:
+
+| パス | 中身 |
+|---|---|
+| `docs/strategy/` | `roadmap.md` (現状ステータス・優先タスクの一次情報源) / `growth.md` (認知獲得) / `seo.md` / `ideas.md` |
+| `docs/site/` | `design.md` (セクション横断のアーキテクチャ・カラーパレット・SEO 実装パターン) / `operations.md` (アカウント・DNS・GA4 の非公開ディテール) |
+| `docs/sections/` | セクション別の設計判断。1 セクション 1 ファイル (`rdb-index` / `data-modeling` / `er-diagram` / `why-need-rdb` / `fe-playground`) |
+| `docs/wip/` | **使い捨て**。開発中の設計書・進捗ログ・レビュー。完了後に harvest して削除する |
+| `docs/x-posts/` | X 投稿のドラフト・投稿済みアーカイブ・画像・デザインガイド |
+| `analytics/reports/*.md` | GA4/GSC の月次データレビュー (docs 外) |
+
+**docs にコードから読めることを書かない**。ページ一覧・型・コンポーネント API・定義文・キーワードは
+`src/content/` と実装が一次情報で、docs に写すと必ず腐る。docs が持つのは
+「決定の背景」「外部の状態」「残タスク」の 3 つだけ。
+
+### 作業ドキュメントの置き場とライフサイクル
+
+新セクション開発などで生まれる設計書・進捗ログは腐る。**`docs/` 直下や `docs/sections/` に
+直接置かない**。以下の 3 点だけ守れば、詳細は skill が持つ。
+
+1. 使い捨ては `docs/wip/<YYYYMMDD>-<slug>/` に置く。永続化するのは `docs/sections/<name>.md` だけ
+2. `wip/` を作ったら、**同時に `docs/strategy/roadmap.md` の優先アクション表へ harvest タスクを積む**
+   (`/taitech-doc-lifecycle harvest wip/<slug>`)。圧縮の契機はこの表でしか担保されない
+3. **「このファイルは stale」と注記して延命しない**。そう書きたくなったら harvest のタイミングを
+   過ぎているという意味。annotate ではなく harvest して消す
+
+手順と判定基準は skill **`/taitech-doc-lifecycle`**（kickoff / harvest の 2 モード）。
+
+Qiita / Zenn 記事の SSoT はこのリポジトリではない (下の各節を参照)。
 
 # Zenn 記事のドラフト依頼
 
@@ -236,7 +250,7 @@ Zenn (@taitech) 記事の SSoT は **`../zenn/`** (github.com/guangpingjiujing-d
 # Qiita 記事のドラフト依頼
 
 Qiita (@taitech_dev) 記事のSSoTは **`../qiita/`** (github.com/guangpingjiujing-dot/qiita)。
-このリポジトリで Qiita 記事の作成・修正依頼を受けたら、**書く場所は `../qiita/public/*.md`**（このリポジトリの `docs/qiita/` は空 placeholder で書いてはいけない）。
+このリポジトリで Qiita 記事の作成・修正依頼を受けたら、**書く場所は `../qiita/public/*.md`**（このリポジトリの `docs/` 配下には書かない）。
 
 書き方の詳細ルールは `../qiita/AGENTS.md` を参照。特に以下は事故が起きやすいので必ず守る:
 
@@ -251,7 +265,7 @@ Qiita (@taitech_dev) 記事のSSoTは **`../qiita/`** (github.com/guangpingjiuji
 
 コードを読んでも分からない規約制約。違反するとアカウント停止 or 収益ゼロになる。
 
-- **書籍 URL の `?tag=taitech-22` を削除しない**。Store ID は `taitech-22`。詳細は `docs/OPERATIONS.md`
+- **書籍 URL の `?tag=taitech-22` を削除しない**。Store ID は `taitech-22`。詳細は `docs/site/operations.md`
 - **`AffiliateBooks.tsx` の「本セクションはAmazonアソシエイトのリンクを含みます。」を削除しない**。Amazon 運営規約と景表法（ステマ規制）で必須
 - **Amazon 商品画像の hotlink 禁止**。PA-API 経由でのみ許可され、PA-API は 3件発送成立まで解放されない。書影を扱う場合は必ず PA-API 有効化後
 

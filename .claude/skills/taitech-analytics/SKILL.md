@@ -15,7 +15,7 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 - **DB path**: `analytics/data/analytics.sqlite` (プロジェクトルート基準)
 - **スキーマ**: `analytics/schema.sql`
 - **MCP**: `mcp__ga__*` と `mcp__gsc__*` が利用可能な前提。`.mcp.json` に定義済み。
-- **自己トラフィック除外**: GA4 内部トラフィックフィルタを **2026-07-15 有効化済み**。以降のデータは運営者本人の閲覧が除外されている。**2026-07-15 より前のデータは汚染あり**（特に direct/(none) セッション、`/cmd_sco` 等のテスト path）。設定詳細は `docs/OPERATIONS.md` 参照。
+- **自己トラフィック除外**: GA4 内部トラフィックフィルタを **2026-07-15 有効化済み**。以降のデータは運営者本人の閲覧が除外されている。**2026-07-15 より前のデータは汚染あり**（特に direct/(none) セッション、`/cmd_sco` 等のテスト path）。設定詳細は `docs/site/operations.md` 参照。
 
 ## 引数
 
@@ -170,5 +170,5 @@ sqlite3 -header -column analytics/data/analytics.sqlite "SELECT ..."
 ## 参照
 
 - MCP 設定: `.mcp.json`
-- モネタイゼーション優先順位: `docs/MONETIZATION_ROADMAP.md`
+- モネタイゼーション優先順位: `docs/strategy/roadmap.md`
 - プロジェクト概要: `AGENTS.md`
