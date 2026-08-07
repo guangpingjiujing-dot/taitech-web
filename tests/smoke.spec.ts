@@ -628,3 +628,178 @@ test("FE pages show FE affiliate books with the required disclosure", async ({
     await expect(page.getByText("達人に学ぶDB設計徹底指南書")).toHaveCount(0);
   }
 });
+
+// ---------------------------------------------------------------------------
+// /joho1 — 共通テスト「情報I」プログラム表記 実行シミュレーター
+// 設計は docs/wip/20260807-joho1/
+// ---------------------------------------------------------------------------
+
+test("Joho1: 最後まで実行すると表示結果が出る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await page.getByRole("button", { name: /^最後まで実行$/ }).click();
+  // 既定のコードは 2〜6 人目の待ち時間を表示する
+  await expect(page.getByText("2人目の待ち時間：0分間")).toBeVisible({
+    timeout: 5_000,
+  });
+  await expect(page.getByText("6人目の待ち時間：4分間")).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: 1 行ずつ実行で行がハイライトされ変数が出る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  const stepBtn = page.getByRole("button", { name: /^1 行ずつ実行$/ });
+  for (let i = 0; i < 3; i++) {
+    await stepBtn.click();
+    await page.waitForTimeout(80);
+  }
+  await expect(page.locator(".cm-execLine").first()).toBeVisible();
+  await expect(page.getByRole("rowheader", { name: "kyakusu" })).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: 試験と同じ行番号とブロック罫線が出る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  // 行番号は (01) 形式
+  await expect(page.locator(".cm-gutterElement").filter({ hasText: "(01)" })).toBeVisible();
+  // 繰り返しの中の行に縦罫線が出る
+  await expect(page.locator(".cm-blockGuide").first()).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: 添字の基点を切り替えられる", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  const zeroBtn = page.getByRole("button", { name: "0 から" });
+  await zeroBtn.click();
+  await expect(zeroBtn).toHaveAttribute("aria-pressed", "true");
+  // 既定のコードは 1 始まり前提なので、0 始まりでは範囲外エラーになる
+  await page.getByRole("button", { name: /^最後まで実行$/ }).click();
+  await expect(
+    page.locator('[role="alert"]').filter({ hasText: "行目" }),
+  ).toBeVisible({ timeout: 5_000 });
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: レッスン 6 本と用語ページがコンソールエラーなしで開ける", async ({
+  page,
+}) => {
+  const paths = [
+    "/joho1/lessons",
+    "/joho1/dncl",
+    "/joho1/lessons/variable",
+    "/joho1/lessons/if",
+    "/joho1/lessons/loop",
+    "/joho1/lessons/loop-while",
+    "/joho1/lessons/array",
+    "/joho1/lessons/function",
+  ];
+  for (const path of paths) {
+    const { errors, warnings } = watchConsole(page);
+    await page.goto(path, { waitUntil: "networkidle" });
+    await expect(page.locator("h1")).toBeVisible();
+    expect(errors, `${path} Console errors:\n${errors.join("\n")}`).toEqual([]);
+    expect(warnings, `${path} Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+  }
+});
+
+test("Joho1: レッスンから埋め込みシミュレーターが動く", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1/lessons/loop", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await page.getByRole("button", { name: /^最後まで実行$/ }).click();
+  await expect(page.getByText("合計は15")).toBeVisible({ timeout: 5_000 });
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: 配列レッスンは 0 始まりが選ばれている", async ({ page }) => {
+  // 「情報Iの配列は 1 始まり」と思い込ませないための回帰テスト
+  await page.goto("/joho1/lessons/array", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await expect(page.getByRole("button", { name: "0 から" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+});
+
+test("Joho1: セクションのナビが情報I の項目を出す (data-modeling に落ちない)", async ({
+  page,
+}) => {
+  await page.goto("/joho1/lessons", { waitUntil: "networkidle" });
+  // TopicNav はドロワー内で常時 SSR され、閉状態では hidden。
+  // crawler が辿れることが目的なので、可視性ではなく DOM 上の存在を見る
+  // (AGENTS.md / roadmap 2026-07-26 の TopicNavDrawer の判断)
+  const nav = page.locator('nav[aria-label="トピック一覧"]').first();
+  await expect(nav.locator('a[href="/joho1"]')).toHaveCount(1);
+  await expect(nav.locator('a[href="/joho1/lessons/array"]')).toHaveCount(1);
+  await expect(nav.locator('a[href="/joho1/dncl"]')).toHaveCount(1);
+  // else フォールバックに落ちると data-modeling の正規化トピックが並ぶ
+  await expect(nav.locator('a[href^="/data-modeling/normalization/"]')).toHaveCount(0);
+});
+
+test("トップ: 2 グループ構成で全セクションに到達できる", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/", { waitUntil: "networkidle" });
+
+  // 見出しに数を焼き付けない (セクションが増えるたびに文言追随が要るため)
+  await expect(page.getByRole("heading", { name: "データベースを理解する" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "試験の擬似言語を動かす" })).toBeVisible();
+  await expect(page.getByText("4本の柱")).toHaveCount(0);
+
+  // 5 セクションすべてへの導線が本文にある
+  const main = page.locator("main, body").first();
+  for (const href of [
+    "/why-need-rdb",
+    "/rdb-index",
+    "/data-modeling",
+    "/fe",
+    "/joho1",
+  ]) {
+    await expect(
+      main.locator(`a[href="${href}"]`).first(),
+      `${href} への導線が無い`,
+    ).toBeVisible();
+  }
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: JSON-LD と OG 画像が出ている", async ({ page }) => {
+  for (const path of ["/joho1", "/joho1/dncl", "/joho1/lessons/array"]) {
+    const res = await page.goto(path, { waitUntil: "networkidle" });
+    expect(res?.status(), path).toBe(200);
+
+    // JSON-LD が壊れていないこと (LearningResource / BreadcrumbList)
+    const types = await page.locator('script[type="application/ld+json"]').evaluateAll(
+      (nodes) =>
+        nodes.flatMap((n) => {
+          const parsed = JSON.parse(n.textContent ?? "{}");
+          return Array.isArray(parsed) ? parsed.map((p) => p["@type"]) : [parsed["@type"]];
+        }),
+    );
+    expect(types, `${path} の JSON-LD`).toContain("LearningResource");
+    expect(types, `${path} の JSON-LD`).toContain("BreadcrumbList");
+
+    // og:image が実在すること (404 を配信しないための回帰テスト)
+    const ogImage = await page
+      .locator('meta[property="og:image"]')
+      .first()
+      .getAttribute("content");
+    expect(ogImage, `${path} に og:image が無い`).toBeTruthy();
+    const imgPath = new URL(ogImage as string).pathname;
+    const imgRes = await page.request.get(imgPath);
+    expect(imgRes.status(), `${imgPath} が 200 でない`).toBe(200);
+  }
+});

@@ -2,6 +2,7 @@ import { site } from "@/lib/site";
 import { topicsInSection, type Topic } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
+import { joho1Lessons } from "@/content/joho1/lessons";
 import {
   sections,
   dataModelingCategories,
@@ -96,6 +97,43 @@ function renderSectionBlock(section: Section): string[] {
     lines.push(``);
     for (const q of feQuizzes) {
       lines.push(`- [${q.shortTitle}](${site.url}/fe/quiz/${q.slug}): ${q.challenge}`);
+    }
+    lines.push(``);
+    return lines;
+  }
+
+  if (section.key === "joho1") {
+    // joho1 も topics レジストリを持たない (lesson が独自レジストリ)
+    lines.push(
+      `**共通テスト「情報I」プログラム表記 実行シミュレーター**: 大学入学共通テスト「情報I」で出題されるプログラム表記のインタプリタをブラウザ上で動かし、1 行ずつ実行しながら変数の変化と表示内容を追える。この言語にはまとまった仕様書が存在せず、記法は試作問題と過去の出題からしか確認できない。本セクションは試作問題・令和 7 年度・令和 8 年度の本試験および追試験で実際に使われた記法だけを扱う。`,
+    );
+    lines.push(``);
+    lines.push(`### ツール`);
+    lines.push(``);
+    lines.push(
+      `- [情報I プログラム表記 実行シミュレーター](${site.url}/joho1): 問題冊子のプログラムを貼り付けると行番号とブロック罫線を自動で取り除き、1 行ずつ実行できる。配列の添字は 0 始まり / 1 始まりを切り替えられる。`,
+    );
+    lines.push(``);
+    lines.push(`### 用語`);
+    lines.push(``);
+    lines.push(
+      `- [情報Iの擬似言語は DNCL ではない](${site.url}/joho1/dncl): 情報I で使われるのは共通テスト用プログラム表記であり、情報関係基礎で使われる DNCL とは別の言語。代入が = か ← か、ブロックを字下げで示すか「を実行する」で閉じるかなど、記法の違いを一次資料をもとに整理している。`,
+    );
+    lines.push(``);
+    lines.push(`### 構文別レッスン`);
+    lines.push(``);
+    lines.push(`一覧: ${site.url}/joho1/lessons`);
+    lines.push(``);
+    for (const l of joho1Lessons) {
+      lines.push(
+        `- [${l.title}](${site.url}/joho1/lessons/${l.slug}): ${l.description}`,
+      );
+    }
+    lines.push(``);
+    lines.push(`### 引用可能な定義`);
+    lines.push(``);
+    for (const l of joho1Lessons) {
+      lines.push(`- **${l.shortTitle}**: ${l.definition}`);
     }
     lines.push(``);
     return lines;

@@ -4,7 +4,8 @@ export type SectionKey =
   | "why-need-rdb"
   | "rdb-index"
   | "data-modeling"
-  | "fe";
+  | "fe"
+  | "joho1";
 
 export type Section = {
   key: SectionKey;
@@ -53,6 +54,18 @@ export const sections: Record<SectionKey, Section> = {
     description:
       "関数従属性と正規化を中心に、リレーショナルデータベースの設計体系を厳密な定義と図解で整理するセクション。",
     ogImageAlt: "データモデリング体系",
+  },
+  joho1: {
+    key: "joho1",
+    label: "共通テスト 情報I プログラム表記 実行シミュレーター",
+    shortLabel: "情報I プログラム表記",
+    path: "/joho1",
+    description:
+      "大学入学共通テスト「情報I」で出題されるプログラム表記を、ブラウザで 1 行ずつ実行できるシミュレーター。変数の値の変化を見ながら、繰り返しと条件分岐の追い方を身につけられる。",
+    ogImageAlt: "共通テスト 情報I プログラム表記 実行シミュレーター",
+    metaTitle: "情報Iのプログラム表記を実行｜共通テスト対策",
+    metaDescription:
+      "共通テスト「情報I」のプログラム表記をブラウザで 1 行ずつ実行できる。変数の値の変化を目で追いながら、繰り返し・条件分岐・配列の動きを確認できる。配列の添字は 0 始まり / 1 始まりを切り替え可能。構文別レッスン 6 本つき。",
   },
   fe: {
     key: "fe",

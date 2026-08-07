@@ -553,6 +553,89 @@ export function FeLessonJsonLd({
 }
 
 /**
+ * `/joho1/*` の JSON-LD。
+ *
+ * `FeLessonJsonLd` と分けているのは、`educationalLevel` の文言と
+ * 所属セクションが違うため。共通化するなら props が増えて
+ * どちらのセクションから読んでも意味が取りにくくなる。
+ */
+export function Joho1PageJsonLd({
+  path,
+  name,
+  description,
+  keywords,
+  breadcrumb,
+  learningResourceType = "Lesson",
+}: {
+  path: string;
+  name: string;
+  description: string;
+  keywords: string[];
+  breadcrumb: { name: string; item: string }[];
+  learningResourceType?: string;
+}) {
+  const url = `${site.url}${path}`;
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      learningResourceType,
+      educationalLevel: "高校生・大学入学共通テスト「情報I」受験者",
+      educationalUse: "自習・試験対策",
+      teaches: name,
+      image: `${url}/opengraph-image`,
+      keywords: keywords.join(", "),
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+      isPartOf: {
+        "@type": "CollectionPage",
+        name: sections.joho1.label,
+        url: `${site.url}${sections.joho1.path}`,
+      },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-speakable='definition']"],
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      author: AUTHOR_PERSON,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumb.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.name,
+        item: b.item,
+      })),
+    },
+  ];
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
+/**
  * 練習問題 1 問分の JSON-LD。schema.org の Quiz (Education Q&A) は
  * 「1 つの Question に acceptedAnswer + suggestedAnswer 群」という形を取る。
  * 解説は正解 Answer の comment に載せる。

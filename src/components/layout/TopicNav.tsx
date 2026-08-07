@@ -5,6 +5,7 @@ import {
   whyNeedRdbTopics,
 } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
+import { joho1Lessons } from "@/content/joho1/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
@@ -69,7 +70,21 @@ export function TopicNav({
                 items: [],
               },
             ]
-          : Object.values(dataModelingCategories).map((c) => ({
+          : section === "joho1"
+            ? [
+                { key: "joho1-tools", label: "ツール", items: [] },
+                {
+                  key: "joho1-lessons",
+                  label: "構文別レッスン",
+                  items: joho1Lessons.map((l) => ({
+                    slug: l.slug,
+                    path: `/joho1/lessons/${l.slug}`,
+                    shortTitle: l.shortTitle,
+                  })),
+                },
+                { key: "joho1-terms", label: "用語", items: [] },
+              ]
+            : Object.values(dataModelingCategories).map((c) => ({
               key: c.key,
               label: c.label,
               items: dataModelingTopicsIn(c.key),
@@ -173,6 +188,58 @@ export function TopicNav({
                   </Link>
                 </li>
               </>
+            )}
+            {g.key === "joho1-tools" && (
+              <li>
+                <Link
+                  href="/joho1"
+                  className={linkClass(
+                    "/joho1",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/joho1")}
+                >
+                  <div className="font-semibold group-hover:underline underline-offset-4">
+                    実行シミュレーター
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                    問題のプログラムを貼って動かす
+                  </div>
+                </Link>
+              </li>
+            )}
+            {g.key === "joho1-lessons" && (
+              <li>
+                <Link
+                  href="/joho1/lessons"
+                  className={linkClass(
+                    "/joho1/lessons",
+                    "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/joho1/lessons")}
+                >
+                  レッスン一覧
+                </Link>
+              </li>
+            )}
+            {g.key === "joho1-terms" && (
+              <li>
+                <Link
+                  href="/joho1/dncl"
+                  className={linkClass(
+                    "/joho1/dncl",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/joho1/dncl")}
+                >
+                  <div className="font-semibold group-hover:underline underline-offset-4">
+                    DNCL との違い
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                    情報Iの言語は DNCL ではない
+                  </div>
+                </Link>
+              </li>
             )}
             {g.key === "fe-lessons" && (
               <li>

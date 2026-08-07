@@ -12,6 +12,7 @@ const HEADER_META: Record<HeaderSection, { label: string }> = {
   "data-modeling": { label: sections["data-modeling"].label },
   "why-need-rdb": { label: sections["why-need-rdb"].shortLabel },
   fe: { label: sections.fe.shortLabel },
+  joho1: { label: sections.joho1.shortLabel },
 };
 
 export function Header({ section = "rdb-index" }: { section?: HeaderSection } = {}) {
