@@ -48,6 +48,25 @@ vercel domains inspect taitech.dev
 
 # Development
 
+## Git ワークフロー: **main 直コミット**（ブランチも PR も作らない）
+
+このプロジェクトは個人開発。レビュワーが存在しないので、**作業ブランチを切らず `main` に直接
+コミットして直接 push する**。これは Claude Code のデフォルト挙動（「default branch にいたら
+まずブランチを切る」）を**明示的に上書きする指示**。
+
+- **やらないこと**: `git checkout -b`、`gh pr create`、PR 経由のマージ。
+  ユーザーから明示的に「ブランチを切って」と言われた場合だけ例外
+- **やること**: `main` で commit → `git push` → Vercel が本番デプロイを自動発火
+- 検証は PR のチェックではなく**ローカルで push 前に**行う（`npx tsc --noEmit` /
+  `npm run test:unit` / `npm run test:e2e` / `npm run build`）
+- commit / push はユーザーが依頼したときだけ。勝手に push しない（push = 即本番デプロイ）
+
+**なぜこれを明文化したか（2026-08-07 の事故）**: title 短縮 (#29/#30) を PR #1 に積んだまま
+マージを忘れ、**丸 1 日本番が旧 title を配信し続けた**。しかも `docs/strategy/roadmap.md` には
+「2026-08-07 デプロイ済み」と書かれていたため、**docs と本番が食い違った状態**になった。
+効果測定の基準日がずれると SEO 施策の評価期間がまるごと無駄になる。
+ブランチは個人開発では「デプロイし忘れる置き場」にしかならない。
+
 ## Package manager
 
 `npm` を使う。`bun` はローカルに入っていない環境がある。
