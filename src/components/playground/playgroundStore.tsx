@@ -20,6 +20,22 @@ import {
   type Value,
 } from "@/lib/pseudo";
 
+/**
+ * ステップ実行の土台は IPA 擬似言語 (`/fe`) と共通テスト用プログラム表記 (`/joho1`) で
+ * 共有している。**言語に依存するのはこの 2 つだけ**で、ステップの進め方・変数の
+ * スナップショット・ハイライトはどちらも同じ (01-implementation-design.md §1)。
+ */
+export interface LanguageAdapter {
+  parse: (code: string) => Program;
+  createState: (program: Program) => ExecutionState;
+}
+
+/** 既定は `/fe`。FE 側の呼び出しは adapter を渡さなくてよい */
+const FE_ADAPTER: LanguageAdapter = {
+  parse,
+  createState: (program) => createInitialState(program),
+};
+
 export interface OutputLine {
   text: string;
   line: number;
@@ -148,7 +164,10 @@ const EMPTY_HIGHLIGHT: HighlightState = {
   version: 0,
 };
 
-function createPlaygroundStore(initialCode: string) {
+function createPlaygroundStore(
+  initialCode: string,
+  adapter: LanguageAdapter = FE_ADAPTER,
+) {
   const runner: InternalRunner = {
     program: null,
     execState: null,
@@ -192,8 +211,8 @@ function createPlaygroundStore(initialCode: string) {
       if (runner.generator) return true;
       const { code } = get();
       try {
-        const program = parse(code);
-        const execState = createInitialState(program);
+        const program = adapter.parse(code);
+        const execState = adapter.createState(program);
         runner.program = program;
         runner.execState = execState;
         runner.generator = runFromState(program, execState);
@@ -403,15 +422,17 @@ const PlaygroundStoreContext = createContext<ReturnType<
 export function PlaygroundStoreProvider({
   children,
   initialCode,
+  adapter,
 }: {
   children: ReactNode;
   initialCode?: string;
+  adapter?: LanguageAdapter;
 }) {
   const storeRef = useRef<ReturnType<typeof createPlaygroundStore> | null>(
     null,
   );
   if (!storeRef.current) {
-    storeRef.current = createPlaygroundStore(initialCode ?? DEFAULT_CODE);
+    storeRef.current = createPlaygroundStore(initialCode ?? DEFAULT_CODE, adapter);
   }
   return (
     <PlaygroundStoreContext.Provider value={storeRef.current}>

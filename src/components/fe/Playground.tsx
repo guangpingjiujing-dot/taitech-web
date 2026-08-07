@@ -7,7 +7,7 @@ import {
   DEFAULT_CODE,
   PlaygroundStoreProvider,
   usePlayground,
-} from "./playgroundStore";
+} from "@/components/playground/playgroundStore";
 import {
   transpileToPython,
   transpileToTypeScript,
@@ -21,8 +21,15 @@ const EDITOR_HEIGHT = "460px";
 // モバイル (≤900px) の高さは globals.css の .fe-playground-grid 側で
 // --fe-editor-height を上書きして与える (ここでは持たない)
 
-const PseudoEditor = dynamic(
-  () => import("./PseudoEditor").then((m) => m.PseudoEditor),
+import { lineNumbers } from "@codemirror/view";
+import { pseudoLanguage } from "./pseudoLanguage";
+
+// 言語定義と行番号は言語ごとに違うのでエディタ本体から出してある
+// (`/joho1` は `(01)` 形式の行番号 + ブロック罫線)
+const FE_EDITOR_EXTENSIONS = [lineNumbers(), pseudoLanguage];
+
+const CodeEditor = dynamic(
+  () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
   { ssr: false, loading: () => <EditorSkeleton /> },
 );
 
@@ -279,7 +286,8 @@ function PlaygroundInner({
         </div>
 
         {/* row 2 col 1: editor */}
-        <PseudoEditor
+        <CodeEditor
+          extensions={FE_EDITOR_EXTENSIONS}
           value={code}
           onChange={setCode}
           highlightLine={highlight.line}

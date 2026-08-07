@@ -77,6 +77,9 @@ function emitBinary(expr: BinaryOp): string {
     case "/":
       // Ambiguous: use / for now; integer users should use //
       return `(${l} / ${r})`;
+    case "div":
+      // 整数の商。Python の // は負数で床除算になるが、試験の出題は非負のみ
+      return `(${l} // ${r})`;
     case "mod":
       return `(${l} % ${r})`;
     case "=":

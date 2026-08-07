@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { usePlayground } from "@/components/fe/playgroundStore";
+import { usePlayground } from "@/components/playground/playgroundStore";
 
 /**
  * `/fe` を `?code=` / `?from=` 付きで開いたときの処理。

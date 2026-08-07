@@ -414,3 +414,118 @@ describe("interpreter: format", () => {
     ).toBe("{1, 2}");
   });
 });
+
+// ---------------------------------------------------------------------------
+// 言語横断のオプション。`/joho1` (共通テスト用プログラム表記) と共有するための
+// 実行時設定で、既定値は `/fe` (IPA 擬似言語) の挙動と一致していなければならない。
+// 設計は docs/wip/20260807-joho1/01-implementation-design.md §1-3
+// ---------------------------------------------------------------------------
+
+describe("interpreter: index base option", () => {
+  const src = `整数型の配列: A ← {10, 20, 30}
+整数型: x ← A[1]
+`;
+
+  it("defaults to 1-origin (FE の既定挙動を変えない)", () => {
+    const state = runToEnd(parse(src));
+    expect(state.callStack[0].variables.get("x")).toEqual({
+      type: "int",
+      value: 10,
+    });
+  });
+
+  it("reads 0-origin when indexBase is 0", () => {
+    const state = runToEnd(parse(src), { indexBase: 0 });
+    expect(state.callStack[0].variables.get("x")).toEqual({
+      type: "int",
+      value: 20,
+    });
+  });
+
+  it("writes with the configured base", () => {
+    const state = runToEnd(
+      parse(`整数型の配列: A ← {10, 20, 30}
+A[0] ← 99
+`),
+      { indexBase: 0 },
+    );
+    const arr = state.callStack[0].variables.get("A");
+    expect(arr?.type === "array" && arr.elements[0]).toEqual({
+      type: "int",
+      value: 99,
+    });
+  });
+
+  it("rejects index 0 under 1-origin", () => {
+    const state = runToEnd(parse(`整数型の配列: A ← {10}
+整数型: x ← A[0]
+`));
+    expect(state.error).toBeInstanceOf(PseudoRuntimeError);
+    expect(state.error?.kind).toBe("ARRAY_INDEX_OUT_OF_BOUNDS");
+    // 基点に応じてヒントを切り替えないと嘘を表示する
+    expect(state.error?.hint).toContain("1 から始まります");
+  });
+
+  it("rejects the last+1 index under 0-origin with a matching hint", () => {
+    const state = runToEnd(
+      parse(`整数型の配列: A ← {10}
+整数型: x ← A[1]
+`),
+      { indexBase: 0 },
+    );
+    expect(state.error?.kind).toBe("ARRAY_INDEX_OUT_OF_BOUNDS");
+    expect(state.error?.hint).toContain("0 から始まります");
+  });
+});
+
+describe("interpreter: injected builtins", () => {
+  it("calls an injected function", () => {
+    const builtins = new Map([
+      [
+        "要素数",
+        (args: import("./interpreter").Value[]) => {
+          const a = args[0];
+          return {
+            type: "int" as const,
+            value: a.type === "array" ? a.elements.length : 0,
+          };
+        },
+      ],
+    ]);
+    const state = runToEnd(
+      parse(`整数型の配列: A ← {1, 2, 3, 4}
+整数型: n ← 要素数(A)
+`),
+      { builtins },
+    );
+    expect(state.callStack[0].variables.get("n")).toEqual({
+      type: "int",
+      value: 4,
+    });
+  });
+
+  // 関数名が `出力` なのは FE のレキサがひらがな識別子を拒否するため
+  // (docs/sections/fe-playground.md §3-1)。`/joho1` の `表示する` は
+  // joho1 側のレキサで扱う — この制約は継承しない
+  it("routes builtin output into state.output", () => {
+    const builtins = new Map([
+      [
+        "出力",
+        (
+          args: import("./interpreter").Value[],
+          ctx: { output: (t: string) => void },
+        ) => {
+          ctx.output(args.map(formatValue).join(""));
+          return { type: "undefined" as const };
+        },
+      ],
+    ]);
+    const state = runToEnd(parse(`出力("合計は", 15)`), { builtins });
+    expect(state.output).toEqual(["合計は15"]);
+  });
+
+  it("has no builtins by default", () => {
+    const state = runToEnd(parse(`整数型: n ← 要素数(1)`));
+    expect(state.error?.kind).toBe("UNKNOWN_FUNCTION");
+  });
+});

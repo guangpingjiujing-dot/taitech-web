@@ -39,6 +39,41 @@ export interface Frame {
   returnValue: Value | null;
 }
 
+/**
+ * 言語ごとに差し込む実行時の設定。
+ *
+ * このインタプリタは IPA 擬似言語 (`/fe`) と共通テスト用プログラム表記 (`/joho1`) で
+ * 共有している。両者は AST は同じだが、配列の添字の基点と、使える組み込み関数が違う。
+ * **既定値は `/fe` の挙動**なので、FE 側の呼び出しは options を渡さなくてよい。
+ */
+export interface InterpreterOptions {
+  /**
+   * 配列の添字の基点。IPA 擬似言語は 1 固定。
+   * 共通テスト用プログラム表記は **問題ごとに 0 か 1 かが宣言される**ので呼び出し側が決める
+   * (試作問題 = 0 / 令和7・8年度本試験 = 1 / 令和8年度追試験 = 0)。
+   */
+  indexBase?: 0 | 1;
+  /**
+   * 問題文の【関数の説明】で与えられる関数。共通テスト用プログラム表記には
+   * 固定の組み込み関数セットが存在せず、`要素数` `最大値` などは出題ごとに定義される。
+   * 呼び出し順は print → builtins → ユーザー定義関数。
+   */
+  builtins?: Map<string, BuiltinFn>;
+  /**
+   * ブロックの閉じ行 (`endif` / `endwhile` / `endfor`) をステップとして発火するか。
+   *
+   * IPA 擬似言語には閉じ行が実在するので既定は true。
+   * **共通テスト用プログラム表記にはブロックの閉じ行が無い** (コロンと罫線で閉じる) ため
+   * false にする。true のままだと、書かれていない行をハイライトしてしまう。
+   */
+  emitBlockEndMarkers?: boolean;
+}
+
+export type BuiltinFn = (
+  args: Value[],
+  ctx: { pos: Position; output: (text: string) => void },
+) => Value;
+
 export interface ExecutionState {
   callStack: Frame[];
   output: string[];
@@ -47,6 +82,9 @@ export interface ExecutionState {
   status: "running" | "finished" | "error";
   error: PseudoRuntimeError | null;
   functions: Map<string, FuncDecl | ProcDecl>;
+  indexBase: 0 | 1;
+  builtins: Map<string, BuiltinFn>;
+  emitBlockEndMarkers: boolean;
 }
 
 export type StepEvent =
@@ -213,15 +251,16 @@ function evaluate(expr: Expr, state: ExecutionState): Value {
       }
       const idxVal = evaluate(expr.index, state);
       const idx = ensureInt(idxVal, expr.pos, "配列の添字");
-      if (idx < 1 || idx > arrVal.elements.length) {
+      const offset = idx - state.indexBase;
+      if (offset < 0 || offset >= arrVal.elements.length) {
         throw new PseudoRuntimeError(
           "ARRAY_INDEX_OUT_OF_BOUNDS",
-          `配列 '${expr.array.name}' の要素は ${arrVal.elements.length} 個しかありませんが、${idx} 番目にアクセスしようとしました`,
+          `配列 '${expr.array.name}' の要素は ${arrVal.elements.length} 個しかありませんが、添字 ${idx} にアクセスしようとしました`,
           expr.pos,
-          "この擬似言語では配列の添字は 1 から始まります (0 ではありません)。",
+          indexBaseHint(state),
         );
       }
-      return arrVal.elements[idx - 1];
+      return arrVal.elements[offset];
     }
     case "UnaryOp":
       return evalUnary(expr, state);
@@ -268,6 +307,7 @@ function evalBinary(expr: BinaryOp, state: ExecutionState): Value {
     case "-":
     case "*":
     case "/":
+    case "div":
     case "mod": {
       const ln = ensureNumeric(l, expr.pos, "算術演算");
       const rn = ensureNumeric(r, expr.pos, "算術演算");
@@ -293,6 +333,18 @@ function evalBinary(expr: BinaryOp, state: ExecutionState): Value {
           }
           result = ln / rn;
           break;
+        case "div":
+          if (rn === 0) {
+            throw new PseudoRuntimeError(
+              "DIVISION_BY_ZERO",
+              "0 で割ることはできません",
+              expr.pos,
+              "割る数が 0 でないかチェックしましょう。",
+            );
+          }
+          // 整数の商。負の数は 0 方向に切り捨てる (試験の出題は非負のみ)
+          result = Math.trunc(ln / rn);
+          break;
         case "mod":
           if (rn === 0) {
             throw new PseudoRuntimeError(
@@ -306,7 +358,10 @@ function evalBinary(expr: BinaryOp, state: ExecutionState): Value {
         default:
           result = 0;
       }
-      const isInt = l.type === "int" && r.type === "int" && expr.op !== "/";
+      // `div` (整数の商) は定義上つねに整数。それ以外は両辺が整数のときだけ整数
+      const isInt =
+        expr.op === "div" ||
+        (l.type === "int" && r.type === "int" && expr.op !== "/");
       // Note: integer division truncates in this pseudo-lang. For now we
       // preserve mathematical division and coerce to float when needed.
       if (isInt) return { type: "int", value: Math.trunc(result) };
@@ -360,6 +415,17 @@ function evalCall(expr: Call, state: ExecutionState): Value {
     // for simplicity, expression eval pushes to state.output directly.
     // The step wrapper picks it up.
     return UNDEFINED_VALUE;
+  }
+
+  // 問題ごとに注入される関数 (共通テスト用プログラム表記の 要素数 / 最大値 / 表示する)。
+  // ユーザー定義関数より先に引く: 出題側が与える関数の意味を上書きさせない。
+  const builtin = state.builtins.get(expr.callee);
+  if (builtin) {
+    const args = expr.args.map((a) => evaluate(a, state));
+    return builtin(args, {
+      pos: expr.pos,
+      output: (text) => state.output.push(text),
+    });
   }
 
   const fn = state.functions.get(expr.callee);
@@ -436,15 +502,27 @@ function assignTo(
   }
   const idxVal = evaluate(target.index, state);
   const idx = ensureInt(idxVal, target.pos, "配列の添字");
-  if (idx < 1 || idx > arrVal.elements.length) {
+  const offset = idx - state.indexBase;
+  if (offset < 0 || offset >= arrVal.elements.length) {
     throw new PseudoRuntimeError(
       "ARRAY_INDEX_OUT_OF_BOUNDS",
-      `配列 '${target.array.name}' の要素は ${arrVal.elements.length} 個しかありませんが、${idx} 番目に代入しようとしました`,
+      `配列 '${target.array.name}' の要素は ${arrVal.elements.length} 個しかありませんが、添字 ${idx} に代入しようとしました`,
       target.pos,
-      "この擬似言語では配列の添字は 1 から始まります。",
+      indexBaseHint(state),
     );
   }
-  arrVal.elements[idx - 1] = value;
+  arrVal.elements[offset] = value;
+}
+
+/**
+ * 添字の基点に応じたヒント文。
+ * **基点は言語ではなく実行時の設定なので、文言を固定にすると嘘を表示する**
+ * (共通テスト用プログラム表記は 0 始まりの回がある)。
+ */
+function indexBaseHint(state: ExecutionState): string {
+  return state.indexBase === 1
+    ? "この擬似言語では配列の添字は 1 から始まります (0 ではありません)。"
+    : "このプログラムでは配列の添字は 0 から始まります。先頭の要素は添字 0 です。";
 }
 
 function execVarDecl(stmt: VarDecl, state: ExecutionState): void {
@@ -519,6 +597,8 @@ function* yieldEndMarker(
   pos: Position,
   state: ExecutionState,
 ): Generator<StepEvent> {
+  // 閉じ行が存在しない言語では、書かれていない行をハイライトすることになる
+  if (!state.emitBlockEndMarkers) return;
   const marker = makeLineMarker(pos);
   state.currentNode = marker;
   yield { type: "before-stmt", node: marker };
@@ -698,7 +778,10 @@ function* execBlock(
   }
 }
 
-export function createInitialState(program: Program): ExecutionState {
+export function createInitialState(
+  program: Program,
+  options: InterpreterOptions = {},
+): ExecutionState {
   const functions = new Map<string, FuncDecl | ProcDecl>();
   for (const item of program.body) {
     if (item.kind === "FuncDecl" || item.kind === "ProcDecl") {
@@ -718,11 +801,17 @@ export function createInitialState(program: Program): ExecutionState {
     status: "running",
     error: null,
     functions,
+    indexBase: options.indexBase ?? 1,
+    builtins: options.builtins ?? new Map(),
+    emitBlockEndMarkers: options.emitBlockEndMarkers ?? true,
   };
 }
 
-export function* run(program: Program): Generator<StepEvent, void, void> {
-  const state = createInitialState(program);
+export function* run(
+  program: Program,
+  options: InterpreterOptions = {},
+): Generator<StepEvent, void, void> {
+  const state = createInitialState(program, options);
   yield* runFromState(program, state);
 }
 
@@ -770,8 +859,11 @@ function* yieldDeclarationMarker(
   incrementSteps(state, marker);
 }
 
-export function runToEnd(program: Program): ExecutionState {
-  const state = createInitialState(program);
+export function runToEnd(
+  program: Program,
+  options: InterpreterOptions = {},
+): ExecutionState {
+  const state = createInitialState(program, options);
   try {
     for (const item of program.body) {
       if (isStatement(item)) {

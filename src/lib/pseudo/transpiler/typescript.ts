@@ -72,6 +72,8 @@ function emitBinary(expr: BinaryOp): string {
     case "*":
     case "/":
       return `(${l} ${expr.op} ${r})`;
+    case "div":
+      return `Math.trunc(${l} / ${r})`;
     case "mod":
       return `(${l} % ${r})`;
     case "=":

@@ -11,7 +11,6 @@ import { EditorState, Compartment, StateEffect, StateField } from "@codemirror/s
 import {
   EditorView,
   keymap,
-  lineNumbers,
   highlightActiveLine,
   Decoration,
   DecorationSet,
@@ -28,7 +27,7 @@ import {
   bracketMatching,
   indentOnInput,
 } from "@codemirror/language";
-import { pseudoLanguage } from "./pseudoLanguage";
+import type { Extension } from "@codemirror/state";
 
 const setHighlightLine = StateEffect.define<number | null>();
 
@@ -89,7 +88,9 @@ const execLineTheme = EditorView.theme({
   },
 });
 
-export interface PseudoEditorProps {
+export interface CodeEditorProps {
+  /** 言語定義と追加装飾。CodeMirror の拡張をそのまま渡す */
+  extensions: Extension[];
   value: string;
   onChange?: (value: string) => void;
   readOnly?: boolean;
@@ -105,7 +106,8 @@ export interface PseudoEditorProps {
   onReady?: (api: { insertText: (text: string) => void }) => void;
 }
 
-export function PseudoEditor({
+export function CodeEditor({
+  extensions,
   value,
   onChange,
   readOnly = false,
@@ -115,7 +117,7 @@ export function PseudoEditor({
   minHeight = "260px",
   className,
   onReady,
-}: PseudoEditorProps) {
+}: CodeEditorProps) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -131,13 +133,12 @@ export function PseudoEditor({
     const state = EditorState.create({
       doc: value,
       extensions: [
-        lineNumbers(),
         history(),
         bracketMatching(),
         indentOnInput(),
         highlightActiveLine(),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-        pseudoLanguage,
+        ...extensions,
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         highlightLineField,
         execLineTheme,

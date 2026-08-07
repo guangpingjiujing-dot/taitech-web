@@ -10,8 +10,15 @@ import {
   PseudoParseError,
 } from "@/lib/pseudo";
 
-const PseudoEditor = dynamic(
-  () => import("./PseudoEditor").then((m) => m.PseudoEditor),
+import { lineNumbers } from "@codemirror/view";
+import { pseudoLanguage } from "./pseudoLanguage";
+
+// 言語定義と行番号は言語ごとに違うのでエディタ本体から出してある
+// (`/joho1` は `(01)` 形式の行番号 + ブロック罫線)
+const FE_EDITOR_EXTENSIONS = [lineNumbers(), pseudoLanguage];
+
+const CodeEditor = dynamic(
+  () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
   {
     ssr: false,
     loading: () => (
@@ -114,7 +121,8 @@ export function TranspileComparison() {
         className="fe-transpile-grid"
       >
         <Pane title="擬似言語 (入力)">
-          <PseudoEditor
+          <CodeEditor
+            extensions={FE_EDITOR_EXTENSIONS}
             value={code}
             onChange={setCode}
             height="380px"
