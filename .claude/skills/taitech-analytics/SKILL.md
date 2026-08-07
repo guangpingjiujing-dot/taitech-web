@@ -15,7 +15,12 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 - **DB path**: `analytics/data/analytics.sqlite` (プロジェクトルート基準)
 - **スキーマ**: `analytics/schema.sql`
 - **MCP**: `mcp__ga__*` と `mcp__gsc__*` が利用可能な前提。`.mcp.json` に定義済み。
-- **自己トラフィック除外**: GA4 内部トラフィックフィルタを **2026-07-15 有効化済み**。以降のデータは運営者本人の閲覧が除外されている。**2026-07-15 より前のデータは汚染あり**（特に direct/(none) セッション、`/cmd_sco` 等のテスト path）。設定詳細は `docs/site/operations.md` 参照。
+- **自己トラフィック除外**: GA4 内部トラフィックフィルタを **2026-07-15 有効化済み**。**2026-07-15 より前のデータは汚染あり**（特に direct/(none) セッション、`/cmd_sco` 等のテスト path）。設定詳細は `docs/site/operations.md` 参照。
+  **ただしこのフィルタは IP ベースで自宅回線しか除外しない**。モバイル回線・外出先からの本人の閲覧は素通りする。新機能の公開直後にセッション数が跳ねて回遊が異常に深い日は、まず本人の閲覧を疑い、ユーザーに確認してから読者の行動として解釈すること（2026-08-05 がこれで、`amazon_click` 4 件が本人だった）。
+- **海外トラフィックはほぼ全てボット**（2026-08-07 に国別で確認）。直近 30 日で US 53 セッションが**エンゲージ 0 件**、対して Japan 61 セッションはエンゲージ 36%。**素のセッション数の 55% が日本以外**で、含めると流入構成を完全に読み違える（direct/(none) が 96 セッション＝全体の 73% に見えていたが、日本のみだと 5 セッション）。
+  **対策は実装済み**: `ga_page_daily` / `ga_source_daily` / `ga_event_daily` に `country` 列がある。
+  定型クエリは `country = 'Japan'` で絞ってあるので、**新しく SQL を書くときも必ず同じ条件を入れる**。
+  捨てている側の監査は `analytics/queries/bot_audit.sql`。
 
 ## 引数
 
@@ -31,7 +36,19 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 
 ## Mode: pull（データ取得）
 
-**大枠のフロー**: MCP 生レスポンスを `analytics/snapshots/<YYYY-MM-DD>/*.json` に保存 → `python3 analytics/scripts/load.py analytics/snapshots/<YYYY-MM-DD>` で SQLite に UPSERT。ローダはファイル名の prefix でソースを判定する（`gsc_search_*.json`, `gsc_sitemap_*.json`, `ga_page_*.json`, `ga_source_*.json`, `ga_event_*.json`）。
+**大枠のフロー**: 各ソースを `analytics/snapshots/<YYYY-MM-DD>/*.json` に保存 → SQLite へ UPSERT。
+
+取得経路は 2 系統ある。**スクリプトがあるものは必ずスクリプトを使う**（人手の転記を挟まないため）。
+
+| ソース | 取得方法 | 人手の転記 |
+|---|---|---|
+| GA4 (page / source / event) | `analytics/scripts/pull_ga.py` | **なし** |
+| GSC URL Inspection | `analytics/scripts/inspect_urls.py` | **なし** |
+| GSC Search Analytics | MCP → snapshot → `load.py` | あり |
+| GSC サイトマップ | MCP → snapshot → `load.py` | あり |
+
+`load.py` はファイル名の prefix でソースを判定する（`gsc_search_*.json`, `gsc_sitemap_*.json`,
+`ga_page_*.json`, `ga_source_*.json`, `ga_event_*.json`）。
 
 ### 手順
 
@@ -57,27 +74,27 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 
    返却された各行を `gsc_search_daily` に UPSERT。country は現行 MCP から取得できないので空文字で保存する。
 
-3. **GA4 page daily を取得**
+3. **GA4 を取得**（page / source / event をまとめて）
 
-   `mcp__ga__run_report` を呼ぶ。
-   - `property_id`: `544205654`
-   - `date_ranges`: `[{"start_date": "<start>", "end_date": "<end>"}]`
-   - `dimensions`: `["date", "pagePath"]` — **文字列配列**（オブジェクトではない）
-   - `metrics`: `["sessions", "activeUsers", "engagedSessions", "engagementRate", "averageSessionDuration", "screenPageViews", "eventCount"]`
-   - `limit`: 10000
+   ```bash
+   uv run analytics/scripts/pull_ga.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>
+   # もしくは
+   uv run analytics/scripts/pull_ga.py --days 21
+   ```
 
-   `date` は `YYYYMMDD` で返るので `YYYY-MM-DD` に変換して `ga_page_daily` に UPSERT。
+   **MCP (`mcp__ga__run_report`) は使わない**。MCP はレスポンスがエージェントの文脈を
+   経由するため、数百行を snapshot JSON へ**手で書き写す工程**が入る。これは非決定的で
+   誤りが混入する（2026-08-07 の初回 pull で実際に 253 行を転記している）。
+   このスクリプトは Data API を直接叩き、取得 → snapshot 保存 → SQLite UPSERT →
+   `collections` 記録までを人手を介さずに行う。ページングも内部で処理する。
 
-4. **GA4 source daily を取得**
+   取得するディメンション / メトリクスの定義はスクリプト内の `REPORTS` が一次情報。
+   **`country` を必ず含める**（ボット除外の前提。上の「海外トラフィック」節を参照）。
 
-   同上、dimensions を `["date", "sessionSource", "sessionMedium", "sessionCampaign"]` に、metrics を `["sessions", "engagedSessions", "activeUsers"]` にして `ga_source_daily` に UPSERT。
+   MCP の `mcp__ga__run_report` を使うのは、定型外のディメンションを 1 回だけ試したいとき
+   のみ。その場合も DB には書かず、探索に留めること。
 
-5. **GA4 event daily を取得**
-
-   dimensions `["date", "eventName", "pagePath"]`、metrics `["eventCount"]` で `ga_event_daily` に UPSERT。
-   - Amazon リンククリック等のカスタムイベントが未設定の場合は `page_view` `session_start` `first_visit` 等の標準イベントのみ入る。それでも構わない。
-
-6. **サイトマップ状態を取得**（インデックス把握用の軽い proxy）
+4. **サイトマップ状態を取得**（インデックス把握用の軽い proxy）
 
    - まず `mcp__gsc__list_sitemaps`（無ければ `mcp__gsc__get_sitemap_details` を既知の sitemap_url に対して呼ぶ）でサイトマップ一覧を取得。taitech.dev は `next-sitemap` / Next.js 標準で `/sitemap.xml` に生成している。
    - 各サイトマップに対し `mcp__gsc__get_sitemap_details` を呼び、以下を `sitemap_status` に UPSERT:
@@ -85,15 +102,32 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
      - `last_submitted`、`last_downloaded`
      - `warnings`、`errors`
      - `submitted_urls` = `contents[].submitted` の合計、`indexed_urls` = `contents[].indexed` の合計（API が返せば）
-   - URL 単位の URL Inspection は今回スコープ外（クォータが重い）。必要になったら手動でクエリを叩く。
+5. **URL 単位のインデックス状態を取得**（`url_index_status`）
 
-7. **collections に記録**
+   ```bash
+   uv run analytics/scripts/inspect_urls.py     # live sitemap.xml の全 URL
+   ```
 
-   各ソースについて `INSERT INTO collections (run_id, collected_at, source, date_start, date_end, rows_upserted)` する。`run_id` は `<ISO時刻>-<source>`。source は `gsc` `ga4_page` `ga4_source` `ga4_event` `gsc_sitemap` を使う。
+   MCP ではなくサービスアカウントで URL Inspection API を直接叩く（72 URL で約 5 分）。
+   MCP の `mcp__gsc__inspect_url_enhanced` は 1 URL ずつなので全件収集には使わない
+   （個別の深掘りには有用）。
 
-8. **スナップショット保存**（オプション、デバッグ用）
+   **これは省略しないこと**。`sitemap_status.indexed_urls` は常に 0、`gsc_search_daily` は
+   露出のあったページしか含まないので、**「インデックスされているが検索に呼ばれていない」
+   ページはこのテーブルでしか見えない**。この 2 つは打ち手が全く別物（前者は被リンク・
+   内部リンク、後者は title / クエリ適合）なので、切り分けずに施策を打つと必ず外す。
 
-   生 MCP レスポンスを `analytics/snapshots/<source>-<ISO日時>.json` に保存。gitignore 済み。
+   クォータは 2000 query/日・600 query/分。1 日に何度も回さない。
+
+6. **collections に記録**
+
+   各ソースについて `INSERT INTO collections (run_id, collected_at, source, date_start, date_end, rows_upserted)` する。`run_id` は `<ISO時刻>-<source>`。source は `gsc` `ga4_page` `ga4_source` `ga4_event` `gsc_sitemap` `gsc_url_inspect` を使う。
+
+7. **スナップショット保存**
+
+   MCP 経由のソース（GSC）は生レスポンスを `analytics/snapshots/<YYYY-MM-DD>/` に保存してから
+   `load.py` に流す。スクリプト経由のソース（GA4 / URL Inspection）は保存まで自動。
+   `analytics/` 配下は gitignore 済み。
 
 ### ローダ実行
 
@@ -114,6 +148,15 @@ DDL は `analytics/schema.sql`（`CREATE TABLE IF NOT EXISTS` のみ）。スキ
 - `mcp__gsc__get_search_analytics` の `row_limit` は max 500。500 件で足りない期間は日別に分けて複数回呼ぶ。
 - GSC は 2〜3 日遅れて確定するため、最新 3 日分は必ず再取得する。
 - `mcp__gsc__get_sitemap_details` の `submitted` / `indexed` は **Google が最後にサイトマップをクロールした時点** の値。ライブ sitemap.xml と乖離することがある（`last_downloaded` で確認）。乖離したら GSC 側の再送信を検討。
+- 同 API の `indexed` は **常に 0 が返る**（2026-07-14 / 07-24 / 08-06 の 3 回とも 0）。API 側の欠測であって未インデックスではない。`sitemap_status.indexed_urls` を根拠に「インデックスされていない」と結論しないこと。インデックス状態は `url_index_status`（手順 5）を見る。
+
+### 集計の落とし穴
+
+- **`ga_page_daily.sessions` をページ横断で SUM してはいけない**。GA4 の `sessions` は
+  `pagePath` ごとに立つので、1 セッションが 20 ページ回遊すると 20 行それぞれに 1 が入る。
+  日次・期間合計のセッション数は必ず **`ga_source_daily`** から取る。
+  `ga_page_daily` の `sessions` は「そのページ単体を含んだセッション数」としてのみ読む。
+  （2026-08-05 が「55 セッション」に見えたが実数は 8 だった。）
 
 ---
 
@@ -147,6 +190,31 @@ sqlite3 -header -column analytics/data/analytics.sqlite "SELECT ..."
 2. `analytics/queries/ctr_opportunities.sql` — impressions 多いが CTR 低い / 順位悪いクエリ（改善余地）
 3. `analytics/queries/growth_pages.sql` — 直近 14 日 vs その前 14 日で impressions が伸びた / 沈んだページ
 4. `analytics/queries/source_mix.sql` — 流入 source/medium の直近 30 日構成
+5. `analytics/queries/url_index_status.sql` — インデックス台帳。coverage 内訳 / 未インデックス一覧 /
+   セクション別インデックス率 / **インデックス済みだが 28 日露出ゼロのページ**
+6. `analytics/queries/bot_audit.sql` — 国別の混入監査。1〜4 が `country = 'Japan'` で
+   捨てている側を確認する。日本以外でエンゲージ率が継続的に立ってきたら Japan 固定を見直す
+
+**「検索流入が無い」を 1 つの問題として書かない**。必ず (a) インデックスされていない
+(b) インデックス済みだが呼ばれない、に割ってから打ち手を出す。(a) は被リンク・内部リンク、
+(b) は title / クエリ適合で、打ち手が交差しない。
+（2026-08-07 のレビューでは未インデックス 19 件が全て `/fe/quiz/*` に集中していた。
+2 URL のサンプルだけ見て「インデックス障害ではない」と一度誤った結論を書いている。）
+
+### 事実確認せずに書きがちな誤り（2026-08-07 に実際に 3 つやった）
+
+- **クロール予算をこのサイトの制約として書かない**。Google は「数千 URL 未満のサイトでは
+  クロール予算を気にする必要はない」としており、taitech.dev の 72 URL は遠く及ばない。
+  `Discovered - currently not indexed` は予算切れではなく **Google が価値判断を保留している**状態。
+  したがって「未インデックスが溜まっているからページ追加を控えろ」は**誤った助言**。
+  避けるべきなのは量ではなく種類（保留中と同じテンプレートを積み増すこと）だけ。
+- **GA4 上のボット / 自己トラフィックを AdSense 審査のブロッカーとして書かない**。審査は
+  サイトの内容・ナビゲーション・ポリシー適合を見るもので、運営者の解析データは審査側から
+  見えない。無効トラフィックが問題になるのは承認後の広告表示・クリック。
+- **URL Inspection API に「インデックス登録リクエスト」は無い**（読み取り専用）。リクエストは
+  GSC UI の手作業で 1 日 10 件程度が上限。一括処理の手段として提案しないこと。
+  少数（2〜3 件）を診断として使い、`Crawled - currently not indexed` で返るなら
+  スケジューリングではなくページ自体の価値評価の問題、という切り分けに充てる。
 
 各結果に対し、以下の観点で**短く**コメント:
 

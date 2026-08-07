@@ -559,6 +559,37 @@ test("FE Quiz: 一覧が基礎 / 本番相当の 2 層に分かれている", as
   await expect(page.getByText("第 1 問 / 全 20 問").first()).toBeVisible();
 });
 
+// 2026-08-07: quiz 20 問のうち 19 問が Google に未インデックスだった。原因は
+// レッスンから各構文の「先頭 1 問」にしかリンクしておらず、20 問中 6 問しか
+// 内部リンクを受けていなかったこと。全問に導線が通っている状態を固定する。
+test("FE: 練習問題 20 問すべてが構文別レッスンから内部リンクされている", async ({
+  page,
+}) => {
+  await page.goto("/fe/quiz", { waitUntil: "domcontentloaded" });
+  const allSlugs = await page
+    .locator('a[href^="/fe/quiz/"]')
+    .evaluateAll((as) =>
+      [...new Set(as.map((a) => a.getAttribute("href")!))].sort(),
+    );
+  expect(allSlugs.length).toBe(20);
+
+  const linked = new Set<string>();
+  for (const lesson of ["variable", "if", "while", "for", "array", "function"]) {
+    await page.goto(`/fe/lessons/${lesson}`, { waitUntil: "domcontentloaded" });
+    const hrefs = await page
+      .locator('a[href^="/fe/quiz/"]')
+      .evaluateAll((as) => as.map((a) => a.getAttribute("href")!));
+    // 各レッスンは自分の構文の問題を 1 問以上持つ
+    expect(hrefs.length, `${lesson} に練習問題リンクが無い`).toBeGreaterThan(0);
+    hrefs.forEach((h) => linked.add(h));
+  }
+
+  const missing = allSlugs.filter((s) => !linked.has(s));
+  expect(missing, `レッスンから未リンクの問題:\n${missing.join("\n")}`).toEqual(
+    [],
+  );
+});
+
 test("FE: FAQ が JSON-LD だけでなくページ上にも出ている", async ({ page }) => {
   for (const path of ["/fe", "/fe/lessons/array"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });

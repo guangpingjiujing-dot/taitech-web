@@ -4,12 +4,12 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
-import { QuizProgressSummary, QuizStatusBadge } from "@/components/fe/QuizProgress";
+import { QuizProgressSummary } from "@/components/fe/QuizProgress";
+import { QuizIndexCard } from "@/components/fe/QuizIndexCard";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
-import { feQuizzes, feQuizzesByTier, type FeQuizMeta } from "@/content/fe/quiz";
-import { findFeLesson } from "@/content/fe/lessons";
+import { feQuizzes, feQuizzesByTier } from "@/content/fe/quiz";
 
 // 問題数はレジストリから導出する (数を直書きすると増やしたときに矛盾する)
 const QUIZ_COUNT = feQuizzes.length;
@@ -184,34 +184,3 @@ const TIERS = [
   },
 ];
 
-function QuizIndexCard({ quiz }: { quiz: FeQuizMeta }) {
-  const lesson = findFeLesson(quiz.lesson);
-  return (
-    <Link
-      href={`/fe/quiz/${quiz.slug}`}
-      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--muted-foreground)]">
-          第 {quiz.order} 問 / 全 {feQuizzes.length} 問
-        </span>
-        <span className="text-xs text-[var(--muted-foreground)]">
-          / {quiz.kind === "trace" ? "出力を答える" : "空欄補充"}
-        </span>
-        <QuizStatusBadge slug={quiz.slug} />
-      </div>
-      <div className="mt-1 font-semibold">{quiz.shortTitle}</div>
-      <p
-        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-        style={{ textWrap: "pretty" }}
-      >
-        {quiz.challenge}
-      </p>
-      {lesson && (
-        <div className="mt-3 text-[11px] text-[var(--muted-foreground)]">
-          関連レッスン: {lesson.shortTitle}
-        </div>
-      )}
-    </Link>
-  );
-}

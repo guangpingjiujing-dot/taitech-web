@@ -8,6 +8,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
 import { FAQ } from "@/components/layout/FAQ";
 import { FeSidebar } from "@/components/fe/FeSidebar";
+import { QuizIndexCard } from "@/components/fe/QuizIndexCard";
 import { sections } from "@/content/sections";
 import {
   feLessons,
@@ -56,6 +57,8 @@ export function FeLessonLayout({
 
           {faq && faq.length > 0 && <FAQ items={faq} />}
 
+          <LessonQuizList lesson={lesson} />
+
           <LessonNextActions lessonSlug={lesson.slug} />
 
           <PrevNextCards
@@ -89,23 +92,50 @@ export function FeLessonLayout({
 }
 
 /**
+ * その構文に紐づく練習問題を **全問** 並べる。
+ *
+ * ここを 1 問だけにしない理由: 2026-08-07 時点で quiz 20 問のうち 19 問が
+ * Google に未インデックスだった。当時レッスンから張っていたリンクは各構文の
+ * 先頭 1 問だけで、20 問中 6 問しか内部リンクを受けていなかった
+ * (唯一インデックスされていた array-one-based は array の先頭問)。
+ * クロール済みのレッスンページから全問へ導線を通すのが目的なので、
+ * 「代表 1 問だけ見せる」形に戻さないこと。
+ */
+function LessonQuizList({ lesson }: { lesson: FeLessonMeta }) {
+  const quizzes = feQuizzesForLesson(lesson.slug);
+  if (quizzes.length === 0) return null;
+
+  return (
+    <section aria-labelledby="lesson-quiz-list" className="mt-12">
+      <h2 id="lesson-quiz-list" className="text-lg font-bold tracking-tight">
+        「{lesson.shortTitle}」の練習問題 {quizzes.length} 問
+      </h2>
+      <p
+        className="mt-1 text-sm text-[var(--muted-foreground)]"
+        style={{ textWrap: "pretty" }}
+      >
+        読んだ内容がそのまま出題されます。答え合わせをすると解説と、
+        そのコードを実行シミュレーターで動かすリンクが出ます。
+      </p>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {quizzes.map((q) => (
+          <li key={q.slug}>
+            <QuizIndexCard quiz={q} showLesson={false} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/**
  * レッスン末尾に置く「次に何ができるか」導線カード。
  * 読了直後の自然な次の一手を提示する。breadcrumb と重複するが
  * 目に入りやすい位置に置くのが目的。
- * 該当構文の練習問題がある場合は、それを先頭に置く (理解 → 確認の順)。
+ * 練習問題は LessonQuizList が全問並べるので、ここには入れない。
  */
 function LessonNextActions({ lessonSlug }: { lessonSlug: FeLessonSlug }) {
-  const quiz = feQuizzesForLesson(lessonSlug)[0];
   const actions: { href: string; label: string; hint: string }[] = [
-    ...(quiz
-      ? [
-          {
-            href: `/fe/quiz/${quiz.slug}`,
-            label: "練習問題を解く",
-            hint: `「${quiz.shortTitle}」で理解を確認する`,
-          },
-        ]
-      : []),
     {
       href: "/fe",
       label: "実行シミュレーターへ",
@@ -131,7 +161,7 @@ function LessonNextActions({ lessonSlug }: { lessonSlug: FeLessonSlug }) {
         id="lesson-next-actions"
         className="text-sm font-bold text-[var(--foreground)]"
       >
-        理解できたか試す / 自由に動かす
+        自由に動かす / 他の構文を読む
       </h2>
       <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {actions.map((a) => (

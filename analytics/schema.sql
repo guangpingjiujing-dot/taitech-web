@@ -32,6 +32,8 @@ CREATE INDEX IF NOT EXISTS idx_gsc_query ON gsc_search_daily(query, date);
 CREATE TABLE IF NOT EXISTS ga_page_daily (
   date               TEXT NOT NULL,
   page_path          TEXT NOT NULL,
+  -- 海外トラフィックはほぼ全てボット。収集時には捨てず SQL で country='Japan' に絞る。
+  country            TEXT NOT NULL DEFAULT '',
   sessions           INTEGER NOT NULL DEFAULT 0,
   active_users       INTEGER NOT NULL DEFAULT 0,
   engaged_sessions   INTEGER NOT NULL DEFAULT 0,
@@ -40,12 +42,14 @@ CREATE TABLE IF NOT EXISTS ga_page_daily (
   screen_page_views  INTEGER NOT NULL DEFAULT 0,
   event_count        INTEGER NOT NULL DEFAULT 0,
   fetched_at         TEXT NOT NULL,
-  PRIMARY KEY (date, page_path)
+  PRIMARY KEY (date, page_path, country)
 );
 CREATE INDEX IF NOT EXISTS idx_ga_page ON ga_page_daily(page_path, date);
+CREATE INDEX IF NOT EXISTS idx_ga_page_country ON ga_page_daily(country, date);
 
 CREATE TABLE IF NOT EXISTS ga_source_daily (
   date              TEXT NOT NULL,
+  country           TEXT NOT NULL DEFAULT '',
   session_source    TEXT NOT NULL DEFAULT '',
   session_medium    TEXT NOT NULL DEFAULT '',
   session_campaign  TEXT NOT NULL DEFAULT '',
@@ -53,7 +57,7 @@ CREATE TABLE IF NOT EXISTS ga_source_daily (
   engaged_sessions  INTEGER NOT NULL DEFAULT 0,
   active_users      INTEGER NOT NULL DEFAULT 0,
   fetched_at        TEXT NOT NULL,
-  PRIMARY KEY (date, session_source, session_medium, session_campaign)
+  PRIMARY KEY (date, session_source, session_medium, session_campaign, country)
 );
 
 -- outbound click や cta_click 等のカスタムイベント計測用
@@ -62,10 +66,11 @@ CREATE TABLE IF NOT EXISTS ga_event_daily (
   date            TEXT NOT NULL,
   event_name      TEXT NOT NULL,
   page_path       TEXT NOT NULL DEFAULT '',
+  country         TEXT NOT NULL DEFAULT '',
   event_count     INTEGER NOT NULL DEFAULT 0,
   event_value_sum REAL    NOT NULL DEFAULT 0,
   fetched_at      TEXT NOT NULL,
-  PRIMARY KEY (date, event_name, page_path)
+  PRIMARY KEY (date, event_name, page_path, country)
 );
 CREATE INDEX IF NOT EXISTS idx_ga_event_name ON ga_event_daily(event_name, date);
 
@@ -89,6 +94,32 @@ CREATE TABLE IF NOT EXISTS sitemap_status (
   fetched_at      TEXT NOT NULL,
   PRIMARY KEY (date, sitemap_url)
 );
+
+-- ============================================================
+-- GSC: URL 単位のインデックス状態（URL Inspection API）
+-- ============================================================
+-- sitemap_status.indexed_urls は API 側の欠測で常に 0 を返すため、
+-- 「どのページがインデックスされているか」はここでしか分からない。
+-- analytics/scripts/inspect_urls.py が live sitemap.xml の全 URL に対して収集する。
+CREATE TABLE IF NOT EXISTS url_index_status (
+  date                 TEXT NOT NULL,   -- 収集日 (YYYY-MM-DD)
+  url                  TEXT NOT NULL,
+  verdict              TEXT NOT NULL DEFAULT '', -- PASS | PARTIAL | FAIL | NEUTRAL
+  coverage_state       TEXT NOT NULL DEFAULT '', -- Submitted and indexed / Crawled - currently not indexed 等
+  robots_txt_state     TEXT NOT NULL DEFAULT '',
+  indexing_state       TEXT NOT NULL DEFAULT '',
+  page_fetch_state     TEXT NOT NULL DEFAULT '',
+  last_crawled         TEXT,                     -- 未クロールなら NULL
+  google_canonical     TEXT NOT NULL DEFAULT '',
+  user_canonical       TEXT NOT NULL DEFAULT '',
+  crawled_as           TEXT NOT NULL DEFAULT '',
+  rich_results_verdict TEXT NOT NULL DEFAULT '',
+  in_sitemap           INTEGER NOT NULL DEFAULT 0,
+  fetched_at           TEXT NOT NULL,
+  PRIMARY KEY (date, url)
+);
+CREATE INDEX IF NOT EXISTS idx_url_index_url ON url_index_status(url, date);
+CREATE INDEX IF NOT EXISTS idx_url_index_coverage ON url_index_status(coverage_state, date);
 
 -- ============================================================
 -- 収集メタデータ

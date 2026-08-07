@@ -139,13 +139,14 @@ def load_ga_page(conn: sqlite3.Connection, data: dict) -> tuple[int, str, str]:
     for r in _ga_rows(data):
         date = yyyymmdd_to_iso(r["date"])
         page = r.get("pagePath", "")
+        country = r.get("country", "")
         conn.execute(
             """
             INSERT INTO ga_page_daily
-              (date, page_path, sessions, active_users, engaged_sessions,
+              (date, page_path, country, sessions, active_users, engaged_sessions,
                engagement_rate, avg_engagement_time, screen_page_views, event_count, fetched_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (date, page_path) DO UPDATE SET
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (date, page_path, country) DO UPDATE SET
               sessions=excluded.sessions, active_users=excluded.active_users,
               engaged_sessions=excluded.engaged_sessions,
               engagement_rate=excluded.engagement_rate,
@@ -153,7 +154,7 @@ def load_ga_page(conn: sqlite3.Connection, data: dict) -> tuple[int, str, str]:
               screen_page_views=excluded.screen_page_views,
               event_count=excluded.event_count, fetched_at=excluded.fetched_at
             """,
-            (date, page,
+            (date, page, country,
              int(float(r.get("sessions", 0) or 0)),
              int(float(r.get("activeUsers", 0) or 0)),
              int(float(r.get("engagedSessions", 0) or 0)),
@@ -178,15 +179,16 @@ def load_ga_source(conn: sqlite3.Connection, data: dict) -> tuple[int, str, str]
         conn.execute(
             """
             INSERT INTO ga_source_daily
-              (date, session_source, session_medium, session_campaign,
+              (date, session_source, session_medium, session_campaign, country,
                sessions, engaged_sessions, active_users, fetched_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (date, session_source, session_medium, session_campaign) DO UPDATE SET
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (date, session_source, session_medium, session_campaign, country) DO UPDATE SET
               sessions=excluded.sessions, engaged_sessions=excluded.engaged_sessions,
               active_users=excluded.active_users, fetched_at=excluded.fetched_at
             """,
             (date, r.get("sessionSource", ""), r.get("sessionMedium", ""),
              r.get("sessionCampaignName", r.get("sessionCampaign", "")),
+             r.get("country", ""),
              int(float(r.get("sessions", 0) or 0)),
              int(float(r.get("engagedSessions", 0) or 0)),
              int(float(r.get("activeUsers", 0) or 0)),
@@ -207,14 +209,14 @@ def load_ga_event(conn: sqlite3.Connection, data: dict) -> tuple[int, str, str]:
         conn.execute(
             """
             INSERT INTO ga_event_daily
-              (date, event_name, page_path, event_count, event_value_sum, fetched_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT (date, event_name, page_path) DO UPDATE SET
+              (date, event_name, page_path, country, event_count, event_value_sum, fetched_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (date, event_name, page_path, country) DO UPDATE SET
               event_count=excluded.event_count,
               event_value_sum=excluded.event_value_sum,
               fetched_at=excluded.fetched_at
             """,
-            (date, r.get("eventName", ""), r.get("pagePath", ""),
+            (date, r.get("eventName", ""), r.get("pagePath", ""), r.get("country", ""),
              int(float(r.get("eventCount", 0) or 0)),
              float(r.get("eventValue", 0) or 0),
              fetched),
