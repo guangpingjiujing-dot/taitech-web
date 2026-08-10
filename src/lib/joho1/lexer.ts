@@ -98,6 +98,21 @@ const EN_KEYWORDS: Record<string, TokenKind> = {
  * `÷` は ASCII に対応がないのでそのまま演算子として扱う。
  */
 const WIDE_TO_NARROW: Record<string, string> = {
+  // 全角数字。全角の記号を使う出題なら数字も全角で来る
+  "０": "0",
+  "１": "1",
+  "２": "2",
+  "３": "3",
+  "４": "4",
+  "５": "5",
+  "６": "6",
+  "７": "7",
+  "８": "8",
+  "９": "9",
+  // smart quote をここに入れてはいけない。normalizeOutsideStrings は引用符で
+  // 「文字列の内か外か」を判定しているので、置換表に入れると **判定に使われる前に
+  // ただの文字として素通りし、文字列の中身まで正規化されてしまう**
+  // (`表示する(“分間：”)` の `：` が `:` になる)。引用符の扱いは QUOTE_CHARS 側の役目
   "＋": "+",
   "－": "-",
   "−": "-", // U+2212 MINUS SIGN
@@ -148,19 +163,28 @@ function isJapaneseIdentChar(c: string): boolean {
 }
 
 /**
+ * 引用符として認める字。PDF からコピペすると素の `"` が smart quote に化ける。
+ *
+ * **これらは WIDE_TO_NARROW ではなくここで扱う。** 置換表に入れると
+ * 下の内外判定より先にただの文字として素通りしてしまい、
+ * smart quote で囲まれた部分が「文字列の外」と誤認されて中身まで正規化される。
+ */
+const QUOTE_CHARS = new Set(['"', "\u201c", "\u201d", "\u2033"]);
+
+/**
  * 文字列リテラルの外側だけを正規化する。
  *
  * 文字列の中身は問題文の日本語 (`"可燃ごみ"` `"分間："`) なので、
  * **中まで正規化すると出力が変わってしまう**。全角文字はいずれも BMP の 1 文字なので、
- * 置換しても列番号は 1:1 でずれない。
+ * 置換しても列番号は 1:1 でずれない (引用符の置換も 1 文字 → 1 文字)。
  */
 function normalizeOutsideStrings(source: string): string {
   let out = "";
   let inString = false;
   for (const ch of source) {
-    if (ch === '"') {
+    if (QUOTE_CHARS.has(ch)) {
       inString = !inString;
-      out += ch;
+      out += '"';
       continue;
     }
     out += inString ? ch : (WIDE_TO_NARROW[ch] ?? ch);

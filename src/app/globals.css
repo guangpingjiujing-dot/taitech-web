@@ -152,6 +152,32 @@ h6 {
   @apply border-l-2 border-[var(--foreground)] pl-4 my-4 text-[var(--muted-foreground)];
 }
 
+/* 本文中の表。
+   ここが無いとセルが連結して 1 つの文に見えるうえ、幅の広い表が body ごと
+   横スクロールさせる (AGENTS.md「wide content は自前の overflow-x に閉じ込める」)。
+   ラッパを書き忘れても壊れないよう、table 自身をスクロールコンテナにする */
+.prose-jp table {
+  @apply my-6 block w-full max-w-full overflow-x-auto border-collapse text-sm;
+}
+.prose-jp thead {
+  @apply border-b-2 border-[var(--foreground)];
+}
+.prose-jp th,
+.prose-jp td {
+  @apply px-3 py-2 text-left align-top;
+  /* CJK は keep-all で min-content が文字列全長になるため、狭い列で溢れる */
+  overflow-wrap: anywhere;
+}
+.prose-jp th {
+  @apply font-bold;
+}
+.prose-jp tbody tr {
+  @apply border-b border-[var(--border)];
+}
+.prose-jp tbody tr:last-child {
+  @apply border-b-0;
+}
+
 /* ---------------------------------------------------------------------------
    FE 実行シミュレーター (Playground)
 

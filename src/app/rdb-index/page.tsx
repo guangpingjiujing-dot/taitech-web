@@ -40,9 +40,12 @@ function Hero() {
   return (
     <section className="border-b border-[var(--border)]">
       <Container size="wide" className="py-16 md:py-24">
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center">
-          <div>
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+        {/* grid-cols-1 を省くと 1024px 未満で暗黙カラムになり、
+            トラックが max-content まで伸びて h1 の CJK が画面を突き破る */}
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+          <div className="min-w-0">
+            {/* keep-all で「RDBインデックスの仕組みを」が 1 つの分割不能な塊になる */}
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight [overflow-wrap:anywhere]">
               RDBインデックスの仕組みを、動く図解で理解する。
             </h1>
             <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed">

@@ -48,9 +48,11 @@ function Hero() {
     <section className="border-b border-[var(--border)]">
       <Container size="wide" className="py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
-          <div>
+          <div className="min-w-0">
             <Eyebrow size="compact" as="div">たいてっく</Eyebrow>
-            <h1 className="mt-3 text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+            {/* keep-all だと「データベースと擬似言語を」が分割不可の 1 塊になり、
+                min-content が 377px になってモバイルで横に溢れる */}
+            <h1 className="mt-3 text-3xl md:text-5xl font-bold tracking-tight leading-tight [overflow-wrap:anywhere]">
               データベースと擬似言語を、動かして理解する。
             </h1>
             <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed">
@@ -209,6 +211,14 @@ function SeriesGroups() {
       heading: "試験の擬似言語を動かす",
       lead: "読むだけでは追えないコードを、1 行ずつ実行して変数の変化で理解する。",
       cards: [
+        /*
+          試験系の 2 枚だけカード用のタイトルを手書きする。
+          `sections[...].label` は Header / TopicNav / JSON-LD の headline 用で、
+          試験名まで含むぶん長い ("基本情報技術者試験 擬似言語 実行シミュレーター" /
+          "共通テスト 情報I プログラム表記 実行シミュレーター")。
+          そのまま並べると同じグループの 2 枚で見出しの長さが揃わない。
+          DB 側 3 枚は label がそのままカード見出しとして収まるので触らない。
+        */
         {
           key: "fe",
           href: sections.fe.path,
@@ -227,7 +237,7 @@ function SeriesGroups() {
         {
           key: "joho1",
           href: sections.joho1.path,
-          title: "共通テスト 情報I プログラム表記 実行シミュレーター",
+          title: "情報I プログラム表記 実行シミュレーター",
           lead: "共通テスト「情報I」のプログラムを 1 行ずつ実行できる。問題冊子から貼り付けると行番号と罫線は自動で外れる。",
           bullets: [
             "試験と同じ行番号とブロック罫線で表示",
@@ -258,19 +268,21 @@ function SeriesGroups() {
               {group.cards.map((c) => (
                 <article
                   key={c.key}
-                  className="border border-[var(--border)] p-6 md:p-8 flex flex-col"
+                  /* min-w-0 が無いと grid item の min-content が本文の全長になり
+                     (globals.css の word-break: keep-all)、モバイルで横に溢れる */
+                  className="flex min-w-0 flex-col border border-[var(--border)] p-6 md:p-8"
                 >
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight">
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight [overflow-wrap:anywhere]">
                     {c.title}
                   </h3>
-                  <p className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
+                  <p className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed [overflow-wrap:anywhere]">
                     {c.lead}
                   </p>
                   <ul className="mt-5 space-y-1.5 text-sm">
                     {c.bullets.map((b) => (
                       <li key={b} className="flex gap-2">
                         <span className="text-[var(--muted-foreground)]">—</span>
-                        <span>{b}</span>
+                        <span className="min-w-0 [overflow-wrap:anywhere]">{b}</span>
                       </li>
                     ))}
                   </ul>

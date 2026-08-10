@@ -471,10 +471,48 @@ A[0] ← 99
       parse(`整数型の配列: A ← {10}
 整数型: x ← A[1]
 `),
-      { indexBase: 0 },
+      { indexBase: 0, dialect: "joho1" },
     );
     expect(state.error?.kind).toBe("ARRAY_INDEX_OUT_OF_BOUNDS");
     expect(state.error?.hint).toContain("0 から始まります");
+  });
+});
+
+describe("interpreter: dialect ごとのヒント", () => {
+  // ヒントは「代わりにこう書け」と記法を指示する文章なので、言語が違うと嘘になる。
+  // /joho1 に FE の記法 (型宣言 / ← / ≠) が出ていたのを直したときの回帰テスト
+  const undefinedVar = `整数型: x ← nazo`;
+  const divByZero = `整数型: x ← 1 / 0`;
+
+  it("FE のヒントは FE の記法で書かれている", () => {
+    expect(runToEnd(parse(undefinedVar)).error?.hint).toContain("整数型:");
+    expect(runToEnd(parse(divByZero)).error?.hint).toContain("≠");
+  });
+
+  it("joho1 のヒントに FE の記法が混ざらない", () => {
+    const opts = { dialect: "joho1" as const };
+    const undefHint = runToEnd(parse(undefinedVar), opts).error?.hint ?? "";
+    expect(undefHint).not.toContain("整数型:");
+    expect(undefHint).not.toContain("←");
+    expect(undefHint).toContain("= 0");
+
+    const divHint = runToEnd(parse(divByZero), opts).error?.hint ?? "";
+    expect(divHint).not.toContain("≠");
+    expect(divHint).toContain("!=");
+  });
+
+  it("joho1 の添字ヒントは基点で変わり、断定しない", () => {
+    const src = `整数型の配列: A ← {10}
+整数型: x ← A[5]
+`;
+    const one = runToEnd(parse(src), { dialect: "joho1", indexBase: 1 }).error?.hint ?? "";
+    const zero = runToEnd(parse(src), { dialect: "joho1", indexBase: 0 }).error?.hint ?? "";
+    expect(one).toContain("1 から始まります");
+    expect(zero).toContain("0 から始まります");
+    // 「この言語では 1 始まり」と断定すると array レッスンの主張と矛盾する
+    for (const h of [one, zero]) {
+      expect(h).toContain("問題文で毎回指定されます");
+    }
   });
 });
 

@@ -6,7 +6,8 @@ type SeriesKey =
   | "rdb-index"
   | "normalization"
   | "er-diagram"
-  | "fe";
+  | "fe"
+  | "joho1";
 
 type Series = {
   key: SeriesKey;
@@ -39,6 +40,11 @@ const SERIES: Series[] = [
     key: "fe",
     label: "基本情報 擬似言語",
     href: "/fe",
+  },
+  {
+    key: "joho1",
+    label: "共通テスト 情報I",
+    href: "/joho1",
   },
 ];
 

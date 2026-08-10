@@ -39,14 +39,7 @@ export default function FunctionLesson() {
         返ってきた値は、そのまま変数に入れたり式の中で使ったりできます。
       </p>
 
-      <LessonPlayground
-        indexBase={1}
-        code={`Touchaku = [0, 3, 4, 10, 11, 12]
-kyakusu = 要素数(Touchaku)
-表示する("人数は", kyakusu)
-表示する("大きいほうは", 最大値(3, 7))
-`}
-      />
+      <LessonPlayground slug="function" />
 
       <h2>自分で関数を定義する書き方は出ていない</h2>
       <p>

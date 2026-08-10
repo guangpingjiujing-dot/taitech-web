@@ -68,15 +68,7 @@ export default function ArrayLesson() {
         シミュレーターの「配列の添字」を 1 に切り替えると何が起きるか、試してみてください。
       </p>
 
-      <LessonPlayground
-        indexBase={0}
-        code={`Tokuten = [70, 85, 92, 60, 78]
-goukei = 0
-i を 0 から 4 まで 1 ずつ増やしながら繰り返す：
-  goukei = goukei + Tokuten[i]
-表示する("合計は", goukei)
-`}
-      />
+      <LessonPlayground slug="array" />
 
       <p>
         要素の個数は <code>要素数()</code> で求められますが、これは

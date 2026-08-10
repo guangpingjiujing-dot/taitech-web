@@ -2,7 +2,7 @@
  * 書籍の対象領域。ページ側は自分の領域だけを表示する
  * (FE 擬似言語のレッスンに DB 設計本が並ばないようにするため)。
  */
-export type BookDomain = "rdb" | "fe";
+export type BookDomain = "rdb" | "fe" | "joho1";
 
 export type Book = {
   id: string;
@@ -308,6 +308,113 @@ export const books: Book[] = [
     description:
       "公開問題を大量に解いて仕上げるための問題集。擬似言語の読解に慣れた後、本番形式で時間配分を試す段階で使う。",
     topics: ["fe-playground", "fe-lessons", "fe-transpile", "fe-quiz"],
+  },
+
+  // --- 大学入学共通テスト「情報I」(joho1) ---
+  // topics の slug は `joho1-playground` (/joho1) / `joho1-dncl` / `joho1-lessons`
+  // / `joho1-{lesson slug}` / `joho1-quiz` / `joho1-transpile`。
+  //
+  // **数学・国語など他教科の共通テスト対策本は載せない**。アソシエイトは
+  // クリック後 24 時間の購入が対象になるので、他教科の本は「並べなくても
+  // 買われれば計上される」。並べて得られるのは収益ではなく、
+  // 関連性の低下による CTR 減とトピックの薄まりだけ。
+  // 情報I 以外に広げない方針そのものは 00-overview.md §4-4 と同じ。
+  {
+    id: "joho1-programming-drill",
+    domain: "joho1",
+    title:
+      "情報Ⅰ 大学入学共通テスト プログラミング問題対策 ステップアップで身に付く練習帳",
+    author: "植垣新一",
+    asin: "4297142406",
+    amazonUrl: "https://www.amazon.co.jp/dp/4297142406?tag=taitech-22",
+    description:
+      "共通テストのプログラミング問題だけを切り出して、易しい順に手を動かして解く練習帳。本サイトのシミュレーターで動かしながら読むと、紙の上で止まっていた処理の流れが追えるようになる。",
+    recommended: true,
+    topics: [
+      "joho1-playground",
+      "joho1-dncl",
+      "joho1-lessons",
+      "joho1-quiz",
+      "joho1-transpile",
+      "joho1-variable",
+      "joho1-if",
+      "joho1-loop",
+      "joho1-loop-while",
+      "joho1-array",
+      "joho1-function",
+    ],
+  },
+  {
+    id: "joho1-kimeru",
+    domain: "joho1",
+    title: "きめる!共通テスト 情報I (きめる!共通テストシリーズ)",
+    author: "藤原進之介",
+    asin: "4053058031",
+    amazonUrl: "https://www.amazon.co.jp/dp/4053058031?tag=taitech-22",
+    description:
+      "会話形式で情報Iの全範囲を通読できる講義型の参考書。プログラミングだけでなく情報デザインやデータ活用まで一冊で押さえたいときの土台になる。",
+    recommended: true,
+    topics: [
+      "joho1-playground",
+      "joho1-dncl",
+      "joho1-lessons",
+      "joho1-variable",
+      "joho1-if",
+      "joho1-loop",
+      "joho1-loop-while",
+      "joho1-array",
+      "joho1-function",
+    ],
+  },
+  {
+    id: "joho1-kakomon-2027",
+    domain: "joho1",
+    title:
+      "2027年版 情報Ⅰ 大学入学共通テスト対策 演習&過去問題集 動画付きでよくわかる",
+    author: "植垣新一",
+    asin: "4295024074",
+    amazonUrl: "https://www.amazon.co.jp/dp/4295024074?tag=taitech-22",
+    description:
+      "試作問題と本試験を収録した過去問演習書。構文が読めるようになった後、本番の分量と時間配分に慣れる段階で効く。",
+    topics: [
+      "joho1-playground",
+      "joho1-quiz",
+      "joho1-lessons",
+      "joho1-transpile",
+    ],
+  },
+  {
+    id: "joho1-jissen-taisaku",
+    domain: "joho1",
+    title: "大学入学共通テスト情報Ⅰ実戦対策問題集",
+    author: "嶋田香",
+    asin: "4010352620",
+    amazonUrl: "https://www.amazon.co.jp/dp/4010352620?tag=taitech-22",
+    description:
+      "テーマ別に問題を積み上げる実戦形式の問題集。分野ごとに弱点を潰していきたいときに使いやすい。",
+    topics: ["joho1-quiz", "joho1-lessons", "joho1-array", "joho1-loop"],
+  },
+  {
+    id: "joho1-ichimon-ittou",
+    domain: "joho1",
+    title: "大学入学共通テスト 情報Iの点数が面白いほどとれる一問一答",
+    author: "植垣新一",
+    asin: "4046073888",
+    amazonUrl: "https://www.amazon.co.jp/dp/4046073888?tag=taitech-22",
+    description:
+      "用語と知識を一問一答で高速に確認できる副読本。プログラム表記の読解とは別に、暗記で取れる部分を切り離して固めたいときに。",
+    topics: ["joho1-dncl", "joho1-lessons", "joho1-quiz"],
+  },
+  {
+    id: "joho1-kougi-keishiki",
+    domain: "joho1",
+    title: "講義形式で学ぶ「情報Ⅰ」大学入学共通テスト問題集",
+    author: "能城茂雄",
+    asin: "4469273015",
+    amazonUrl: "https://www.amazon.co.jp/dp/4469273015?tag=taitech-22",
+    description:
+      "問題を解いた後に講義で考え方を補う構成の問題集。解答の丸暗記ではなく「なぜそう読むか」を残したい人向け。",
+    topics: ["joho1-quiz", "joho1-playground", "joho1-function"],
   },
 ];
 

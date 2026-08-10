@@ -97,7 +97,10 @@ export function MentorCTA({
           {testimonials.map((t) => (
             <li
               key={t.name + t.quote.slice(0, 8)}
-              className="border border-[var(--border)] bg-[var(--background)] p-5 flex flex-col"
+              /* min-w-0 が無いと grid item の min-content = 引用文の全長になり
+                 (globals.css の word-break: keep-all)、モバイルで body ごと横スクロールする。
+                 AGENTS.md「word-break: keep-all で CJK が狭いカラムからはみ出す」 */
+              className="flex min-w-0 flex-col border border-[var(--border)] bg-[var(--background)] p-5"
             >
               <div
                 aria-label="5段階評価のうち5"
@@ -105,10 +108,10 @@ export function MentorCTA({
               >
                 <span aria-hidden="true">{"★★★★★"}</span>
               </div>
-              <blockquote className="mt-3 text-sm leading-relaxed text-[var(--foreground)]">
+              <blockquote className="mt-3 text-sm leading-relaxed text-[var(--foreground)] [overflow-wrap:anywhere]">
                 「{t.quote}」
               </blockquote>
-              <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+              <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs text-[var(--muted-foreground)] [overflow-wrap:anywhere]">
                 — {t.name}（{t.meta}）
               </div>
             </li>

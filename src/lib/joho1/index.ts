@@ -36,6 +36,8 @@ function toInterpreterOptions(options: Joho1RunOptions): InterpreterOptions {
     builtins: options.builtins ?? defaultBuiltins(),
     // この言語にブロックの閉じ行は無いので、閉じ行のハイライトを出さない
     emitBlockEndMarkers: false,
+    // エラーのヒントに FE の記法 (型宣言 / ← / ≠) を出させない
+    dialect: "joho1",
   };
 }
 

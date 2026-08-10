@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   PlaygroundStoreProvider,
@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/Button";
 import { parse } from "@/lib/joho1/parser";
 import { createJoho1State } from "@/lib/joho1";
 import { JOHO1_EDITOR_EXTENSIONS } from "./joho1Language";
+import { formatJoho1Value } from "./formatValue";
 import { normalizePasteExtension } from "./pasteExtension";
+import { Joho1PlaygroundDeepLink } from "./Joho1PlaygroundDeepLink";
 
 const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
@@ -30,15 +32,20 @@ i を 2 から kyakusu まで 1 ずつ増やしながら繰り返す：
   表示する(i, "人目の待ち時間：", matsu, "分間")
 `;
 
-const EDITOR_EXTENSIONS = [...JOHO1_EDITOR_EXTENSIONS, normalizePasteExtension];
-
 export function Joho1Playground({
   initialCode,
   initialIndexBase = 1,
+  enableDeepLink = false,
 }: {
   initialCode?: string;
   /** レッスンや練習問題は「その問題の前提」に合わせて基点を指定する */
   initialIndexBase?: 0 | 1;
+  /**
+   * `?code=` / `?base=` を読んでエディタに流し込む。**セクショントップだけで true**。
+   * レッスンや練習問題に埋め込んだ Playground まで URL で書き換わると、
+   * そのページが説明している題材と中身がずれる。
+   */
+  enableDeepLink?: boolean;
 }) {
   /**
    * 添字の基点は **問題ごとに宣言されるもの**で言語の性質ではない
@@ -52,16 +59,22 @@ export function Joho1Playground({
       parse,
       createState: (program) =>
         createJoho1State(program, { indexBase: indexBaseRef.current }),
+      formatValue: formatJoho1Value,
     }),
     [],
   );
 
   return (
     <PlaygroundStoreProvider
-      initialCode={initialCode ?? DEFAULT_CODE}
+      // 末尾の改行を落とす。残すと試験の紙面に無い行番号が 1 行余計に振られる
+      initialCode={(initialCode ?? DEFAULT_CODE).replace(/\n+$/, "")}
       adapter={adapter}
     >
-      <Panel indexBaseRef={indexBaseRef} initialIndexBase={initialIndexBase} />
+      <Panel
+        indexBaseRef={indexBaseRef}
+        initialIndexBase={initialIndexBase}
+        enableDeepLink={enableDeepLink}
+      />
     </PlaygroundStoreProvider>
   );
 }
@@ -69,9 +82,11 @@ export function Joho1Playground({
 function Panel({
   indexBaseRef,
   initialIndexBase,
+  enableDeepLink,
 }: {
   indexBaseRef: { current: 0 | 1 };
   initialIndexBase: 0 | 1;
+  enableDeepLink: boolean;
 }) {
   const code = usePlayground((s) => s.code);
   const setCode = usePlayground((s) => s.setCode);
@@ -86,19 +101,42 @@ function Panel({
   const reset = usePlayground((s) => s.reset);
 
   const [indexBase, setIndexBase] = useState<0 | 1>(initialIndexBase);
+  const [pasteNormalized, setPasteNormalized] = useState(false);
 
-  const changeIndexBase = (next: 0 | 1) => {
-    indexBaseRef.current = next;
-    setIndexBase(next);
-    // 実行中の状態は古い基点で作られているので捨てる
-    reset();
-  };
+  const editorExtensions = useMemo(
+    () => [
+      ...JOHO1_EDITOR_EXTENSIONS,
+      normalizePasteExtension(() => setPasteNormalized(true)),
+    ],
+    [],
+  );
+
+  // deep link の effect 依存に入るので、参照を固定して再実行を防ぐ
+  const changeIndexBase = useCallback(
+    (next: 0 | 1) => {
+      indexBaseRef.current = next;
+      setIndexBase(next);
+      // 実行中の状態は古い基点で作られているので捨てる
+      reset();
+    },
+    [indexBaseRef, reset],
+  );
 
   const error = parseError ?? runtimeError;
 
   return (
-    <div className="not-prose">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+    <div className="not-prose @container/pg">
+      {/* ?code= / ?base= の読み取りだけを Suspense 配下の client に閉じ込める
+          (server の searchParams で受けると /joho1 が Dynamic になる) */}
+      {enableDeepLink && (
+        <Suspense fallback={null}>
+          <Joho1PlaygroundDeepLink onIndexBase={changeIndexBase} />
+        </Suspense>
+      )}
+      {/* 縦積みのときはツールバーを追従させ、「1 行ずつ実行 → 変数を見る」を
+          片手で回せるようにする。**判定軸は 2 カラム化と同じ container query に揃える**
+          — viewport で切ると「1 カラムだが sticky でない」帯ができる */}
+      <div className="mb-3 flex flex-wrap items-center gap-2 @max-5xl/pg:sticky @max-5xl/pg:top-14 @max-5xl/pg:z-5 @max-5xl/pg:bg-[var(--background)] @max-5xl/pg:py-1.5">
         <Button onClick={step} size="sm">
           1 行ずつ実行
         </Button>
@@ -108,6 +146,8 @@ function Panel({
         <Button onClick={reset} size="sm" variant="outline">
           リセット
         </Button>
+
+        <StatusBadge status={status} />
 
         <div className="ml-auto flex items-center gap-2 text-sm">
           <span className="text-[var(--muted-foreground)]">配列の添字</span>
@@ -131,14 +171,23 @@ function Panel({
         </div>
       </div>
 
+      {pasteNormalized && (
+        <p className="mb-3 border-l-2 border-[var(--foreground)] bg-[var(--muted)] px-3 py-2 text-xs [overflow-wrap:anywhere]">
+          貼り付けたプログラムから、行番号とブロックの罫線を取り除きました。
+        </p>
+      )}
+
       <p className="mb-3 text-xs text-[var(--muted-foreground)] [overflow-wrap:anywhere]">
         添字が 0 から始まるか 1 から始まるかは、共通テストでは
         <strong>問題文のなかで毎回指定されます</strong>。解いている問題に合わせて切り替えてください。
       </p>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      {/* 2 カラムにするかは **viewport ではなくコンテナ幅**で決める。
+          レッスン本文は max-w-3xl (768px) なので、viewport が xl でも 2 カラムにすると
+          エディタが 430px 程度に潰れてコードが右で切れる。1024px 以上のときだけ横に並べる */}
+      <div className="grid gap-4 @5xl/pg:grid-cols-[minmax(0,1fr)_18rem]">
         <CodeEditor
-          extensions={EDITOR_EXTENSIONS}
+          extensions={editorExtensions}
           value={code}
           onChange={setCode}
           highlightLine={highlight.line}
@@ -185,31 +234,64 @@ function Panel({
       </div>
 
       {error && (
-        <p
+        <div
           role="alert"
-          className="mt-3 border-l-2 border-[#c53030] bg-[#fff5f5] px-3 py-2 text-sm [overflow-wrap:anywhere]"
+          className="mt-3 border border-[#c53030] bg-[#fff5f5] px-3 py-2 text-sm text-[#9b2c2c] [overflow-wrap:anywhere]"
         >
-          {error.pos.line} 行目: {error.message.replace(/^\d+行目[^:：]*[:：]\s*/, "")}
-        </p>
+          <p className="font-bold">
+            {error.pos.line} 行目: {error.detail}
+          </p>
+          {error.hint && (
+            <p className="mt-1 whitespace-pre-wrap text-[var(--foreground)]">
+              ヒント: {error.hint}
+            </p>
+          )}
+        </div>
       )}
 
-      {status === "finished" && !error && (
-        <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-          最後まで実行しました。
-        </p>
-      )}
     </div>
   );
 }
 
+/**
+ * ウィジェット内のパネル。**見出しタグにしない**。
+ * このコンポーネントはトップ (h1 直下) にもレッスン本文 (h2 の下) にも置かれるので、
+ * 見出しレベルを固定するとどちらかで見出しの階層が飛ぶ。
+ */
 function Pane({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border border-[var(--border)] p-3">
-      <h3 className="mb-2 text-xs font-bold tracking-wide text-[var(--muted-foreground)]">
+    <section aria-label={title} className="border border-[var(--border)] p-3">
+      <div className="mb-2 text-xs font-bold tracking-wide text-[var(--muted-foreground)]">
         {title}
-      </h3>
+      </div>
       {children}
     </section>
+  );
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  idle: "待機中",
+  paused: "実行中",
+  running: "実行中",
+  finished: "終了",
+  parseError: "構文エラー",
+  runtimeError: "実行エラー",
+};
+
+/** 実行状態。パースエラー時も黄色のハイライトが付くので、文字で状態を出す */
+function StatusBadge({ status }: { status: string }) {
+  const isError = status === "parseError" || status === "runtimeError";
+  return (
+    <span
+      aria-live="polite"
+      className={`border px-2 py-1 text-xs font-bold ${
+        isError
+          ? "border-[#c53030] text-[#9b2c2c]"
+          : "border-[var(--border)] text-[var(--muted-foreground)]"
+      }`}
+    >
+      {STATUS_LABEL[status] ?? status}
+    </span>
   );
 }
 

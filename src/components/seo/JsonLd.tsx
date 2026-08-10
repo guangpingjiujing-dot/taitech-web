@@ -640,7 +640,13 @@ export function Joho1PageJsonLd({
  * 「1 つの Question に acceptedAnswer + suggestedAnswer 群」という形を取る。
  * 解説は正解 Answer の comment に載せる。
  */
-export function FeQuizJsonLd({
+/**
+ * 4 択練習問題 1 問分の Quiz / Question 構造化データ。
+ * `/fe/quiz` と `/joho1/quiz` の両方から使うので、所属セクションと想定読者は引数で取る。
+ */
+export function QuizJsonLd({
+  section = "fe",
+  educationalLevel = "初学者〜基本情報技術者試験受験者",
   path,
   name,
   description,
@@ -652,6 +658,8 @@ export function FeQuizJsonLd({
   explanation,
   educationalAlignment,
 }: {
+  section?: SectionKey;
+  educationalLevel?: string;
   path: string;
   name: string;
   description: string;
@@ -664,6 +672,7 @@ export function FeQuizJsonLd({
   /** 関連する構文別レッスンの表示名 */
   educationalAlignment: string;
 }) {
+  const sectionMeta = sections[section];
   const url = `${site.url}${path}`;
   const accepted = choices.find((c) => c.id === answer);
   const data: object[] = [
@@ -674,7 +683,7 @@ export function FeQuizJsonLd({
       description,
       url,
       inLanguage: "ja-JP",
-      educationalLevel: "初学者〜基本情報技術者試験受験者",
+      educationalLevel,
       educationalUse: "自習・試験対策",
       learningResourceType: "Quiz",
       about: { "@type": "Thing", name: educationalAlignment },
@@ -684,8 +693,8 @@ export function FeQuizJsonLd({
       dateModified: BUILD_DATE,
       isPartOf: {
         "@type": "CollectionPage",
-        name: sections.fe.label,
-        url: `${site.url}${sections.fe.path}`,
+        name: sectionMeta.label,
+        url: `${site.url}${sectionMeta.path}`,
       },
       hasPart: [
         {

@@ -776,6 +776,76 @@ test("トップ: 2 グループ構成で全セクションに到達できる", a
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
+test("Joho1: 問題冊子から貼り付けると行番号と罫線が外れて実行できる", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+
+  // 紙面のとおり (行番号 + 罫線) にクリップボード経由で貼る
+  const pasted = [
+    "(01)  goukei = 0",
+    "(02)  i を 1 から 5 まで 1 ずつ増やしながら繰り返す：",
+    "(03) └  goukei = goukei + i",
+    "(04)  表示する(goukei)",
+  ].join("\n");
+
+  await page.locator(".cm-content").click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.evaluate((text) => {
+    const el = document.querySelector(".cm-content") as HTMLElement;
+    const dt = new DataTransfer();
+    dt.setData("text/plain", text);
+    el.dispatchEvent(
+      new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }),
+    );
+  }, pasted);
+
+  // 整形したことがユーザーに伝わる
+  await expect(page.getByText("行番号とブロックの罫線を取り除きました")).toBeVisible();
+
+  await page.getByRole("button", { name: /^最後まで実行$/ }).click();
+  await expect(
+    page.locator('section[aria-label="表示"]').getByText("15"),
+  ).toBeVisible({ timeout: 5_000 });
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("モバイルで body が横スクロールしない", async ({ page }) => {
+  // 表や引用カードは CJK の keep-all で min-content が文字列全長になり、
+  // min-w-0 / overflow-x が無いと body ごと横に溢れる (AGENTS.md)
+  await page.setViewportSize({ width: 390, height: 844 });
+  // セクションごとに代表を 1〜2 ページずつ。ここを joho1 だけにしていたため、
+  // FAQ (flex item) と AffiliateBooks (暗黙グリッド) の溢れが本番で見逃されていた
+  for (const path of [
+    "/",
+    "/fe",
+    "/fe/lessons/array",
+    "/fe/quiz",
+    "/joho1",
+    "/joho1/dncl",
+    "/joho1/lessons/array",
+    "/joho1/quiz",
+    "/joho1/quiz/array-tally-fill",
+    "/joho1/transpile",
+    "/rdb-index",
+    "/why-need-rdb",
+    "/data-modeling/er-diagram",
+  ]) {
+    await page.goto(path, { waitUntil: "networkidle" });
+    const overflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(
+      overflow.scrollWidth,
+      `${path} が横スクロールする (${overflow.scrollWidth} > ${overflow.clientWidth})`,
+    ).toBeLessThanOrEqual(overflow.clientWidth + 1);
+  }
+});
+
 test("Joho1: JSON-LD と OG 画像が出ている", async ({ page }) => {
   for (const path of ["/joho1", "/joho1/dncl", "/joho1/lessons/array"]) {
     const res = await page.goto(path, { waitUntil: "networkidle" });
@@ -801,5 +871,137 @@ test("Joho1: JSON-LD と OG 画像が出ている", async ({ page }) => {
     const imgPath = new URL(ogImage as string).pathname;
     const imgRes = await page.request.get(imgPath);
     expect(imgRes.status(), `${imgPath} が 200 でない`).toBe(200);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// /joho1/quiz — 練習問題 (Phase 2)
+// ---------------------------------------------------------------------------
+
+test("Joho1 quiz: 一覧と各問がコンソールエラーなしで開ける", async ({ page }) => {
+  const paths = [
+    "/joho1/quiz",
+    "/joho1/quiz/display-no-separator",
+    "/joho1/quiz/array-zero-based-sum",
+    "/joho1/quiz/array-tally-fill",
+    "/joho1/transpile",
+  ];
+  for (const path of paths) {
+    const { errors, warnings } = watchConsole(page);
+    await page.goto(path, { waitUntil: "networkidle" });
+    await expect(page.locator("h1")).toBeVisible();
+    expect(errors, `${path} Console errors:\n${errors.join("\n")}`).toEqual([]);
+    expect(warnings, `${path} Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+  }
+});
+
+test("Joho1 quiz: 解答すると採点され解説が開く", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1/quiz/if-boundary", { waitUntil: "networkidle" });
+
+  // 解説は解答前は hidden だが DOM には存在する (クローラ向け)
+  const explanation = page.getByRole("heading", { name: "解説" });
+  await expect(explanation).toBeHidden();
+
+  await page.getByRole("button", { name: /運賃は220円/ }).click();
+  await expect(page.getByRole("status").filter({ hasText: "正解" })).toBeVisible();
+  await expect(explanation).toBeVisible();
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1 quiz: 0 始まりの問題は添字の基点つきでシミュレーターへ渡る", async ({
+  page,
+}) => {
+  // base= を落とすと既定の 1 始まりで走り、解説と違う答えが出る
+  await page.goto("/joho1/quiz/array-zero-based-sum", { waitUntil: "networkidle" });
+  // 選択肢ボタンの名前は「記号 + 本文」
+  await page.getByRole("button", { name: "ア 23" }).click();
+
+  const runLink = page.getByRole("link", {
+    name: /実行シミュレーターで開く/,
+  });
+  await expect(runLink).toHaveAttribute("href", /base=0/);
+  await runLink.click();
+
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  await expect(page.getByRole("button", { name: "0 から" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: /^最後まで実行$/ }).click();
+  await expect(
+    page.locator('section[aria-label="表示"]').getByText("23"),
+  ).toBeVisible({ timeout: 5_000 });
+});
+
+test("Joho1 quiz: 問題文に添字の基点が書かれている", async ({ page }) => {
+  // 共通テストでは毎回宣言される前提。省くと問題として成立しない
+  // 解説にも同じ言い回しが出るので、コード直前の注記だけを見る
+  await page.goto("/joho1/quiz/array-zero-based-sum", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText("この問題では、配列の添字は 0 から始まるものとする。"),
+  ).toBeVisible();
+
+  await page.goto("/joho1/quiz/array-base-changes-answer", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText("この問題では、配列の添字は 1 から始まるものとする。"),
+  ).toBeVisible();
+});
+
+test("Joho1 transpile: プログラム表記を書くと Python が出る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/joho1/transpile", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+
+  const python = page.locator('section[aria-label="Python"]');
+  // 表示する は print(..., sep="") になる (素の print は空白を挟んでしまう)
+  await expect(python).toContainText('sep=""');
+  // 既定は 1 始まりなので添字が -1 される
+  await expect(python).toContainText("i - 1");
+
+  // 0 始まりに切り替えると -1 が消える
+  await page.getByRole("button", { name: "0 から" }).click();
+  await expect(python).not.toContainText("i - 1");
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("Joho1: レッスンから練習問題へ、練習問題からレッスンへ辿れる", async ({
+  page,
+}) => {
+  // FE で踏んだ「レッスンから代表 1 問しかリンクせず 20 問中 19 問が未インデックス」
+  // の再発防止。その構文の問題は全部並べる
+  await page.goto("/joho1/lessons/array", { waitUntil: "networkidle" });
+  const quizLinks = page.locator('a[href^="/joho1/quiz/"]');
+  expect(await quizLinks.count()).toBeGreaterThanOrEqual(4);
+
+  // TopicNav (ドロワー内で常時 SSR、閉状態では hidden) にも同じ href があるので
+  // 本文に絞る。ここで見たいのは「読者が辿れるか」
+  await page.goto("/joho1/quiz/array-zero-based-sum", { waitUntil: "networkidle" });
+  await expect(
+    page.locator('article a[href="/joho1/lessons/array"]').first(),
+  ).toBeVisible();
+});
+
+test("Joho1: 書籍 CTA が出ていて Amazon アソシエイト ID が付いている", async ({
+  page,
+}) => {
+  // tag を落とすと収益がゼロになる (AGENTS.md のガードレール)
+  for (const path of ["/joho1", "/joho1/quiz", "/joho1/lessons/array"]) {
+    await page.goto(path, { waitUntil: "networkidle" });
+    const amazonLinks = page.locator('a[href*="amazon.co.jp"]');
+    expect(await amazonLinks.count(), `${path} に書籍 CTA が無い`).toBeGreaterThan(0);
+    for (const href of await amazonLinks.evaluateAll((els) =>
+      els.map((e) => (e as HTMLAnchorElement).href),
+    )) {
+      expect(href, `${path} の ${href}`).toContain("tag=taitech-22");
+    }
+    // 景表法 / Amazon 運営規約で必須の表示
+    await expect(
+      page.getByText("本セクションはAmazonアソシエイトのリンクを含みます。").first(),
+    ).toBeVisible();
   }
 });

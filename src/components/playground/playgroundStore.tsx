@@ -28,6 +28,11 @@ import {
 export interface LanguageAdapter {
   parse: (code: string) => Program;
   createState: (program: Program) => ExecutionState;
+  /**
+   * 変数ペインでの値の見せ方。**エディタに書いてある記法と揃っていないと
+   * 教える記法と見せる記法が食い違う** (FE は配列を {…}、情報I は […])。
+   */
+  formatValue?: (v: Value) => string;
 }
 
 /** 既定は `/fe`。FE 側の呼び出しは adapter を渡さなくてよい */
@@ -136,7 +141,10 @@ function formatValue(v: Value): string {
   }
 }
 
-function snapshotVariables(state: ExecutionState): VarSnapshot[] {
+function snapshotVariables(
+  state: ExecutionState,
+  format: (v: Value) => string,
+): VarSnapshot[] {
   const out: VarSnapshot[] = [];
   state.callStack.forEach((frame) => {
     for (const [name, value] of frame.variables) {
@@ -144,7 +152,7 @@ function snapshotVariables(state: ExecutionState): VarSnapshot[] {
         frame: frame.funcName,
         name,
         typeLabel: typeLabel(value),
-        displayValue: formatValue(value),
+        displayValue: format(value),
       });
     }
   });
@@ -187,6 +195,8 @@ function createPlaygroundStore(
   const editorInsertRef: { current: ((text: string) => void) | null } = {
     current: null,
   };
+
+  const format = adapter.formatValue ?? formatValue;
 
   return createStore<PlaygroundState>()((set, get) => {
     const doReset = () => {
@@ -315,7 +325,7 @@ function createPlaygroundStore(
                 runtimeError.pos.line,
                 runtimeError.pos.column,
               ),
-              variables: snapshotVariables(execState),
+              variables: snapshotVariables(execState, format),
               frames: snapshotFrames(execState),
               output,
             };
@@ -324,7 +334,7 @@ function createPlaygroundStore(
             return {
               status: "finished" as const,
               highlight: nextHighlight(null, null),
-              variables: snapshotVariables(execState),
+              variables: snapshotVariables(execState, format),
               frames: snapshotFrames(execState),
               output,
             };
@@ -336,7 +346,7 @@ function createPlaygroundStore(
                 latestBefore.line,
                 latestBefore.column,
               ),
-              variables: snapshotVariables(execState),
+              variables: snapshotVariables(execState, format),
               frames: snapshotFrames(execState),
               output,
             };
@@ -391,7 +401,7 @@ function createPlaygroundStore(
                 runtimeError.pos.line,
                 runtimeError.pos.column,
               ),
-              variables: snapshotVariables(execState),
+              variables: snapshotVariables(execState, format),
               frames: snapshotFrames(execState),
               output,
             };
@@ -399,7 +409,7 @@ function createPlaygroundStore(
           return {
             status: "finished" as const,
             highlight: nextHighlight(null, null),
-            variables: snapshotVariables(execState),
+            variables: snapshotVariables(execState, format),
             frames: snapshotFrames(execState),
             output,
           };

@@ -17,14 +17,7 @@ export default function LoopLesson() {
         i は 1, 2, 3, 4, 5 と変わり、<strong>終わりの 5 も含めて</strong> 5 回くり返します。
       </p>
 
-      <LessonPlayground
-        indexBase={1}
-        code={`goukei = 0
-i を 1 から 5 まで 1 ずつ増やしながら繰り返す：
-  goukei = goukei + i
-表示する("合計は", goukei)
-`}
-      />
+      <LessonPlayground slug="loop" />
 
       <h2>減らす方向もある</h2>
       <p>

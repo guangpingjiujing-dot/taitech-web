@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { site } from "@/lib/site";
 import { topics } from "@/content/topics";
 import { feQuizzes } from "@/content/fe/quiz";
+import { joho1Lessons } from "@/content/joho1/lessons";
 
 export function Footer() {
   const basics = topics.filter((t) => t.level === "basic");
@@ -15,11 +16,18 @@ export function Footer() {
     { href: "/fe/quiz", label: `練習問題 ${feQuizzes.length} 問` },
     { href: "/fe/transpile", label: "多言語横並び比較" },
   ];
+  // joho1 も同様。フッターが無いと、新規 9 ページがサイト全体からの恒常リンクを
+  // ドロワーと hub カードしか持たない状態になる
+  const joho1Links = [
+    { href: "/joho1", label: "実行シミュレーター" },
+    { href: "/joho1/lessons", label: `構文別レッスン ${joho1Lessons.length} 本` },
+    { href: "/joho1/dncl", label: "DNCL との違い" },
+  ];
 
   return (
     <footer className="mt-24 border-t border-[var(--border)] bg-[var(--background)]">
       <Container size="wide" className="py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-6">
           <div className="col-span-2">
             <div className="text-lg font-bold">{site.name}</div>
             <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed">
@@ -69,6 +77,23 @@ export function Footer() {
             </div>
             <ul className="mt-3 space-y-1.5 text-sm">
               {feLinks.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
+              情報I プログラム表記
+            </div>
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {joho1Links.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}

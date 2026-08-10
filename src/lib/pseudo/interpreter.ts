@@ -67,7 +67,44 @@ export interface InterpreterOptions {
    * false にする。true のままだと、書かれていない行をハイライトしてしまう。
    */
   emitBlockEndMarkers?: boolean;
+  /**
+   * エラーのヒント文をどちらの言語向けに出すか。
+   *
+   * ヒントは **「代わりにこう書け」と記法を指示する文章**なので、言語が違うと
+   * そのまま嘘になる。`/joho1` に FE 用のヒントが出ると、型宣言も `←` も無い
+   * 情報I の受験者に、試験で使えない記法を教えることになる。
+   */
+  dialect?: Dialect;
 }
+
+export type Dialect = "fe" | "joho1";
+
+/**
+ * 言語ごとのヒント文。**記法を含む文言はすべてここに集約する**。
+ * 新しい方言を足すときにコンパイラが漏れを検出できるよう Record で持つ。
+ */
+const HINTS: Record<Dialect, {
+  undefinedVariable: (name: string) => string;
+  divisionByZero: string;
+  indexBase: (base: 0 | 1) => string;
+}> = {
+  fe: {
+    undefinedVariable: (name) =>
+      `変数を使う前に '整数型: ${name} ← 0' のように宣言してください。`,
+    divisionByZero: "割る数が 0 でないか '(y ≠ 0)' のようにチェックしましょう。",
+    indexBase: () =>
+      "この擬似言語では配列の添字は 1 から始まります (0 ではありません)。",
+  },
+  joho1: {
+    undefinedVariable: (name) =>
+      `変数は代入すると使えるようになります。先に '${name} = 0' のように値を入れてください。`,
+    divisionByZero: "割る数が 0 でないか '(y != 0)' のようにチェックしましょう。",
+    indexBase: (base) =>
+      base === 1
+        ? "この問題では配列の添字は 1 から始まります。先頭の要素は添字 1 です。共通テストでは問題文で毎回指定されます。"
+        : "この問題では配列の添字は 0 から始まります。先頭の要素は添字 0 です。共通テストでは問題文で毎回指定されます。",
+  },
+};
 
 export type BuiltinFn = (
   args: Value[],
@@ -85,6 +122,7 @@ export interface ExecutionState {
   indexBase: 0 | 1;
   builtins: Map<string, BuiltinFn>;
   emitBlockEndMarkers: boolean;
+  dialect: Dialect;
 }
 
 export type StepEvent =
@@ -225,7 +263,7 @@ function evaluate(expr: Expr, state: ExecutionState): Value {
           "UNDEFINED_VARIABLE",
           `変数 '${expr.name}' が宣言されていません`,
           expr.pos,
-          "変数を使う前に '整数型: " + expr.name + " ← 0' のように宣言してください。",
+          HINTS[state.dialect].undefinedVariable(expr.name),
         );
       }
       return v;
@@ -328,7 +366,7 @@ function evalBinary(expr: BinaryOp, state: ExecutionState): Value {
               "DIVISION_BY_ZERO",
               "0 で割ることはできません",
               expr.pos,
-              "割る数が 0 でないか '(y ≠ 0)' のようにチェックしましょう。",
+              HINTS[state.dialect].divisionByZero,
             );
           }
           result = ln / rn;
@@ -520,9 +558,7 @@ function assignTo(
  * (共通テスト用プログラム表記は 0 始まりの回がある)。
  */
 function indexBaseHint(state: ExecutionState): string {
-  return state.indexBase === 1
-    ? "この擬似言語では配列の添字は 1 から始まります (0 ではありません)。"
-    : "このプログラムでは配列の添字は 0 から始まります。先頭の要素は添字 0 です。";
+  return HINTS[state.dialect].indexBase(state.indexBase);
 }
 
 function execVarDecl(stmt: VarDecl, state: ExecutionState): void {
@@ -804,6 +840,7 @@ export function createInitialState(
     indexBase: options.indexBase ?? 1,
     builtins: options.builtins ?? new Map(),
     emitBlockEndMarkers: options.emitBlockEndMarkers ?? true,
+    dialect: options.dialect ?? "fe",
   };
 }
 

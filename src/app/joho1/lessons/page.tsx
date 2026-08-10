@@ -3,7 +3,10 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
+import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { joho1Lessons } from "@/content/joho1/lessons";
+import { joho1Quizzes, joho1QuizzesForLesson } from "@/content/joho1/quiz";
 import { sections } from "@/content/sections";
 import { Joho1PageJsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/lib/site";
@@ -11,9 +14,10 @@ import { site } from "@/lib/site";
 const sectionMeta = sections.joho1;
 
 export const metadata: Metadata = {
-  title: "情報I プログラム表記の構文別レッスン 6 本",
-  description:
-    "共通テスト「情報I」のプログラム表記を、変数と代入・条件分岐・繰り返し・配列・外部関数の 6 本に分けて学ぶ。それぞれのページでコードをブラウザ上で 1 行ずつ実行しながら確認できる。",
+  // 本数は joho1Lessons から導出する。ここをハードコードすると、
+  // レッスンを増やしたときに h1 だけ直って title / description が取り残される
+  title: `情報I プログラム表記の構文別レッスン ${joho1Lessons.length} 本`,
+  description: `共通テスト「情報I」のプログラム表記を、変数と代入・条件分岐・繰り返し・配列・外部関数の ${joho1Lessons.length} 本に分けて学ぶ。それぞれのページでコードをブラウザ上で 1 行ずつ実行しながら確認できる。`,
   alternates: { canonical: "/joho1/lessons" },
 };
 
@@ -36,7 +40,8 @@ export default function Joho1LessonsPage() {
         ]}
       />
       <Container size="wide" className="py-8 md:py-12">
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+      <div className="min-w-0 max-w-3xl">
         <Breadcrumb
           className="mb-6"
           items={[
@@ -75,18 +80,33 @@ export default function Joho1LessonsPage() {
                 <p className="mt-1 text-sm text-[var(--muted-foreground)] leading-relaxed">
                   {lesson.cardSummary}
                 </p>
+                <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+                  練習問題 {joho1QuizzesForLesson(lesson.slug).length} 問
+                </p>
               </Link>
             </li>
           ))}
         </ol>
 
-        <p className="mt-10 text-sm text-[var(--muted-foreground)]">
-          用語がまぎらわしいと感じたら{" "}
+        <p className="mt-8 text-sm text-[var(--muted-foreground)]">
+          ひととおり読んだら{" "}
+          <Link href="/joho1/quiz" className="underline underline-offset-4">
+            練習問題 {joho1Quizzes.length} 問
+          </Link>{" "}
+          で確かめてください。用語がまぎらわしいと感じたら{" "}
           <Link href="/joho1/dncl" className="underline underline-offset-4">
             DNCL とプログラム表記の違い
           </Link>{" "}
           も読んでみてください。
         </p>
+
+        <AffiliateBooks
+          topicSlug="joho1-lessons"
+          domain="joho1"
+          heading="紙の参考書と組み合わせる（おすすめ書籍）"
+        />
+      </div>
+      <Joho1Sidebar topicSlug="joho1-lessons" />
       </div>
       </Container>
     </>

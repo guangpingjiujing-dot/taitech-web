@@ -27,13 +27,7 @@ export default function VariableLesson() {
         <strong>すき間なくつながって</strong> 1 行として表示されます。
       </p>
 
-      <LessonPlayground
-        indexBase={1}
-        code={`kingaku = 46
-maisu = 0, nokori = kingaku
-表示する("残り", nokori, "円")
-`}
-      />
+      <LessonPlayground slug="variable" />
 
       <h2>試験ではどう問われるか</h2>
       <p>

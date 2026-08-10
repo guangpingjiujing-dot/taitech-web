@@ -5,6 +5,7 @@ import { sections, dataModelingCategories } from "@/content/sections";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
 import { joho1Lessons } from "@/content/joho1/lessons";
+import { joho1Quizzes } from "@/content/joho1/quiz";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -22,8 +23,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const joho1ExtraPaths = [
     "/joho1/dncl",
+    "/joho1/transpile",
     "/joho1/lessons",
     ...joho1Lessons.map((l) => `/joho1/lessons/${l.slug}`),
+    "/joho1/quiz",
+    ...joho1Quizzes.map((q) => `/joho1/quiz/${q.slug}`),
   ];
 
   const priorityFor = (p: string): number => {

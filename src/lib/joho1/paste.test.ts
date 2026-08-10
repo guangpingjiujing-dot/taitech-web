@@ -57,6 +57,25 @@ describe("normalizePastedCode", () => {
   it("全角カッコの行番号も落とす", () => {
     expect(normalizePastedCode("（01） a = 1").code).toBe("a = 1");
   });
+
+  it("全角数字の行番号も落とす", () => {
+    // 正規表現の `\d` は ASCII 限定。lexer の全角正規化はパース時にしか走らないので、
+    // ここで落とせないと「貼っただけでは動かない」まま構文エラーになる
+    const { code, changed } = normalizePastedCode(
+      "（０１）　goukei = 0\n（０２）　表示する(goukei)",
+    );
+    expect(changed).toBe(true);
+    expect(code.split("\n")).toEqual(["goukei = 0", "表示する(goukei)"]);
+  });
+
+  it("全角数字の行番号つきでも実行できる", () => {
+    const { code } = normalizePastedCode(
+      "（０１）　goukei = ３\n（０２）　表示する(goukei)",
+    );
+    const state = runJoho1ToEnd(parse(code), { indexBase: 1 });
+    expect(state.error).toBeNull();
+    expect(state.output).toEqual(["3"]);
+  });
 });
 
 describe("buildBlockGuides", () => {

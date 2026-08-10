@@ -153,6 +153,24 @@ export function CodeEditor({
     const view = new EditorView({ state, parent: parentRef.current });
     viewRef.current = view;
     forceRender((n) => n + 1);
+
+    /*
+      画面外でマウントされたエディタは行の高さを計測できず、CodeMirror は
+      HeightOracle の既定値 (14px) のまま gutter を描く。実際の行高は 22.8px なので、
+      その間だけ行番号とブロック罫線が本文とずれる。
+
+      **これを IntersectionObserver で直そうとしないこと。** 2026-08-08 に試して
+      1px も変わらなかった。根拠は @codemirror/view の ViewState.measure():
+
+        if (!this.inView && !this.scrollTarget && !inWindow(view.dom)) return 0;
+
+      `inWindow()` は要素の矩形を **viewport (win.innerWidth/innerHeight)** と比べるので、
+      fold 下のエディタはここで早期 return し、外から requestMeasure() を呼んでも
+      計測自体が走らない。可視になれば CodeMirror が自前の IntersectionObserver で
+      measure() するので、後から張る observer は「同じことを二度やる」だけになる。
+
+      ずれているのは画面外にある間だけで、ユーザーがその状態を見ることはない。
+    */
     if (onReady) {
       onReady({
         insertText: (text: string) => {

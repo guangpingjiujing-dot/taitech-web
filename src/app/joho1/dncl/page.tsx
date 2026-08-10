@@ -4,6 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
+import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
 import { sections } from "@/content/sections";
 import { Joho1PageJsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/lib/site";
@@ -45,7 +47,8 @@ export default function Joho1DnclPage() {
         ]}
       />
       <Container size="wide" className="py-8 md:py-12">
-      <article className="mx-auto w-full min-w-0 max-w-3xl">
+      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+      <article className="mx-auto w-full min-w-0 max-w-3xl lg:mx-0">
         <Breadcrumb
           className="mb-6"
           items={[
@@ -238,7 +241,17 @@ export default function Joho1DnclPage() {
             で 1 つずつ確認できます。
           </p>
         </div>
+
+        <AffiliateBooks
+          topicSlug="joho1-dncl"
+          domain="joho1"
+          limit={3}
+          heading="共通テスト 情報I の対策書（おすすめ書籍）"
+        />
       </article>
+
+      <Joho1Sidebar topicSlug="joho1-dncl" />
+      </div>
       </Container>
     </>
   );

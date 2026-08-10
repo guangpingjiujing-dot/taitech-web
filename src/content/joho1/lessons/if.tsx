@@ -26,15 +26,7 @@ export default function IfLesson() {
         <code>&gt;=</code> を使います。
       </p>
 
-      <LessonPlayground
-        indexBase={1}
-        code={`tokuten = 72
-もし tokuten >= 60 ならば：
-  表示する("合格")
-そうでなければ：
-  表示する("不合格")
-`}
-      />
+      <LessonPlayground slug="if" />
 
       <h2>どこまでがブロックかを見る</h2>
       <p>

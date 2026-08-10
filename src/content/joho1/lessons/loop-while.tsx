@@ -28,23 +28,19 @@ export default function LoopWhileLesson() {
         <strong>問題文の説明を読み落とさないこと</strong>のほうが大事です。
       </p>
 
-      <LessonPlayground
-        indexBase={1}
-        code={`nokori = 100
-kaisuu = 0
-(nokori > 0) and (kaisuu < 10) の間繰り返す：
-  nokori = nokori - 30
-  kaisuu = kaisuu + 1
-表示する(kaisuu, "回で残り", nokori)
-`}
-      />
+      <LessonPlayground slug="loop-while" />
 
       <h2>終わらない繰り返しに注意</h2>
       <p>
         条件に関わる変数を中で変えないと、条件がいつまでも成り立ったままになり、
-        くり返しが終わりません。上のコードで <code>kaisuu = kaisuu + 1</code> の行を消すと
-        どうなるか、1 行ずつ実行して確かめてみてください
-        （最後まで実行すると止まらなくなるので、途中で「リセット」を押してください）。
+        くり返しが終わりません。上のコードで <code>kaisuu = kaisuu + 1</code> の行を消して
+        実行してみてください。
+      </p>
+      <p>
+        このシミュレーターには実行回数の上限があるので、ブラウザが固まることはありません。
+        1 秒ほどで止まり、<strong>「実行ステップが 100000 を超えました。無限ループに
+        なっていませんか?」</strong> と表示されます。試験でこの形のミスをすると、
+        プログラムが答えを出さないまま終わります。
       </p>
     </>
   );

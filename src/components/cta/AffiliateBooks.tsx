@@ -20,7 +20,15 @@ export function AffiliateBooks({
       <h2 className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
         {heading}
       </h2>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/*
+        `grid-cols-1` を省かない。省くと 640px 未満で **暗黙のカラム** になり、
+        暗黙トラックの `auto` は最大サイズが max-content なので、
+        CJK (word-break: keep-all で分割されない) の長い書名・紹介文がそのまま
+        カラムを押し広げ、body ごと横スクロールする。
+        `grid-cols-1` は minmax(0, 1fr) を出すのでトラックが親幅に収まる。
+        390px + 情報I の書名で発覚 (E2E「モバイルで body が横スクロールしない」)。
+      */}
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((b) => (
           <AmazonLink
             key={b.id}
@@ -36,7 +44,12 @@ export function AffiliateBooks({
                   おすすめ
                 </span>
               )}
-              <div className="min-w-0 flex-1 break-words font-semibold leading-snug group-hover:underline underline-offset-4">
+              {/*
+                狭いカードでは `break-words` だと min-content 幅が縮まず、書名が
+                カードからはみ出す。min-content を縮める `overflow-wrap: anywhere`
+                を使う (AGENTS.md / BookSidebar と同じ理由)。
+              */}
+              <div className="min-w-0 flex-1 [overflow-wrap:anywhere] font-semibold leading-snug group-hover:underline underline-offset-4">
                 {b.title}
               </div>
             </div>

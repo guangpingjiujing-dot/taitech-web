@@ -223,3 +223,36 @@ describe("joho1 lexer: エラー", () => {
     }
   });
 });
+
+describe("joho1 lexer: 貼り付けで混ざる文字", () => {
+  // 「問題を貼れば動く」の確度に直結する。全角記号を使う出題なら数字も全角で来る
+  it("全角数字を読む", () => {
+    expect(values("表示する(７ + 2)")).toEqual(["表示する", "(", "7", "+", "2", ")"]);
+  });
+
+  it("全角数字だけの配列リテラルも読める", () => {
+    expect(kinds("A = [１, ２, ３]")).toEqual([
+      "IDENT", "ASSIGN", "LBRACK", "INT", "COMMA", "INT", "COMMA", "INT",
+      "RBRACK", "NEWLINE", "EOF",
+    ]);
+  });
+
+  it("PDF からコピペした smart quote を文字列の引用符として読む", () => {
+    const toks = tokenize("表示する(“合計”)");
+    expect(toks.filter((t) => t.kind === "STRING").map((t) => t.value)).toEqual(["合計"]);
+  });
+
+  it("smart quote の中身は正規化しない", () => {
+    // 引用符を「全角 → 半角の置換表の 1 エントリ」として扱うと、内外判定より先に
+    // 素通りして **中身まで正規化される** (`：` → `:` / `、` → `,` / `７` → `7`)。
+    // エラーにならず出力だけが静かに変わるので、教材としては最悪の壊れ方になる
+    const toks = tokenize(
+      '表示する(“分間：”, “可燃ごみ、生ごみ”, “７時”)',
+    );
+    expect(toks.filter((t) => t.kind === "STRING").map((t) => t.value)).toEqual([
+      "分間：",
+      "可燃ごみ、生ごみ",
+      "７時",
+    ]);
+  });
+});

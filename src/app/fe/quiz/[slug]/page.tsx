@@ -9,7 +9,7 @@ import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { QuizCard } from "@/components/fe/QuizCard";
 import { FeSidebar } from "@/components/fe/FeSidebar";
-import { FeQuizJsonLd } from "@/components/seo/JsonLd";
+import { QuizJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { feQuizNeighbors, feQuizzes, findFeQuiz } from "@/content/fe/quiz";
@@ -61,7 +61,8 @@ export default async function FeQuizPage({
 
   return (
     <>
-      <FeQuizJsonLd
+      <QuizJsonLd
+        section="fe"
         path={path}
         name={quiz.title}
         description={quiz.description}

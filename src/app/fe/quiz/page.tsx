@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
-import { QuizProgressSummary } from "@/components/fe/QuizProgress";
+import { QuizProgressSummary } from "@/components/quiz/QuizProgress";
 import { QuizIndexCard } from "@/components/fe/QuizIndexCard";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 import { sections } from "@/content/sections";
@@ -112,7 +112,7 @@ export default function FeQuizIndexPage() {
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
                 すべてオリジナル問題です（IPA 公式過去問の転載はしていません）。
               </p>
-              <QuizProgressSummary total={feQuizzes.length} />
+              <QuizProgressSummary namespace="fe" total={feQuizzes.length} />
             </header>
 
             {TIERS.map((t) => (
