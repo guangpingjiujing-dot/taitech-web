@@ -190,7 +190,10 @@ export const books: Book[] = [
   // topics の slug は `fe-playground` (/fe ハブ と /fe/algorithm で共用)
   // / `fe-transpile` (/fe/algorithm/transpile)
   // / `fe-lessons` (レッスン一覧) / `fe-{lesson slug}` (各レッスン)
-  // / `fe-quiz` (練習問題)。
+  // / `fe-quiz` (練習問題) / `fe-sql` (/fe/sql)。
+  //
+  // **`fe-sql` を付けるのは科目 A も扱う総合対策書だけ。** 科目 B 特化の
+  // アルゴリズム本に付けると、SQL のページに擬似言語の本が並ぶ。
   {
     id: "fe-algo-pseudo-training",
     domain: "fe",
@@ -285,7 +288,7 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4297153017?tag=taitech-22",
     description:
       "イラスト主体で科目Aの全範囲を通読できる入門書。用語の土台を作ってから科目Bのアルゴリズムに入ると理解が速い。",
-    topics: ["fe-playground", "fe-lessons", "fe-transpile", "fe-variable"],
+    topics: ["fe-playground", "fe-lessons", "fe-transpile", "fe-variable", "fe-sql"],
   },
   {
     id: "fe-kayanoki-r08",
@@ -297,7 +300,7 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4297152452?tag=taitech-22",
     description:
       "科目Aの頻出テーマを図と語呂で押さえる入門書。参考書と問題集を兼ねるので初受験の一冊目に選びやすい。",
-    topics: ["fe-playground", "fe-lessons", "fe-variable"],
+    topics: ["fe-playground", "fe-lessons", "fe-variable", "fe-sql"],
   },
   {
     id: "fe-perfect-learning-r08",
@@ -308,7 +311,7 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4297151340?tag=taitech-22",
     description:
       "公開問題を大量に解いて仕上げるための問題集。擬似言語の読解に慣れた後、本番形式で時間配分を試す段階で使う。",
-    topics: ["fe-playground", "fe-lessons", "fe-transpile", "fe-quiz"],
+    topics: ["fe-playground", "fe-lessons", "fe-transpile", "fe-quiz", "fe-sql"],
   },
 
   // --- 大学入学共通テスト「情報I」(joho1) ---

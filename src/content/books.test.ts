@@ -44,6 +44,7 @@ describe("booksForTopic", () => {
       "fe-playground",
       "fe-transpile",
       "fe-lessons",
+      "fe-sql",
       ...feLessons.map((l) => `fe-${l.slug}`),
     ];
     for (const slug of slugs) {

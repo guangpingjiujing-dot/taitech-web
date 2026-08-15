@@ -55,6 +55,39 @@ const highlightLineField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
+/**
+ * 句単位のハイライト。**行単位の `highlightLineField` とは別に持つ。**
+ *
+ * 擬似言語のステップ実行は「今どの行か」だが、SQL の段階実行は「今どの句か」で、
+ * `WHERE 単価 > 100` のように 1 行の一部だけを指す必要がある
+ * (docs/wip/20260815-fe-sql/01-implementation-design.md §1-1)。
+ * 文字オフセットの範囲を受けて mark decoration を張る。
+ */
+const setHighlightRange = StateEffect.define<{ from: number; to: number } | null>();
+
+const highlightRangeMark = Decoration.mark({ class: "cm-execRange" });
+
+const highlightRangeField = StateField.define<DecorationSet>({
+  create: () => Decoration.none,
+  update(value, tr) {
+    let decs = value.map(tr.changes);
+    for (const e of tr.effects) {
+      if (!e.is(setHighlightRange)) continue;
+      if (e.value == null) {
+        decs = Decoration.none;
+        continue;
+      }
+      // 範囲がドキュメント長を超えるとdispatchで例外になるので必ず丸める
+      const max = tr.state.doc.length;
+      const from = Math.max(0, Math.min(e.value.from, max));
+      const to = Math.max(from, Math.min(e.value.to, max));
+      decs = from === to ? Decoration.none : Decoration.set([highlightRangeMark.range(from, to)]);
+    }
+    return decs;
+  },
+  provide: (f) => EditorView.decorations.from(f),
+});
+
 const execLineTheme = EditorView.theme({
   "&": {
     fontSize: "0.95rem",
@@ -86,6 +119,12 @@ const execLineTheme = EditorView.theme({
   ".cm-line.cm-execLine.cm-activeLine": {
     backgroundColor: "rgba(255, 214, 0, 0.45)",
   },
+  // 句単位のハイライト。行ハイライトと同じ黄色だが、下線で「範囲」だと分かるようにする
+  ".cm-execRange": {
+    backgroundColor: "rgba(255, 214, 0, 0.45)",
+    boxShadow: "inset 0 -2px 0 0 rgba(180, 140, 0, 0.9)",
+    borderRadius: "2px",
+  },
 });
 
 export interface CodeEditorProps {
@@ -95,6 +134,11 @@ export interface CodeEditorProps {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   highlightLine?: number | null;
+  /**
+   * 句単位でハイライトする文字オフセットの範囲。SQL の段階実行で使う。
+   * `highlightLine` と併用してよい (別々の decoration として重なる)。
+   */
+  highlightRange?: { from: number; to: number } | null;
   /** Version counter — the highlight effect re-fires whenever this changes,
    *  even if `highlightLine` is unchanged (e.g. same line highlighted twice
    *  in a row during a loop). */
@@ -112,6 +156,7 @@ export function CodeEditor({
   onChange,
   readOnly = false,
   highlightLine = null,
+  highlightRange = null,
   highlightVersion = 0,
   height,
   minHeight = "260px",
@@ -141,6 +186,7 @@ export function CodeEditor({
         ...extensions,
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         highlightLineField,
+        highlightRangeField,
         execLineTheme,
         editableCompartment.of(EditorView.editable.of(!readOnly)),
         EditorView.updateListener.of((update) => {
@@ -213,6 +259,14 @@ export function CodeEditor({
     // even when the target line is the same as the previous one (e.g. a for
     // loop's header line re-highlighted on the next iteration).
   }, [highlightLine, highlightVersion]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({ effects: setHighlightRange.of(highlightRange) });
+    // highlightRange はオブジェクトなので、参照が変わるだけでも張り直す。
+    // from/to を依存に展開すると、同じ範囲を再指定したときに再発火しない
+  }, [highlightRange, highlightVersion]);
 
   useEffect(() => {
     const view = viewRef.current;

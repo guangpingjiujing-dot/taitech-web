@@ -13,6 +13,7 @@ export function Footer() {
   const feLinks = [
     { href: "/fe", label: "対策ツール一覧" },
     { href: "/fe/algorithm", label: "擬似言語 実行シミュレーター" },
+    { href: "/fe/sql", label: "SQL 実行シミュレーター" },
     { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
     { href: "/fe/algorithm/quiz", label: `練習問題 ${feQuizzes.length} 問` },
     { href: "/fe/algorithm/transpile", label: "多言語横並び比較" },

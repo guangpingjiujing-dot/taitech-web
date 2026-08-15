@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const feExtraPaths = [
     // `/fe` 自体は sectionHubs 側に入っている。ツールのトップはここ
     "/fe/algorithm",
+    "/fe/sql",
     "/fe/algorithm/transpile",
     "/fe/algorithm/lessons",
     ...feLessons.map((l) => `/fe/algorithm/lessons/${l.slug}`),

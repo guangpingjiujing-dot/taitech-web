@@ -184,6 +184,23 @@ export function TopicNav({
                 </li>
                 <li>
                   <Link
+                    href="/fe/sql"
+                    className={linkClass(
+                    "/fe/sql",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/sql")}
+                  >
+                    <div className="font-semibold group-hover:underline underline-offset-4">
+                      SQL 実行シミュレーター
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                      評価順を 1 つずつ確認する
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/fe/algorithm/transpile"
                     className={linkClass(
                     "/fe/algorithm/transpile",

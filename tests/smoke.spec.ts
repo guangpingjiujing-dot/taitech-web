@@ -42,6 +42,7 @@ const PAGES = [
   "/why-need-rdb/recap",
   "/fe",
   "/fe/algorithm",
+  "/fe/sql",
   "/fe/algorithm/transpile",
   "/fe/algorithm/lessons",
   "/fe/algorithm/lessons/variable",
@@ -451,6 +452,108 @@ test("FE Transpile page: side-by-side view renders Python and TypeScript", async
   await expect(
     page.locator("pre").filter({ hasText: /for \(let i = 1; i <= n; i \+= 1\)/ }),
   ).toBeVisible();
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+/* ---------------- SQL 実行シミュレーター (/fe/sql) ---------------- */
+
+/** エディタの中身を丸ごと置き換える */
+async function typeSql(page: Page, sql: string) {
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+  const editor = page.locator(".cm-content");
+  await editor.click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("Delete");
+  // CodeMirror の自動インデントに邪魔されないよう delay を入れずに流し込む
+  await editor.pressSequentially(sql, { delay: 0 });
+}
+
+test("FE SQL: 実行すると結果の表が出る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await typeSql(page, "SELECT 商品番号 FROM 商品 WHERE 分類 = 'B'");
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+
+  const result = page.getByRole("region", { name: "実行結果" });
+  await expect(result.getByRole("cell", { name: "P03" })).toBeVisible();
+  await expect(result.getByRole("cell", { name: "P04" })).toBeVisible();
+  await expect(result).toContainText("2 行");
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE SQL: 段階を追うと評価順に進み、SELECT が最後に来る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await typeSql(
+    page,
+    "SELECT 分類, COUNT(*) FROM 商品 WHERE 単価 >= 100 GROUP BY 分類",
+  );
+  await page.getByRole("button", { name: /^段階を追う$/ }).click();
+
+  const stages = page.getByRole("list", { name: "評価の段階" }).locator("li");
+  await expect(stages).toHaveCount(4);
+  await expect(stages.nth(0)).toHaveText("FROM");
+  await expect(stages.nth(1)).toHaveText("WHERE");
+  await expect(stages.nth(2)).toHaveText("GROUP BY");
+  // SELECT は最後
+  await expect(stages.nth(3)).toHaveText("SELECT");
+
+  // 最初は FROM の段階
+  await expect(page.getByText(/FROM: 商品 を読み込み/)).toBeVisible();
+  await expect(page.getByText("1 / 4")).toBeVisible();
+
+  const next = page.getByRole("button", { name: /^次へ →$/ });
+  await next.click();
+  await expect(page.getByText("WHERE: 5 行 → 4 行")).toBeVisible();
+
+  await next.click();
+  await expect(page.getByText(/GROUP BY: 4 行 → 3 グループ/)).toBeVisible();
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE SQL: GROUP BY に無い列は標準 SQL どおりエラーになる", async ({ page }) => {
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await typeSql(page, "SELECT 商品名, COUNT(*) FROM 商品 GROUP BY 分類");
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+
+  // getByRole("alert") は next-route-announcer にも当たるので中身で絞る
+  const alert = page.getByRole("alert").filter({ hasText: "GROUP BY" });
+  await expect(alert).toBeVisible();
+  await expect(alert).toContainText("集約関数で包");
+});
+
+test("FE SQL: GRANT は「間違い」ではなく解説への誘導になる", async ({ page }) => {
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await typeSql(page, "GRANT SELECT ON 商品 TO PUBLIC");
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+
+  const alert = page.getByRole("alert").filter({ hasText: "GRANT" });
+  await expect(alert).toContainText("試験範囲");
+  await expect(
+    alert.getByRole("link", { name: /この構文の解説を読む/ }),
+  ).toBeVisible();
+});
+
+test("FE SQL: UPDATE は実行前後の差分で表示され、リセットで戻る", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await typeSql(page, "UPDATE 商品 SET 単価 = 単価 * 2 WHERE 分類 = 'B'");
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+
+  await expect(page.getByText("UPDATE: 2 行が対象")).toBeVisible();
+  // 変更前 → 変更後 が併記される (80 → 160)
+  const diff = page.locator("table").filter({ hasText: "更新" }).first();
+  await expect(diff).toContainText("160");
+  await expect(diff).toContainText("80");
+
+  await page.getByRole("button", { name: /リセット/ }).click();
+  await expect(page.getByText("UPDATE: 2 行が対象")).toHaveCount(0);
+
   expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });

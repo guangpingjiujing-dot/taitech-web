@@ -55,6 +55,21 @@ const TOOLS = [
       { href: "/fe/algorithm/transpile", label: "多言語横並び比較" },
     ],
   },
+  {
+    key: "sql",
+    path: "/fe/sql",
+    eyebrow: "科目 A",
+    name: "SQL 実行シミュレーター",
+    description:
+      "データベース分野の SQL をその場で実行できる。FROM → WHERE → GROUP BY → HAVING → SELECT の評価順に、それぞれの時点の表を 1 つずつ見られる。",
+    bullets: [
+      "評価順に中間の表を 1 段階ずつ表示",
+      "WHERE と HAVING の違いをグループ単位で確認",
+      "INSERT / UPDATE / DELETE は実行前後の差分で表示",
+      "制約違反はどの行が引っかかったかを表上で明示",
+    ],
+    links: [],
+  },
 ] as const;
 
 const FAQ_ITEMS = [

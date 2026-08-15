@@ -70,6 +70,9 @@ function renderSectionBlock(section: Section): string[] {
       `- [擬似言語 実行シミュレーター](${site.url}/fe/algorithm): 擬似言語を書いて実行し、一行ずつ変数の変化を追える。`,
     );
     lines.push(
+      `- [SQL 実行シミュレーター](${site.url}/fe/sql): 科目A のデータベース分野で問われる SQL を実行できる。FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の評価順に、各段階の中間の表を 1 つずつ表示する。GROUP BY に無い非集約列や WHERE 内の集約関数は、標準 SQL どおりエラーにする。`,
+    );
+    lines.push(
       `- [擬似言語 → Python / TypeScript 変換](${site.url}/fe/algorithm/transpile): 同じロジックを 3 言語横並びで比較できる。配列の添字が 1 始まり → 0 始まりに変換される様子も確認できる。`,
     );
     lines.push(``);
