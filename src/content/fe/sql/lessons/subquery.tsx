@@ -40,6 +40,13 @@ WHERE 商品番号 NOT IN (SELECT 商品番号 FROM 在庫)`}</code>
         結果は「在庫が 1 件も無い商品」です。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: NOT IN の NOT を消すと「在庫のある商品」になる"
+        sql={`SELECT 商品番号, 商品名 FROM 商品
+WHERE 商品番号 NOT IN (SELECT 商品番号 FROM 在庫)`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>EXISTS — 行が存在するかどうかだけを見る</h2>
       <pre>
         <code>{`SELECT 商品番号 FROM 商品
@@ -59,6 +66,15 @@ WHERE NOT EXISTS (
         何を選んでも結果は変わりません。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: SELECT 1 を SELECT 倉庫 に変えても結果は同じ (EXISTS は行の有無だけを見る)"
+        sql={`SELECT 商品番号, 商品名 FROM 商品
+WHERE NOT EXISTS (
+  SELECT 1 FROM 在庫 WHERE 在庫.商品番号 = 商品.商品番号
+)`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>スカラ副問合せ — 1 つの値として使う</h2>
       <pre>
         <code>{`SELECT 商品名 FROM 商品
@@ -69,6 +85,13 @@ WHERE 単価 = (SELECT MAX(単価) FROM 商品)`}</code>
         <strong>2 行以上返るとエラー</strong>になるので、
         集約関数で 1 行にまとめるのが定石です。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: MAX を MIN や AVG に変える / 集約を外すとエラーになる"
+        sql={`SELECT 商品名, 単価 FROM 商品
+WHERE 単価 = (SELECT MAX(単価) FROM 商品)`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>NOT IN に NULL が混ざると 1 行も返らない</h2>
       <p>
@@ -90,14 +113,10 @@ WHERE 単価 NOT IN (SELECT 在庫数 FROM 在庫)`}</code>
         NOT IN と NOT EXISTS が「同じ結果になる／ならない」を問う問題は頻出です。
       </p>
 
-      <h2>ブラウザで動かしてみる</h2>
-      <p>
-        まずそのまま実行し、次に <code>NOT EXISTS</code> 版に書き換えて
-        同じ結果になることを確かめてください。
-      </p>
-
       <SqlLessonPlayground
-        sql={lesson.sampleSql!}
+        caption="試す: 在庫数に NULL があるので 0 行になる。NOT EXISTS で書き直すと取れる"
+        sql={`SELECT 商品番号, 商品名 FROM 商品
+WHERE 単価 NOT IN (SELECT 在庫数 FROM 在庫)`}
         datasetKey={lesson.datasetKey}
       />
 

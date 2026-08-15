@@ -38,6 +38,20 @@ export default function DdlConstraintsBody() {
 )`}</code>
       </pre>
 
+      <SqlLessonPlayground
+        caption="試す: 作った表に INSERT してから SELECT で確かめる"
+        sql={`CREATE TABLE 発注 (
+  発注番号 CHAR(4) PRIMARY KEY,
+  商品番号 CHAR(4) REFERENCES 商品(商品番号),
+  数量 INT CHECK (数量 > 0)
+);
+
+INSERT INTO 発注 VALUES ('R01', 'P01', 5);
+
+SELECT * FROM 発注`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>4 つの制約</h2>
       <p>
         制約は「この表に入ってよい値の条件」を宣言しておく仕組みです。
@@ -88,6 +102,12 @@ export default function DdlConstraintsBody() {
         商品番号が同じ行が複数あっても倉庫が違えば入ります。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: 商品番号 を P01 に変えると主キーの重複で弾かれる"
+        sql={`INSERT INTO 商品 VALUES ('P06', 'クリップ', 'C', 60)`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>参照制約は「両方向」に効く</h2>
       <p>
         参照制約はよく「子に変な値を入れさせない」と説明されますが、
@@ -120,6 +140,7 @@ export default function DdlConstraintsBody() {
       </ul>
 
       <SqlLessonPlayground
+        caption="試す: 上の 3 つの SQL に書き換えて、それぞれどの制約で弾かれるか見る"
         sql={lesson.sampleSql!}
         datasetKey={lesson.datasetKey}
       />

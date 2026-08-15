@@ -8,6 +8,8 @@ import { HubTopicNav } from "@/components/layout/HubTopicNav";
 import { site } from "@/lib/site";
 import { sections } from "@/content/sections";
 import { feQuizzes } from "@/content/fe/quiz";
+import { sqlLessons } from "@/content/fe/sql/lessons";
+import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { joho1Lessons } from "@/content/joho1/lessons";
 
 export const metadata: Metadata = {
@@ -53,10 +55,11 @@ function Hero() {
             {/* keep-all だと「データベースと擬似言語を」が分割不可の 1 塊になり、
                 min-content が 377px になってモバイルで横に溢れる */}
             <h1 className="mt-3 text-3xl md:text-5xl font-bold tracking-tight leading-tight [overflow-wrap:anywhere]">
-              データベースと擬似言語を、動かして理解する。
+              データベースも SQL も、動かせばわかりやすい。
             </h1>
             <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed">
-              教科書で挫折しがちな概念を、実際に触れる図解と辞書的な厳密な定義で解説します。
+              プログラミング未経験・初学者の方が教科書でつまずくところを、
+              実際に触れる図解と、そのまま引用できる厳密な定義でほどきます。
               RDB のインデックス・正規化・ER 図は
               <Link
                 href="/data-modeling/er-diagram"
@@ -65,7 +68,8 @@ function Hero() {
                 「変なER図」
               </Link>
               の間違い探しのように、動かしながら読み解けます。
-              試験の擬似言語は、書いたコードを 1 行ずつ実行して変数の変化を目で追えます。
+              基本情報技術者試験の対策では、擬似言語を 1 行ずつ実行して変数の変化を追い、
+              SQL は評価される順番どおりに途中の表を見ながら確かめられます。
             </p>
           </div>
           <HeroVisual />
@@ -147,7 +151,11 @@ function SeriesGroups() {
     lead: string;
     cards: {
       key: string;
-      href: string;
+      /**
+       * カードの主導線。**1 本とは限らない。**
+       * FE は科目 B (擬似言語) と科目 A (SQL) の入口が対等に 2 つある。
+       */
+      actions: { href: string; label: string }[];
       title: string;
       lead: string;
       bullets: string[];
@@ -161,7 +169,7 @@ function SeriesGroups() {
       cards: [
         {
           key: "why-need-rdb",
-          href: sections["why-need-rdb"].path,
+          actions: [{ href: sections["why-need-rdb"].path, label: "このシリーズを見る" }],
           title: sections["why-need-rdb"].label,
           lead: "Excel をバックエンドに繋いだら何が起きるか。受注シートに仕込まれた 7 つのおかしな箇所から、RDB が黙って守ってくれている 5 つの根本価値を学ぶ。",
           bullets: [
@@ -176,7 +184,7 @@ function SeriesGroups() {
         },
         {
           key: "rdb-index",
-          href: sections["rdb-index"].path,
+          actions: [{ href: sections["rdb-index"].path, label: "このシリーズを見る" }],
           title: sections["rdb-index"].label,
           lead: "B-treeやハッシュ、複合インデックスの動きを、値を変えられる図解で辿る。",
           bullets: [
@@ -191,7 +199,7 @@ function SeriesGroups() {
         },
         {
           key: "data-modeling",
-          href: sections["data-modeling"].path,
+          actions: [{ href: sections["data-modeling"].path, label: "このシリーズを見る" }],
           title: sections["data-modeling"].label,
           lead: "「変なER図」の間違い探しから ER 図の基本、そのまま正規化の 3 ステップへ。",
           bullets: [
@@ -207,9 +215,14 @@ function SeriesGroups() {
       ],
     },
     {
-      key: "pseudo-code",
-      heading: "試験の擬似言語を動かす",
-      lead: "読むだけでは追えないコードを、1 行ずつ実行して変数の変化で理解する。",
+      key: "exam-tools",
+      /*
+       * 見出しを「擬似言語」に限定しない。FE は科目 B の擬似言語だけでなく
+       * 科目 A の SQL も扱うようになったので、両方を含む言い方にする
+       * (2026-08-16)。
+       */
+      heading: "試験問題を動かして解く",
+      lead: "読むだけでは追えないコードと SQL を、その場で実行して確かめる。",
       cards: [
         /*
           試験系の 2 枚だけカード用のタイトルを手書きする。
@@ -221,23 +234,32 @@ function SeriesGroups() {
         */
         {
           key: "fe",
-          href: sections.fe.path,
+          /*
+           * **入口を 2 つ持つ唯一のカード。** 科目 B (擬似言語) と科目 A (SQL) は
+           * 読者の目的が別なので、「このシリーズを見る」1 本でハブへ送ると
+           * どちらを目当てに来た人にも 1 クリック増える。
+           */
+          actions: [
+            { href: "/fe/algorithm", label: "科目B 擬似言語" },
+            { href: "/fe/sql", label: "科目A SQL" },
+          ],
           title: "基本情報技術者試験 対策ツール",
-          lead: "科目 B の擬似言語をブラウザで書いて動かす。一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられる。",
+          lead: "科目 B の擬似言語と科目 A の SQL を、どちらもブラウザで書いて動かせる。擬似言語は変数の変化を、SQL は評価の順番を、1 段階ずつ目で追える。",
           bullets: [
             "擬似言語を一行ずつ実行して変数を可視化",
-            "構文別レッスン 6 本 (変数 / if / while / for / 配列 / 関数)",
-            `オリジナル練習問題 ${feQuizzes.length} 問 (解説つき)`,
+            "SQL を FROM → WHERE → GROUP BY → SELECT の評価順に追える",
+            `レッスン ${6 + sqlLessons.length} 本 (擬似言語 6 / SQL ${sqlLessons.length})`,
+            `オリジナル練習問題 ${feQuizzes.length + sqlQuizzes.length} 問 (解説つき)`,
           ],
           links: [
-            { href: "/fe/algorithm", label: "擬似言語 実行シミュレーター" },
-            { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
-            { href: "/fe/algorithm/quiz", label: "練習問題を解く" },
+            { href: "/fe", label: "対策ツール一覧" },
+            { href: "/fe/algorithm/quiz", label: `擬似言語の練習問題 ${feQuizzes.length} 問` },
+            { href: "/fe/sql/quiz", label: `SQL の練習問題 ${sqlQuizzes.length} 問` },
           ],
         },
         {
           key: "joho1",
-          href: sections.joho1.path,
+          actions: [{ href: sections.joho1.path, label: "このシリーズを見る" }],
           title: "情報I プログラム表記 実行シミュレーター",
           lead: "共通テスト「情報I」のプログラムを 1 行ずつ実行できる。問題冊子から貼り付けると行番号と罫線は自動で外れる。",
           bullets: [
@@ -288,12 +310,17 @@ function SeriesGroups() {
                     ))}
                   </ul>
                   <div className="mt-6 flex-1" />
-                  <Link
-                    href={c.href}
-                    className="mt-6 inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-bold hover:bg-[#262626] self-start"
-                  >
-                    このシリーズを見る →
-                  </Link>
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {c.actions.map((a) => (
+                      <Link
+                        key={a.href}
+                        href={a.href}
+                        className="inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-bold hover:bg-[#262626]"
+                      >
+                        {a.label} →
+                      </Link>
+                    ))}
+                  </div>
                   <ul className="mt-5 space-y-1 text-sm text-[var(--muted-foreground)]">
                     {c.links.map((l) => (
                       <li key={l.href}>

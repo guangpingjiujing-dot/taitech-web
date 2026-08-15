@@ -76,6 +76,14 @@ SELECT 商品番号, 倉庫 FROM 在庫`}</code>
         結果の列名は左側の SELECT のものが使われます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: UNION を EXCEPT / INTERSECT に書き換えて結果を見比べる"
+        sql={`SELECT 商品番号 FROM 商品
+UNION
+SELECT 商品番号 FROM 在庫`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>UNION は重複を消す</h2>
       <p>
         <code>UNION</code> は結果から重複行を取り除きます。
@@ -84,6 +92,15 @@ SELECT 商品番号, 倉庫 FROM 在庫`}</code>
         <strong>ALL を付けないと重複が消える</strong>のがポイントで、
         行数を問う問題で狙われます。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: ALL を消すと重複が消えて 5 行になる"
+        sql={`SELECT 商品番号 FROM 商品
+UNION ALL
+SELECT 商品番号 FROM 在庫
+ORDER BY 商品番号`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>直積も集合演算のひとつ</h2>
       <p>
@@ -101,18 +118,6 @@ SELECT 商品番号, 倉庫 FROM 在庫`}</code>
         <li><strong>集合演算</strong>は<strong>縦</strong>に足し引きする。列数は変わらない</li>
         <li><strong>結合</strong>は<strong>横</strong>につなぐ。列が増える</li>
       </ul>
-
-      <h2>ブラウザで動かしてみる</h2>
-      <p>
-        <code>EXCEPT</code> で「在庫が無い商品」が出ます。
-        <code>INTERSECT</code> や <code>UNION</code> に書き換えて、
-        行数がどう変わるか確かめてください。
-      </p>
-
-      <SqlLessonPlayground
-        sql={lesson.sampleSql!}
-        datasetKey={lesson.datasetKey}
-      />
 
       <h2>試験で問われるポイント</h2>
       <ul>

@@ -39,6 +39,14 @@ GROUP BY 部門コード`}</code>
         <strong>グループの数だけ結果の行ができます</strong>。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: GROUP BY を消すと 1 行にまとまる"
+        sql={`SELECT 部門コード, COUNT(*), AVG(給与)
+FROM 従業員
+GROUP BY 部門コード`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>HAVING はグループを絞り込む</h2>
       <p>
         「2 人以上いる部門だけ」のように、
@@ -48,6 +56,15 @@ GROUP BY 部門コード`}</code>
         <code>{`GROUP BY 部門コード
 HAVING COUNT(*) >= 2`}</code>
       </pre>
+
+      <SqlLessonPlayground
+        caption="試す: HAVING の条件を >= 3 にすると残るグループが減る"
+        sql={`SELECT 部門コード, COUNT(*)
+FROM 従業員
+GROUP BY 部門コード
+HAVING COUNT(*) >= 2`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>WHERE と HAVING の違いは「評価順」で決まる</h2>
       <p>
@@ -71,6 +88,16 @@ HAVING COUNT(*) >= 2`}</code>
         両方書くこともできます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: HAVING の条件を WHERE に移すとエラーになる"
+        sql={`SELECT 部門コード, COUNT(*)
+FROM 従業員
+WHERE 給与 >= 300000
+GROUP BY 部門コード
+HAVING COUNT(*) >= 2`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>GROUP BY に無い列は取り出せない</h2>
       <pre>
         <code>{`SELECT 氏名, COUNT(*) FROM 従業員 GROUP BY 部門コード
@@ -87,15 +114,24 @@ HAVING COUNT(*) >= 2`}</code>
         標準 SQL に合わせてエラーにしています。
       </p>
 
-      <h2>ブラウザで動かしてみる</h2>
+      <SqlLessonPlayground
+        caption="試す: このままだとエラー。氏名 を MAX(氏名) にするか GROUP BY に足すと通る"
+        sql={`SELECT 氏名, COUNT(*)
+FROM 従業員
+GROUP BY 部門コード`}
+        datasetKey={lesson.datasetKey}
+      />
+
+      <h2>グループの集合として見る</h2>
       <p>
-        <strong>段階を追う</strong>を押してください。GROUP BY の段階で、
+        <strong>一つ進める</strong>を押してください。GROUP BY の段階で、
         <strong>行の集合ではなくグループの集合</strong>が表示されます。
         HAVING がそのグループをどう減らすかも次の段階で見えます。
         WHERE と HAVING の違いが一番はっきり分かる場所です。
       </p>
 
       <SqlLessonPlayground
+        caption="試す: 一つ進める で GROUP BY と HAVING の段階を見比べる"
         sql={lesson.sampleSql!}
         datasetKey={lesson.datasetKey}
       />

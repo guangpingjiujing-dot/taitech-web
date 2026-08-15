@@ -79,6 +79,13 @@ export default function AggregateBody() {
         SQL の規則です。平均を出すときに分母が変わる点が特に狙われます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: COUNT(*) と COUNT(給与) の差が、給与が NULL の 1 行分"
+        sql={`SELECT COUNT(*), COUNT(給与), SUM(給与), AVG(給与)
+FROM 従業員`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>対象が 0 件のときの戻り値</h2>
       <pre>
         <code>{`SELECT COUNT(*), SUM(給与) FROM 従業員 WHERE 部門コード = 'D99'
@@ -89,6 +96,14 @@ export default function AggregateBody() {
         「該当が無い」ことと「合計が 0」は違う、という考え方です。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: COUNT だけが 0 を返し、SUM と AVG は NULL になる"
+        sql={`SELECT COUNT(*), SUM(給与), AVG(給与)
+FROM 従業員
+WHERE 部門コード = 'D99'`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>集約関数は WHERE には書けない</h2>
       <p>
         <code>WHERE COUNT(*) &gt; 1</code> はエラーになります。
@@ -97,18 +112,6 @@ export default function AggregateBody() {
         <Link href="/fe/sql/lessons/group-by">HAVING</Link> に書きます。
         次のレッスンで詳しく扱います。
       </p>
-
-      <h2>ブラウザで動かしてみる</h2>
-      <p>
-        そのまま実行すると <code>COUNT(*)</code> と <code>COUNT(給与)</code> の
-        差が見えます。<code>WHERE 部門コード = &apos;D99&apos;</code>{" "}
-        を足して、0 件のときの戻り値も確かめてください。
-      </p>
-
-      <SqlLessonPlayground
-        sql={lesson.sampleSql!}
-        datasetKey={lesson.datasetKey}
-      />
 
       <h2>試験で問われるポイント</h2>
       <ul>

@@ -41,6 +41,14 @@ WHERE NOT 分類 = 'A'                -- 満たさない`}</code>
         意図した順序にするには括弧を書きます。試験ではこの優先順位を突いた選択肢が出ます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: AND を OR に変える / 括弧を付けて優先順位を変える"
+        sql={`SELECT 商品名, 分類, 単価
+FROM 商品
+WHERE 分類 = 'A' OR 分類 = 'B' AND 単価 >= 150`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>よく使う述語</h2>
       <table>
         <thead>
@@ -79,6 +87,22 @@ WHERE NOT 分類 = 'A'                -- 満たさない`}</code>
         のように、それぞれ否定形も書けます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: BETWEEN の値を 120 AND 150 にして、境界が含まれるか確かめる"
+        sql={`SELECT 商品名, 単価
+FROM 商品
+WHERE 単価 BETWEEN 100 AND 200`}
+        datasetKey={lesson.datasetKey}
+      />
+
+      <SqlLessonPlayground
+        caption="試す: LIKE の % と _ を入れ替える ('P0_' / 'P%' / '%ート')"
+        sql={`SELECT 商品番号, 商品名
+FROM 商品
+WHERE 商品名 LIKE '%ル%'`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>NULL は「比較できない」</h2>
       <p>
         SQL で最もつまずくのがここです。<strong>NULL は値ではなく「不明」</strong>なので、
@@ -96,14 +120,23 @@ WHERE 在庫数 IS NULL    -- これが正解`}</code>
         <code>IS NOT NULL</code> と書きます。
       </p>
 
-      <h2>ブラウザで動かしてみる</h2>
+      <SqlLessonPlayground
+        caption="試す: IS NULL を = NULL や <> NULL に書き換えると 0 行になる"
+        sql={`SELECT 商品番号, 倉庫, 在庫数
+FROM 在庫
+WHERE 在庫数 IS NOT NULL`}
+        datasetKey={lesson.datasetKey}
+      />
+
+      <h2>何行に絞られたかを段階で見る</h2>
       <p>
-        条件をいろいろ書き換えて、何行残るかを確かめてください。
-        <strong>段階を追う</strong>で見ると、FROM で 5 行読み込んだあと
-        WHERE で何行に減るかが数字で出ます。
+        <strong>一つ進める</strong>を押すと、FROM で 5 行読み込んだあと
+        WHERE で何行に減ったかが数字で出ます。条件を書き換えて、
+        絞り込みの効き方を見比べてください。
       </p>
 
       <SqlLessonPlayground
+        caption="試す: 一つ進める で FROM → WHERE の行数の変化を見る"
         sql={lesson.sampleSql!}
         datasetKey={lesson.datasetKey}
       />

@@ -55,11 +55,17 @@ export function TopicNav({
           ]
         : section === "fe"
           ? [
-              // ツールと読み物を同じ見出しの下に混ぜない (ツールが「構文別レッスン」配下に見えてしまう)
+              /*
+               * **ツールごとにグループを分ける。** ツール 1 つだった頃の
+               * 「ツール / 構文別レッスン / 練習問題」という並びに SQL を足すと、
+               * SQL のレッスンと練習問題がツール群に紛れ込んで擬似言語のツールを分断し、
+               * さらに擬似言語だけレッスンが列挙されて SQL は列挙されない、という
+               * 非対称ができる。どちらのツールも「レッスン一覧 + 各回」を同じ形で持つ。
+               */
               { key: "fe-tools", label: "ツール", items: [] },
               {
                 key: "fe-lessons",
-                label: "構文別レッスン",
+                label: "擬似言語 レッスン",
                 items: feLessons.map((l) => ({
                   slug: l.slug,
                   path: `/fe/algorithm/lessons/${l.slug}`,
@@ -68,7 +74,21 @@ export function TopicNav({
               },
               {
                 key: "fe-quiz",
-                label: `練習問題 ${feQuizzes.length} 問`,
+                label: `擬似言語 練習問題 ${feQuizzes.length} 問`,
+                items: [],
+              },
+              {
+                key: "sql-lessons",
+                label: "SQL レッスン",
+                items: sqlLessons.map((l) => ({
+                  slug: l.slug,
+                  path: `/fe/sql/lessons/${l.slug}`,
+                  shortTitle: l.shortTitle,
+                })),
+              },
+              {
+                key: "sql-quiz",
+                label: `SQL 練習問題 ${sqlQuizzes.length} 問`,
                 items: [],
               },
             ]
@@ -186,47 +206,6 @@ export function TopicNav({
                 </li>
                 <li>
                   <Link
-                    href="/fe/sql"
-                    className={linkClass(
-                    "/fe/sql",
-                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
-                  )}
-                  aria-current={current("/fe/sql")}
-                  >
-                    <div className="font-semibold group-hover:underline underline-offset-4">
-                      SQL 実行シミュレーター
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
-                      評価順を 1 つずつ確認する
-                    </div>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/fe/sql/lessons"
-                    className={linkClass(
-                      "/fe/sql/lessons",
-                      "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--muted-foreground)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)] transition-colors",
-                    )}
-                    aria-current={current("/fe/sql/lessons")}
-                  >
-                    SQL レッスン {sqlLessons.length} 本
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/fe/sql/quiz"
-                    className={linkClass(
-                      "/fe/sql/quiz",
-                      "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--muted-foreground)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)] transition-colors",
-                    )}
-                    aria-current={current("/fe/sql/quiz")}
-                  >
-                    SQL 練習問題 {sqlQuizzes.length} 問
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/fe/algorithm/transpile"
                     className={linkClass(
                     "/fe/algorithm/transpile",
@@ -239,6 +218,23 @@ export function TopicNav({
                     </div>
                     <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                       Python / TypeScript と読み比べる
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/sql"
+                    className={linkClass(
+                    "/fe/sql",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/sql")}
+                  >
+                    <div className="font-semibold group-hover:underline underline-offset-4">
+                      SQL 実行シミュレーター
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                      評価順を 1 つずつ確認する
                     </div>
                   </Link>
                 </li>
@@ -325,6 +321,39 @@ export function TopicNav({
                   </div>
                   <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                     出力を当てられるか試す
+                  </div>
+                </Link>
+              </li>
+            )}
+            {g.key === "sql-lessons" && (
+              <li>
+                <Link
+                  href="/fe/sql/lessons"
+                  className={linkClass(
+                    "/fe/sql/lessons",
+                    "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/sql/lessons")}
+                >
+                  レッスン一覧
+                </Link>
+              </li>
+            )}
+            {g.key === "sql-quiz" && (
+              <li>
+                <Link
+                  href="/fe/sql/quiz"
+                  className={linkClass(
+                    "/fe/sql/quiz",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/sql/quiz")}
+                >
+                  <div className="font-semibold group-hover:underline underline-offset-4">
+                    練習問題をすべて見る
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
+                    実行結果を当てられるか試す
                   </div>
                 </Link>
               </li>

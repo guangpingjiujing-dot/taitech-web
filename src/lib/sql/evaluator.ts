@@ -1403,7 +1403,7 @@ class Evaluator {
     if (!table) {
       if (findView(this.db, name)) {
         throw new SqlRuntimeError(
-          "UNKNOWN_TABLE",
+          "VIEW_NOT_UPDATABLE",
           `「${name}」はビューなので、直接は更新できません`,
           pos,
           { hint: "ビューは実表ではありません。元の実表を更新してください。" },

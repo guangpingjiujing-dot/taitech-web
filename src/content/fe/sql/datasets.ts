@@ -161,7 +161,7 @@ export function isDatasetKey(key: string): key is DatasetKey {
 
 /** データセットごとの初期 SQL。開いた直後に「動くもの」が入っている状態にする */
 export const initialSql: Record<DatasetKey, string> = {
-  "shohin-zaiko": `-- 実行ボタンを押すか、「段階を追う」で評価順を 1 つずつ確認できます
+  "shohin-zaiko": `-- ▶ 実行 で結果を、「一つ進める」で評価順を 1 段階ずつ確認できます
 SELECT 分類, COUNT(*), AVG(単価)
 FROM 商品
 WHERE 単価 >= 100

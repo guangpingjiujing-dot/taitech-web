@@ -115,40 +115,55 @@ h6 {
   line-break: strict;
 }
 
-.prose-jp h1 {
+/*
+   すべてのセレクタに `:not(.not-prose, .not-prose *)` を付けている。
+
+   **`not-prose` は Tailwind typography プラグインの機能で、このプロジェクトは
+   そのプラグインを入れていない。** つまり素の `not-prose` はただのクラス名で
+   何の効果も無い。AGENTS.md が「埋め込み Playground は not-prose で包む」と
+   書いている前提はここが無いと成立せず、実際 SQL レッスンに埋めた Playground の
+   段階チップに `1.` `2.` の番号が付き、結果表に prose の余白と罫線が乗っていた
+   (2026-08-16 に発覚)。
+
+   `:where()` で包まないのは specificity を下げないため
+   (AGENTS.md の「.prose-jp a の specificity trap」の前提を動かさない)。
+   `:not()` の specificity は引数の最大値 = (0,1,0) なので、各ルールは
+   (0,1,1) → (0,2,1) に上がるだけ。ユーティリティとの勝ち負けの関係は変わらず、
+   `!` suffix も従来どおり勝つ。 */
+.prose-jp h1:not(.not-prose, .not-prose *){
   @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight;
 }
-.prose-jp h2 {
+.prose-jp h2:not(.not-prose, .not-prose *){
   @apply text-2xl md:text-[1.75rem] font-bold mt-14 mb-4 tracking-tight;
 }
-.prose-jp h3 {
+.prose-jp h3:not(.not-prose, .not-prose *){
   @apply text-xl font-bold mt-10 mb-3;
 }
-.prose-jp p {
+.prose-jp p:not(.not-prose, .not-prose *){
   @apply my-4 leading-relaxed;
 }
-.prose-jp ul {
+.prose-jp ul:not(.not-prose, .not-prose *){
   @apply my-4 pl-6 list-disc space-y-1;
 }
-.prose-jp ol {
+.prose-jp ol:not(.not-prose, .not-prose *){
   @apply my-4 pl-6 list-decimal space-y-1;
 }
-.prose-jp code {
+.prose-jp code:not(.not-prose, .not-prose *){
   @apply font-mono text-[0.9em] px-1.5 py-0.5 bg-[var(--muted)] text-[var(--foreground)] rounded-sm;
 }
-.prose-jp pre {
+.prose-jp pre:not(.not-prose, .not-prose *){
   @apply font-mono text-sm p-4 bg-[#0a0a0a] text-[#f5f5f5] overflow-x-auto my-4;
 }
-.prose-jp pre code {
+.prose-jp pre code:not(.not-prose, .not-prose *){
   @apply bg-transparent text-inherit p-0;
 }
-.prose-jp a {
+.prose-jp a:not(.not-prose, .not-prose *){
   @apply text-[var(--foreground)] underline underline-offset-4 decoration-[var(--border-strong)] hover:decoration-[var(--foreground)];
 }
-.prose-jp strong {
+.prose-jp strong:not(.not-prose, .not-prose *){
   @apply font-bold;
 }
-.prose-jp blockquote {
+.prose-jp blockquote:not(.not-prose, .not-prose *){
   @apply border-l-2 border-[var(--foreground)] pl-4 my-4 text-[var(--muted-foreground)];
 }
 
@@ -156,25 +171,25 @@ h6 {
    ここが無いとセルが連結して 1 つの文に見えるうえ、幅の広い表が body ごと
    横スクロールさせる (AGENTS.md「wide content は自前の overflow-x に閉じ込める」)。
    ラッパを書き忘れても壊れないよう、table 自身をスクロールコンテナにする */
-.prose-jp table {
+.prose-jp table:not(.not-prose, .not-prose *){
   @apply my-6 block w-full max-w-full overflow-x-auto border-collapse text-sm;
 }
-.prose-jp thead {
+.prose-jp thead:not(.not-prose, .not-prose *){
   @apply border-b-2 border-[var(--foreground)];
 }
-.prose-jp th,
-.prose-jp td {
+.prose-jp th:not(.not-prose, .not-prose *),
+.prose-jp td:not(.not-prose, .not-prose *){
   @apply px-3 py-2 text-left align-top;
   /* CJK は keep-all で min-content が文字列全長になるため、狭い列で溢れる */
   overflow-wrap: anywhere;
 }
-.prose-jp th {
+.prose-jp th:not(.not-prose, .not-prose *){
   @apply font-bold;
 }
-.prose-jp tbody tr {
+.prose-jp tbody tr:not(.not-prose, .not-prose *){
   @apply border-b border-[var(--border)];
 }
-.prose-jp tbody tr:last-child {
+.prose-jp tbody tr:last-child:not(.not-prose, .not-prose *){
   @apply border-b-0;
 }
 

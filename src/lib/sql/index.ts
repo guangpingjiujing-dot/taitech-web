@@ -14,6 +14,7 @@ export type {
 
 export { tokenize, type Token, type TokenKind } from "./lexer";
 export { parse, parseTokens } from "./parser";
+export { collectTableNames } from "./tables";
 
 export {
   evaluate,

@@ -75,6 +75,15 @@ export default function ViewBody() {
         </tbody>
       </table>
 
+      <SqlLessonPlayground
+        caption="試す: ビューを作って、表と同じように SELECT できることを確かめる"
+        sql={`CREATE VIEW 高額商品 AS
+  SELECT 商品番号, 商品名, 単価 FROM 商品 WHERE 単価 >= 200;
+
+SELECT * FROM 高額商品`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>元の表を変えるとビューも変わる</h2>
       <p>
         これがビューの本質です。下の Playground では:
@@ -89,6 +98,15 @@ export default function ViewBody() {
         ビューがデータを持っていたら、こうはなりません。
         <strong>参照のたびに問合せが実行し直されている</strong>証拠です。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: ビューを直接 UPDATE しようとすると弾かれる"
+        sql={`CREATE VIEW 高額商品 AS
+  SELECT 商品番号, 商品名, 単価 FROM 商品 WHERE 単価 >= 200;
+
+DELETE FROM 高額商品`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>ビューの使いどころ</h2>
       <ul>
@@ -105,13 +123,14 @@ export default function ViewBody() {
         </li>
       </ul>
 
-      <h2>ブラウザで動かしてみる</h2>
+      <h2>元の表を更新して確かめる</h2>
       <p>
-        3 文をまとめて実行します。結果が文ごとに表示されるので、
-        ビューの内容がどう変わるかを見比べてください。
+        4 文をまとめて実行します。結果が文ごとに表示されるので、
+        同じビューを 2 回見たときに内容が変わることを確かめてください。
       </p>
 
       <SqlLessonPlayground
+        caption="試す: 2 回目の SELECT で行が増える (ビューはデータを持たない)"
         sql={`CREATE VIEW 高額商品 AS
   SELECT 商品番号, 商品名, 単価 FROM 商品 WHERE 単価 >= 200;
 

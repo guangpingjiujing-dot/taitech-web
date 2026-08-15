@@ -67,6 +67,12 @@ export class SqlUnsupportedError extends Error {
 
 export type SqlRuntimeErrorKind =
   | "UNKNOWN_TABLE"
+  /**
+   * ビューを直接 INSERT / UPDATE / DELETE しようとした。
+   * **`UNKNOWN_TABLE` と混ぜないこと。** 名前は解決できているので「表が無い」ではなく、
+   * 「書き間違い」と「仕様どおりの拒否」を呼び出し側が区別できなくなる。
+   */
+  | "VIEW_NOT_UPDATABLE"
   | "UNKNOWN_COLUMN"
   | "AMBIGUOUS_COLUMN"
   | "TYPE_MISMATCH"

@@ -47,6 +47,14 @@ FROM 商品 INNER JOIN 在庫
         <code>FROM</code> に表が 2 つ並んでいたら結合だと判断してください。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: 下の 2 つの書き方は同じ結果になる。INNER JOIN 版に書き換えてみる"
+        sql={`SELECT 商品.商品名, 在庫.倉庫
+FROM 商品, 在庫
+WHERE 商品.商品番号 = 在庫.商品番号`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>結合条件を書かないと直積になる</h2>
       <p>
         <code>FROM 商品, 在庫</code> だけを書くと、
@@ -56,9 +64,16 @@ FROM 商品 INNER JOIN 在庫
       <p>
         実は結合とは「直積を作ってから、条件に合う組だけを残したもの」です。
         下の Playground で <code>SELECT * FROM 商品, 在庫</code> を
-        <strong>段階を追う</strong>で実行すると、FROM の段階で 20 行になり、
+        <strong>一つ進める</strong>で追うと、FROM の段階で 20 行になり、
         WHERE で 4 行に絞られるのが目で見えます。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: 一つ進める を押すと FROM の段階で 20 行になるのが見える"
+        sql={`SELECT 商品.商品番号, 在庫.倉庫
+FROM 商品, 在庫`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>内部結合と外部結合</h2>
       <p>
@@ -82,15 +97,11 @@ FROM 商品 LEFT OUTER JOIN 在庫
         <code>OUTER</code> は省略できます。
       </p>
 
-      <h2>ブラウザで動かしてみる</h2>
-      <p>
-        まずそのまま実行し、次に <code>WHERE</code> の行を消して直積を見てください。
-        さらに <code>LEFT OUTER JOIN</code> に書き換えると、
-        在庫の無い商品が NULL 付きで現れます。
-      </p>
-
       <SqlLessonPlayground
-        sql={lesson.sampleSql!}
+        caption="試す: LEFT を RIGHT に、あるいは OUTER を消して INNER にすると行数が変わる"
+        sql={`SELECT 商品.商品番号, 商品.商品名, 在庫.倉庫
+FROM 商品 LEFT OUTER JOIN 在庫
+  ON 商品.商品番号 = 在庫.商品番号`}
         datasetKey={lesson.datasetKey}
       />
 

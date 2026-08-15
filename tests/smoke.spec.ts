@@ -523,14 +523,15 @@ test("FE SQL: 実行すると結果の表が出る", async ({ page }) => {
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
-test("FE SQL: 段階を追うと評価順に進み、SELECT が最後に来る", async ({ page }) => {
+test("FE SQL: 一つ進めるで評価順に進み、SELECT が最後に来る", async ({ page }) => {
   const { errors, warnings } = watchConsole(page);
   await page.goto("/fe/sql", { waitUntil: "networkidle" });
   await typeSql(
     page,
     "SELECT 分類, COUNT(*) FROM 商品 WHERE 単価 >= 100 GROUP BY 分類",
   );
-  await page.getByRole("button", { name: /^段階を追う$/ }).click();
+  const forward = page.getByRole("button", { name: /^一つ進める →$/ });
+  await forward.click();
 
   const stages = page.getByRole("list", { name: "評価の段階" }).locator("li");
   await expect(stages).toHaveCount(4);
@@ -542,14 +543,16 @@ test("FE SQL: 段階を追うと評価順に進み、SELECT が最後に来る",
 
   // 最初は FROM の段階
   await expect(page.getByText(/FROM: 商品 を読み込み/)).toBeVisible();
-  await expect(page.getByText("1 / 4")).toBeVisible();
-
-  const next = page.getByRole("button", { name: /^次へ →$/ });
-  await next.click();
+  // 送りはツールバーに集約されている (ステッパー内には置かない)
+  await forward.click();
   await expect(page.getByText("WHERE: 5 行 → 4 行")).toBeVisible();
 
-  await next.click();
+  await forward.click();
   await expect(page.getByText(/GROUP BY: 4 行 → 3 グループ/)).toBeVisible();
+
+  // チップから直接飛べる
+  await stages.nth(3).click();
+  await expect(page.getByText(/SELECT: 2 列を取り出し/)).toBeVisible();
 
   expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
@@ -612,6 +615,53 @@ test("FE SQL: 使う表を切り替えると SQL も既定値に入れ替わる"
 
   expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE SQL Quiz: 問題で使う表の中身が出ている", async ({ page }) => {
+  await page.goto("/fe/sql/quiz/select-projection", {
+    waitUntil: "domcontentloaded",
+  });
+
+  // 表の中身が見えないと解答できない。「使用する表: 商品・在庫」だけでは足りない
+  const source = page.getByRole("region", { name: "問題で使う表" });
+  await expect(source).toBeVisible();
+  await expect(source.getByText("商品", { exact: true })).toBeVisible();
+  await expect(source.getByRole("cell", { name: "ボールペン" })).toBeVisible();
+  await expect(source.getByRole("cell", { name: "ホチキス" })).toBeVisible();
+
+  // その SQL が参照していない表は出さない (この問題は 商品 表だけを使う)
+  await expect(source.getByText("在庫", { exact: true })).toHaveCount(0);
+
+  // 2 表を結合する問題では両方出る
+  await page.goto("/fe/sql/quiz/join-matching-rows", {
+    waitUntil: "domcontentloaded",
+  });
+  const joined = page.getByRole("region", { name: "問題で使う表" });
+  await expect(joined.getByText("商品", { exact: true })).toBeVisible();
+  await expect(joined.getByText("在庫", { exact: true })).toBeVisible();
+});
+
+test("FE SQL Quiz: 結果表の選択肢が表として描かれる", async ({ page }) => {
+  await page.goto("/fe/sql/quiz/select-projection", {
+    waitUntil: "domcontentloaded",
+  });
+
+  // 選択肢 4 つがそれぞれ表になっている (`|` を並べた素のテキストではない)
+  const choiceTables = page.locator("li button table");
+  await expect(choiceTables).toHaveCount(4);
+
+  // 見出しと値がセルとして分かれている
+  const first = choiceTables.first();
+  await expect(first.getByRole("columnheader", { name: "商品番号" })).toBeVisible();
+  await expect(first.getByRole("columnheader", { name: "単価" })).toBeVisible();
+  await expect(first.getByRole("cell", { name: "P03" })).toBeVisible();
+
+  // 行数だけを問う設問は表にしない
+  await page.goto("/fe/sql/quiz/join-matching-rows", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.locator("li button table")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^イ 3 行$/ })).toBeVisible();
 });
 
 test("FE SQL Quiz: 解答すると採点され、シミュレーターへ渡って戻れる", async ({
@@ -980,8 +1030,15 @@ test("トップ: 2 グループ構成で全セクションに到達できる", a
 
   // 見出しに数を焼き付けない (セクションが増えるたびに文言追随が要るため)
   await expect(page.getByRole("heading", { name: "データベースを理解する" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "試験の擬似言語を動かす" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "試験問題を動かして解く" })).toBeVisible();
   await expect(page.getByText("4本の柱")).toHaveCount(0);
+
+  /*
+   * FE カードは入口を 2 つ持つ。科目 B と科目 A は読者の目的が別なので、
+   * 「このシリーズを見る」1 本でハブに送らない。
+   */
+  await expect(page.getByRole("link", { name: "科目B 擬似言語 →" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "科目A SQL →" })).toBeVisible();
 
   // 5 セクションすべてへの導線が本文にある
   const main = page.locator("main, body").first();

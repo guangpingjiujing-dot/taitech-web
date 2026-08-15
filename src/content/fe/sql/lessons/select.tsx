@@ -38,12 +38,27 @@ FROM 商品             -- どの表から取り出すか`}</code>
         と対になる概念で、用語として問われることがあります。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: SELECT に書く列を減らしたり増やしたりしてみる"
+        sql={`SELECT 商品名, 単価
+FROM 商品`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>* は「その表の全列」に展開される</h2>
       <p>
         <code>*</code> は表の全列を順番に並べたのと同じ意味です。
         表が複数あるときは <code>商品.*</code> のように表名で修飾すると、
         その表の列だけを展開できます。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: * を 商品.* や 在庫.* に書き換えると、どちらの表の列が出るか"
+        sql={`SELECT *
+FROM 商品, 在庫
+WHERE 商品.商品番号 = 在庫.商品番号`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>AS で別名を付ける（相関名）</h2>
       <p>
@@ -61,23 +76,36 @@ SELECT S.商品名 FROM 商品 AS S       -- 表に別名`}</code>
         <code>S.商品名</code> と書きます。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: 相関名を S から別の名前に変える / 商品.商品名 に戻すとどうなるか"
+        sql={`SELECT S.商品名, S.単価 AS 価格
+FROM 商品 AS S`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>DISTINCT で重複を取り除く</h2>
       <p>
         <code>DISTINCT</code> を付けると、結果から重複した行が取り除かれます。
-        下のエディタで <code>SELECT 分類 FROM 商品</code> と
-        <code>SELECT DISTINCT 分類 FROM 商品</code> を見比べてください。
-        前者は 5 行、後者は 3 行になります。
+        下のエディタで <code>DISTINCT</code> を消してみてください。
+        5 行に増えます。
       </p>
 
-      <h2>ブラウザで動かしてみる</h2>
+      <SqlLessonPlayground
+        caption="試す: DISTINCT を消すと 3 行 → 5 行"
+        sql={`SELECT DISTINCT 分類
+FROM 商品`}
+        datasetKey={lesson.datasetKey}
+      />
+
+      <h2>SELECT はいつ評価されるのか</h2>
       <p>
-        <strong>▶ 実行</strong>で結果が出ます。
-        <strong>段階を追う</strong>を押すと、FROM で表を読み込んでから
+        <strong>一つ進める</strong>を押していくと、FROM で表を読み込んでから
         SELECT で列が絞られるまでの流れが 1 段階ずつ見られます。
         <strong>SELECT が最後に評価される</strong>ことがここで確認できます。
       </p>
 
       <SqlLessonPlayground
+        caption="試す: 一つ進める を押して、FROM → SELECT の順に見る"
         sql={lesson.sampleSql!}
         datasetKey={lesson.datasetKey}
       />

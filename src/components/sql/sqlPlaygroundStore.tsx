@@ -81,10 +81,17 @@ export interface SqlPlaygroundState {
 
   /** 全部実行して最終結果を出す */
   run: () => void;
-  /** 実行して最初の段階から追う */
-  startStepping: () => void;
-  next: () => void;
-  prev: () => void;
+  /**
+   * 1 つ進める。まだ段階を追っていなければ実行して最初の段階を出す。
+   *
+   * **「開始」と「送り」を別のボタンにしない。** 擬似言語の「一行ずつ実行」と同じで、
+   * 同じボタンを押し続けるだけで進むのが自然。分けると 1 つの操作が
+   * 画面の 2 箇所に散る。
+   */
+  stepForward: () => void;
+  stepBack: () => void;
+  /** 段階のチップから直接飛ぶ */
+  goToStage: (index: number) => void;
   /** データセットを初期状態へ戻し、結果を消す */
   reset: () => void;
   /**
@@ -227,19 +234,19 @@ function createSqlPlaygroundStore(initialSql: string, datasetKey: DatasetKey) {
         }));
       },
 
-      startStepping: () => {
-        if (!execute()) return;
-        set((s) => ({
-          status: s.timeline.length > 0 ? "stepping" : "result",
-          stageIndex: 0,
-          highlightRange: s.timeline[0]?.stage.clauseRange ?? null,
-          highlightVersion: s.highlightVersion + 1,
-        }));
-      },
-
-      next: () => {
+      stepForward: () => {
+        // まだ追っていない (idle / result / error) なら実行して最初の段階から
+        if (get().status !== "stepping") {
+          if (!execute()) return;
+          set((s) => ({
+            status: s.timeline.length > 0 ? "stepping" : "result",
+            stageIndex: 0,
+            highlightRange: s.timeline[0]?.stage.clauseRange ?? null,
+            highlightVersion: s.highlightVersion + 1,
+          }));
+          return;
+        }
         set((s) => {
-          if (s.status !== "stepping") return s;
           const index = Math.min(s.stageIndex + 1, s.timeline.length - 1);
           return {
             stageIndex: index,
@@ -249,13 +256,25 @@ function createSqlPlaygroundStore(initialSql: string, datasetKey: DatasetKey) {
         });
       },
 
-      prev: () => {
+      stepBack: () => {
         set((s) => {
           if (s.status !== "stepping") return s;
           const index = Math.max(s.stageIndex - 1, 0);
           return {
             stageIndex: index,
             highlightRange: s.timeline[index]?.stage.clauseRange ?? null,
+            highlightVersion: s.highlightVersion + 1,
+          };
+        });
+      },
+
+      goToStage: (index) => {
+        set((s) => {
+          if (s.status !== "stepping") return s;
+          const clamped = Math.max(0, Math.min(index, s.timeline.length - 1));
+          return {
+            stageIndex: clamped,
+            highlightRange: s.timeline[clamped]?.stage.clauseRange ?? null,
             highlightVersion: s.highlightVersion + 1,
           };
         });

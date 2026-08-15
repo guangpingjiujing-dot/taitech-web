@@ -16,7 +16,16 @@ import { recordQuizResult, type QuizNamespace } from "@/lib/quiz/progress";
  */
 export interface QuizCardChoice {
   id: string;
+  /**
+   * 選択肢の中身。**採点と読み上げの正本はこちら**なので、`node` を渡す場合も必ず埋める。
+   * 擬似言語の出力のように素のテキストで読めるものは、これだけで足りる。
+   */
   text: string;
+  /**
+   * `text` の代わりに描画する要素。SQL の結果表のように、
+   * **区切り文字を並べた文字列では読めないもの**をきちんと組んで見せるために使う。
+   */
+  node?: React.ReactNode;
 }
 
 export function QuizCard({
@@ -33,6 +42,12 @@ export function QuizCard({
   lessonLabel,
   /** コードの上に出す前置き (情報I では添字の基点をここで明示する) */
   codeNote,
+  /**
+   * コードの直前に差し込む要素。SQL の練習問題で**問題が使う表そのもの**を
+   * 出すのに使う。表の中身が見えないと解答できないので、
+   * 「使用する表: 商品・在庫」という注記だけでは足りない。
+   */
+  beforeCode,
 }: {
   namespace: QuizNamespace;
   slug: string;
@@ -46,6 +61,7 @@ export function QuizCard({
   lessonHref?: string;
   lessonLabel?: string;
   codeNote?: string;
+  beforeCode?: React.ReactNode;
 }) {
   /** 選んだ選択肢。null = 未解答。押した時点で即採点する */
   const [picked, setPicked] = useState<string | null>(null);
@@ -81,6 +97,8 @@ export function QuizCard({
         </p>
       )}
 
+      {beforeCode}
+
       <pre className="mt-4 overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 font-mono text-sm leading-relaxed">
         <code>{code.trimEnd()}</code>
       </pre>
@@ -115,9 +133,13 @@ export function QuizCard({
                   ].join(" ")}
                 >
                   <span className="mt-px shrink-0 font-bold">{c.id}</span>
-                  <span className="min-w-0 flex-1 whitespace-pre-wrap font-mono text-sm leading-relaxed break-words">
-                    {c.text}
-                  </span>
+                  {c.node ? (
+                    <span className="min-w-0 flex-1">{c.node}</span>
+                  ) : (
+                    <span className="min-w-0 flex-1 whitespace-pre-wrap font-mono text-sm leading-relaxed break-words">
+                      {c.text}
+                    </span>
+                  )}
                   {reveal && (
                     <span className="shrink-0 rounded-sm bg-[var(--foreground)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--background)]">
                       正解
@@ -161,10 +183,16 @@ export function QuizCard({
         >
           解説
         </h2>
-        <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-          正解: <strong className="text-[var(--foreground)]">{answer}</strong>{" "}
-          <span className="whitespace-pre-wrap font-mono">{correct.text}</span>
-        </p>
+        {/* 選択肢と同じ見せ方をする。表を選ばせておいて解説では `|` 区切りの
+            文字列に戻ると、答え合わせのときに見比べられない */}
+        <div className="mt-3 flex flex-wrap items-start gap-x-2 gap-y-1 text-sm text-[var(--muted-foreground)]">
+          <span>
+            正解: <strong className="text-[var(--foreground)]">{answer}</strong>
+          </span>
+          {correct.node ?? (
+            <span className="whitespace-pre-wrap font-mono">{correct.text}</span>
+          )}
+        </div>
         <div
           className="mt-4 space-y-4 leading-relaxed"
           style={{ textWrap: "pretty" }}

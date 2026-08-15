@@ -62,20 +62,41 @@ function SqlPlaygroundInner({ compact }: { compact: boolean }) {
   const highlightRange = useSqlPlayground((s) => s.highlightRange);
   const highlightVersion = useSqlPlayground((s) => s.highlightVersion);
   const run = useSqlPlayground((s) => s.run);
-  const startStepping = useSqlPlayground((s) => s.startStepping);
+  const stepForward = useSqlPlayground((s) => s.stepForward);
+  const stepBack = useSqlPlayground((s) => s.stepBack);
   const reset = useSqlPlayground((s) => s.reset);
   const editorInsertRef = useSqlPlayground((s) => s.editorInsertRef);
+  const stageIndex = useSqlPlayground((s) => s.stageIndex);
+  const timelineLength = useSqlPlayground((s) => s.timeline.length);
+
+  const stepping = status === "stepping";
+  const atStart = !stepping || stageIndex === 0;
+  const atEnd = stepping && stageIndex === timelineLength - 1;
 
   return (
     <div className="not-prose">
       {!compact && <DatasetPicker />}
 
+      {/* 「開始」と「送り」を分けない。一つ進めるを押し続けるだけで段階を追える */}
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="primary" size="sm" onClick={run}>
           ▶ 実行
         </Button>
-        <Button variant="primary" size="sm" onClick={startStepping}>
-          段階を追う
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={stepBack}
+          disabled={atStart}
+        >
+          ← 一つ戻る
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={stepForward}
+          disabled={atEnd}
+        >
+          一つ進める →
         </Button>
         <Button variant="secondary" size="sm" onClick={reset}>
           ⟲ リセット
@@ -157,62 +178,56 @@ function DatasetPicker() {
 
 /* ---------------- 段階を追う ---------------- */
 
+/**
+ * 評価の段階。
+ *
+ * **送りのボタンはここに置かない** — ツールバーに集約してある。ここが持つのは
+ * 「今どこにいて、何がまだ残っているか」の可視化だけ。
+ * `SELECT` がまだ先にあることが目で見えること自体がこのツールの主張なので、
+ * 進捗を `3 / 6` のような数字に落とさず、段階そのものを並べる。
+ */
 function StageStepper() {
   const timeline = useSqlPlayground((s) => s.timeline);
   const stageIndex = useSqlPlayground((s) => s.stageIndex);
-  const next = useSqlPlayground((s) => s.next);
-  const prev = useSqlPlayground((s) => s.prev);
+  const goToStage = useSqlPlayground((s) => s.goToStage);
 
   const entry: TimelineEntry | undefined = timeline[stageIndex];
   if (!entry) return null;
-
-  const atStart = stageIndex === 0;
-  const atEnd = stageIndex === timeline.length - 1;
 
   return (
     <section
       aria-label="段階の実行"
       className="mt-4 rounded-lg border border-[var(--border)] p-4"
     >
-      <h3 className="text-sm font-bold">評価の段階</h3>
-      <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-        SQL は書いた順ではなく、この順で評価されます。SELECT は最後です。
-      </p>
-
-      <ol className="mt-3 flex flex-wrap gap-1.5" aria-label="評価の段階">
+      <ol className="flex flex-wrap gap-1.5" aria-label="評価の段階">
         {timeline.map((t, i) => (
           <li key={i}>
-            <span
+            <button
+              type="button"
+              onClick={() => goToStage(i)}
               aria-current={i === stageIndex ? "step" : undefined}
+              title={t.stage.label}
               className={cn(
-                "inline-block rounded border px-2 py-0.5 text-[11px] font-bold",
+                "cursor-pointer rounded border px-2 py-0.5 text-[11px] font-bold transition-colors",
                 i === stageIndex
                   ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
                   : i < stageIndex
-                    ? "border-[var(--border-strong)] text-[var(--muted-foreground)]"
-                    : "border-[var(--border)] text-[var(--muted-foreground)] opacity-60",
+                    ? "border-[var(--border-strong)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                    : "border-[var(--border)] text-[var(--muted-foreground)] opacity-60 hover:opacity-100 hover:bg-[var(--muted)]",
               )}
             >
               {stageKindLabel(t.stage.kind)}
-            </span>
+            </button>
           </li>
         ))}
       </ol>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Button variant="secondary" size="sm" onClick={prev} disabled={atStart}>
-          ← 前へ
-        </Button>
-        <Button variant="primary" size="sm" onClick={next} disabled={atEnd}>
-          次へ →
-        </Button>
-        <span className="text-xs text-[var(--muted-foreground)]">
-          {stageIndex + 1} / {timeline.length}
-          {entry.statementLabel && ` (${entry.statementLabel})`}
-        </span>
-      </div>
-
-      <p className="mt-3 text-sm font-bold" style={{ textWrap: "pretty" }}>
+      <p className="mt-4 text-sm font-bold" style={{ textWrap: "pretty" }}>
+        {entry.statementLabel && (
+          <span className="mr-2 font-normal text-[var(--muted-foreground)]">
+            {entry.statementLabel}
+          </span>
+        )}
         {entry.stage.label}
       </p>
 

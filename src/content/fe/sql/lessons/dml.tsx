@@ -41,6 +41,13 @@ INSERT INTO 商品 VALUES ('P06', 'クリップ', 'C', 60)`}</code>
         その列に非NULL制約が付いていればエラーです。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: 列名の指定を消すと、表定義の順に値を並べる必要がある"
+        sql={`INSERT INTO 商品 (商品番号, 商品名, 分類, 単価)
+VALUES ('P06', 'クリップ', 'C', 60)`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h3>UPDATE — 既存の行を変更する</h3>
       <pre>
         <code>{`UPDATE 商品
@@ -53,6 +60,14 @@ WHERE 分類 = 'B'`}</code>
         連鎖して増え続けることはありません。
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: 単価 = 単価 * 2 を 2 回実行しても 4 倍にはならない (右辺は更新前の値)"
+        sql={`UPDATE 商品
+SET 単価 = 単価 * 2
+WHERE 分類 = 'B'`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h3>DELETE — 行を削除する</h3>
       <pre>
         <code>{`DELETE FROM 在庫 WHERE 在庫数 = 0`}</code>
@@ -62,6 +77,13 @@ WHERE 分類 = 'B'`}</code>
         行ごと消す命令なので、「この列だけ消す」はできません
         （それは <code>UPDATE ... SET 列 = NULL</code> です）。
       </p>
+
+      <SqlLessonPlayground
+        caption="試す: WHERE の行を消すと全行が削除対象になる (リセットで戻せます)"
+        sql={`DELETE FROM 在庫
+WHERE 在庫数 = 0`}
+        datasetKey={lesson.datasetKey}
+      />
 
       <h2>WHERE を忘れると全行が対象になる</h2>
       <p>
@@ -78,6 +100,14 @@ DELETE FROM 在庫             -- 在庫が全部消える`}</code>
         （表はリセットボタンで元に戻るので、安心して試せます。）
       </p>
 
+      <SqlLessonPlayground
+        caption="試す: WHERE の行を消すと全 5 行が更新される"
+        sql={`UPDATE 商品
+SET 単価 = 0
+WHERE 商品番号 = 'P01'`}
+        datasetKey={lesson.datasetKey}
+      />
+
       <h2>制約に違反する変更は拒否される</h2>
       <p>
         DML は<Link href="/fe/sql/lessons/ddl-constraints">制約</Link>の
@@ -85,18 +115,6 @@ DELETE FROM 在庫             -- 在庫が全部消える`}</code>
         非NULL 列への NULL などは実行時に拒否されます。
         次のレッスンで詳しく扱います。
       </p>
-
-      <h2>ブラウザで動かしてみる</h2>
-      <p>
-        実行すると<strong>実行前と実行後の差分</strong>が出ます。
-        変わったセルには変更前の値が併記されるので、
-        何がどう変わったかが正確に分かります。
-      </p>
-
-      <SqlLessonPlayground
-        sql={lesson.sampleSql!}
-        datasetKey={lesson.datasetKey}
-      />
 
       <h2>試験で問われるポイント</h2>
       <ul>
