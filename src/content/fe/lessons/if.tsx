@@ -131,7 +131,7 @@ endif`}</code>
 
       <p>
         条件分岐が読めるようになったら、次は{" "}
-        <Link href="/fe/lessons/while">繰り返し (while)</Link>{" "}
+        <Link href="/fe/algorithm/lessons/while">繰り返し (while)</Link>{" "}
         で「同じ処理を何度も実行する書き方」に進みましょう。
       </p>
     </>

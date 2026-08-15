@@ -64,7 +64,7 @@ test("record playground step-execution demo", async ({ page }) => {
   });
 
   const recordingStart = Date.now();
-  await page.goto(`/fe?code=${encodeURIComponent(DEMO_CODE)}`);
+  await page.goto(`/fe/algorithm?code=${encodeURIComponent(DEMO_CODE)}`);
 
   const stepButton = page.getByRole("button", { name: "一行ずつ実行" });
 

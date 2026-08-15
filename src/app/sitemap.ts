@@ -14,11 +14,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const categoryHubs = Object.values(dataModelingCategories).map((c) => c.path);
   const topicPaths = topics.map((t) => t.path);
   const feExtraPaths = [
-    "/fe/transpile",
-    "/fe/lessons",
-    ...feLessons.map((l) => `/fe/lessons/${l.slug}`),
-    "/fe/quiz",
-    ...feQuizzes.map((q) => `/fe/quiz/${q.slug}`),
+    // `/fe` 自体は sectionHubs 側に入っている。ツールのトップはここ
+    "/fe/algorithm",
+    "/fe/algorithm/transpile",
+    "/fe/algorithm/lessons",
+    ...feLessons.map((l) => `/fe/algorithm/lessons/${l.slug}`),
+    "/fe/algorithm/quiz",
+    ...feQuizzes.map((q) => `/fe/algorithm/quiz/${q.slug}`),
   ];
 
   const joho1ExtraPaths = [

@@ -33,7 +33,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const lesson = findFeLesson(slug);
   if (!lesson) return {};
-  const path = `/fe/lessons/${lesson.slug}`;
+  const path = `/fe/algorithm/lessons/${lesson.slug}`;
   return {
     title: lesson.title,
     description: lesson.description,
@@ -63,7 +63,7 @@ export default async function FeLessonPage({
   const entry = bodyMap[lesson.slug];
   const { Body, faq } = entry;
   const sectionMeta = sections.fe;
-  const path = `/fe/lessons/${lesson.slug}`;
+  const path = `/fe/algorithm/lessons/${lesson.slug}`;
 
   return (
     <>
@@ -78,7 +78,7 @@ export default async function FeLessonPage({
             name: sectionMeta.shortLabel,
             item: `${site.url}${sectionMeta.path}`,
           },
-          { name: "構文別レッスン", item: `${site.url}/fe/lessons` },
+          { name: "構文別レッスン", item: `${site.url}/fe/algorithm/lessons` },
           { name: lesson.shortTitle, item: `${site.url}${path}` },
         ]}
         faq={faq}

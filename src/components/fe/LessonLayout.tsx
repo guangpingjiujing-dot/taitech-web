@@ -41,7 +41,7 @@ export function FeLessonLayout({
             items={[
               { href: "/", label: "ホーム" },
               { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
-              { href: "/fe/lessons", label: "構文別レッスン" },
+              { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
               { label: lesson.shortTitle },
             ]}
           />
@@ -65,12 +65,12 @@ export function FeLessonLayout({
             ariaLabel="前後のレッスン"
             prev={
               prev
-                ? { href: `/fe/lessons/${prev.slug}`, shortTitle: prev.shortTitle }
+                ? { href: `/fe/algorithm/lessons/${prev.slug}`, shortTitle: prev.shortTitle }
                 : null
             }
             next={
               next
-                ? { href: `/fe/lessons/${next.slug}`, shortTitle: next.shortTitle }
+                ? { href: `/fe/algorithm/lessons/${next.slug}`, shortTitle: next.shortTitle }
                 : null
             }
           />
@@ -137,17 +137,17 @@ function LessonQuizList({ lesson }: { lesson: FeLessonMeta }) {
 function LessonNextActions({ lessonSlug }: { lessonSlug: FeLessonSlug }) {
   const actions: { href: string; label: string; hint: string }[] = [
     {
-      href: "/fe",
+      href: "/fe/algorithm",
       label: "実行シミュレーターへ",
       hint: "自由にコードを書いて動かす",
     },
     {
-      href: "/fe/transpile",
+      href: "/fe/algorithm/transpile",
       label: "多言語横並び比較へ",
       hint: "Python / TypeScript と読み比べる",
     },
     {
-      href: "/fe/lessons",
+      href: "/fe/algorithm/lessons",
       label: "レッスン一覧へ",
       hint: `他 ${feLessons.length - 1} 本の構文レッスンを見る`,
     },

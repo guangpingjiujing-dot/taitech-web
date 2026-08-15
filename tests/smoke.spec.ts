@@ -41,35 +41,36 @@ const PAGES = [
   "/why-need-rdb/durability",
   "/why-need-rdb/recap",
   "/fe",
-  "/fe/transpile",
-  "/fe/lessons",
-  "/fe/lessons/variable",
-  "/fe/lessons/if",
-  "/fe/lessons/while",
-  "/fe/lessons/for",
-  "/fe/lessons/array",
-  "/fe/lessons/function",
-  "/fe/quiz",
-  "/fe/quiz/assign-swap",
-  "/fe/quiz/operator-precedence",
-  "/fe/quiz/elseif-first-match",
-  "/fe/quiz/boundary-operator",
-  "/fe/quiz/while-loop-count",
-  "/fe/quiz/while-exact-repeat",
-  "/fe/quiz/for-loop-step",
-  "/fe/quiz/array-one-based",
-  "/fe/quiz/array-reverse-scan",
-  "/fe/quiz/function-return-flow",
-  "/fe/quiz/linked-list-traverse",
-  "/fe/quiz/insertion-sort-inner",
-  "/fe/quiz/stack-push-pop",
-  "/fe/quiz/queue-ring-buffer",
-  "/fe/quiz/selection-sort-swaps",
-  "/fe/quiz/merge-two-sorted",
-  "/fe/quiz/while-search-not-found",
-  "/fe/quiz/fib-recursion",
-  "/fe/quiz/leap-year",
-  "/fe/quiz/indirect-index",
+  "/fe/algorithm",
+  "/fe/algorithm/transpile",
+  "/fe/algorithm/lessons",
+  "/fe/algorithm/lessons/variable",
+  "/fe/algorithm/lessons/if",
+  "/fe/algorithm/lessons/while",
+  "/fe/algorithm/lessons/for",
+  "/fe/algorithm/lessons/array",
+  "/fe/algorithm/lessons/function",
+  "/fe/algorithm/quiz",
+  "/fe/algorithm/quiz/assign-swap",
+  "/fe/algorithm/quiz/operator-precedence",
+  "/fe/algorithm/quiz/elseif-first-match",
+  "/fe/algorithm/quiz/boundary-operator",
+  "/fe/algorithm/quiz/while-loop-count",
+  "/fe/algorithm/quiz/while-exact-repeat",
+  "/fe/algorithm/quiz/for-loop-step",
+  "/fe/algorithm/quiz/array-one-based",
+  "/fe/algorithm/quiz/array-reverse-scan",
+  "/fe/algorithm/quiz/function-return-flow",
+  "/fe/algorithm/quiz/linked-list-traverse",
+  "/fe/algorithm/quiz/insertion-sort-inner",
+  "/fe/algorithm/quiz/stack-push-pop",
+  "/fe/algorithm/quiz/queue-ring-buffer",
+  "/fe/algorithm/quiz/selection-sort-swaps",
+  "/fe/algorithm/quiz/merge-two-sorted",
+  "/fe/algorithm/quiz/while-search-not-found",
+  "/fe/algorithm/quiz/fib-recursion",
+  "/fe/algorithm/quiz/leap-year",
+  "/fe/algorithm/quiz/indirect-index",
   "/privacy",
   "/terms",
   "/contact",
@@ -395,7 +396,7 @@ test("FE Playground: run default sample produces expected output", async ({
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await page.goto("/fe", { waitUntil: "networkidle" });
+  await page.goto("/fe/algorithm", { waitUntil: "networkidle" });
   // Wait for the dynamic CodeMirror editor to hydrate.
   await page.waitForSelector(".cm-content", { timeout: 10_000 });
   await page.getByRole("button", { name: /^▶ 実行$/ }).click();
@@ -411,7 +412,7 @@ test("FE Playground: step button advances execution and highlights lines", async
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await page.goto("/fe", { waitUntil: "networkidle" });
+  await page.goto("/fe/algorithm", { waitUntil: "networkidle" });
   await page.waitForSelector(".cm-content", { timeout: 10_000 });
   const stepBtn = page.getByRole("button", { name: /^一行ずつ実行$/ });
   for (let i = 0; i < 3; i++) {
@@ -428,7 +429,7 @@ test("FE Playground: Python transpile preview shows converted code", async ({
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await page.goto("/fe", { waitUntil: "networkidle" });
+  await page.goto("/fe/algorithm", { waitUntil: "networkidle" });
   await page.waitForSelector(".cm-content", { timeout: 10_000 });
   await page.getByRole("button", { name: /^Python変換$/ }).click();
   // Default sample transpiled to Python contains `range(1, n + 1, 1)`
@@ -443,7 +444,7 @@ test("FE Transpile page: side-by-side view renders Python and TypeScript", async
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await page.goto("/fe/transpile", { waitUntil: "networkidle" });
+  await page.goto("/fe/algorithm/transpile", { waitUntil: "networkidle" });
   await page.waitForSelector(".cm-content", { timeout: 10_000 });
   // Both language panes should be present with expected content markers.
   await expect(page.locator("pre").filter({ hasText: /range\(1, n \+ 1, 1\)/ })).toBeVisible();
@@ -473,7 +474,7 @@ async function gotoQuiz(page: Page, path: string) {
 
 test("FE Quiz: correct answer reveals the explanation", async ({ page }) => {
   const { errors, warnings } = watchConsole(page);
-  await gotoQuiz(page, "/fe/quiz/array-one-based");
+  await gotoQuiz(page, "/fe/algorithm/quiz/array-one-based");
 
   // 解答前は解説が見えていないこと (DOM には存在する = SEO 用)
   const explanation = page.getByRole("heading", { name: "解説" });
@@ -496,7 +497,7 @@ test("FE Quiz: wrong answer shows the correct choice and can be retried", async 
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await gotoQuiz(page, "/fe/quiz/for-loop-step");
+  await gotoQuiz(page, "/fe/algorithm/quiz/for-loop-step");
 
   // 誤答 (ア = 6) を押す。正解は ウ = 12
   await answerQuiz(page, "ア 6");
@@ -511,11 +512,11 @@ test("FE Quiz: wrong answer shows the correct choice and can be retried", async 
 });
 
 test("FE Quiz: progress is remembered on the index page", async ({ page }) => {
-  await gotoQuiz(page, "/fe/quiz/assign-swap");
+  await gotoQuiz(page, "/fe/algorithm/quiz/assign-swap");
   await answerQuiz(page, "イ 8\n8");
   await expect(page.getByRole("status")).toHaveText("正解");
 
-  await gotoQuiz(page, "/fe/quiz");
+  await gotoQuiz(page, "/fe/algorithm/quiz");
   await expect(page.getByRole("status")).toContainText("1 問正解");
   await expect(
     page.getByRole("link", { name: /変数の入れ替え/ }).getByText("正解"),
@@ -526,7 +527,7 @@ test("FE Quiz: deep link opens the code in the simulator and can come back", asy
   page,
 }) => {
   const { errors, warnings } = watchConsole(page);
-  await gotoQuiz(page, "/fe/quiz/array-one-based");
+  await gotoQuiz(page, "/fe/algorithm/quiz/array-one-based");
   await answerQuiz(page, "イ 40\n60");
 
   const deepLink = page.getByRole("link", { name: /実行シミュレーターで開く/ });
@@ -534,21 +535,21 @@ test("FE Quiz: deep link opens the code in the simulator and can come back", asy
   await expect(deepLink).toHaveAttribute("rel", "nofollow");
   await deepLink.click();
 
-  await page.waitForURL(/\/fe\?code=/);
+  await page.waitForURL(/\/fe\/algorithm\?code=/);
   // 問題のコードがエディタに入っていること
   await expect(page.locator(".cm-content")).toContainText("整数型の配列: 得点");
   // 戻り導線が出ていること
   const back = page.getByRole("link", { name: "← 元のページに戻る" });
   await expect(back).toBeVisible();
   await back.click();
-  await expect(page).toHaveURL(/\/fe\/quiz\/array-one-based$/);
+  await expect(page).toHaveURL(/\/fe\/algorithm\/quiz\/array-one-based$/);
 
   expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
 test("FE Quiz: 一覧が基礎 / 本番相当の 2 層に分かれている", async ({ page }) => {
-  await page.goto("/fe/quiz", { waitUntil: "domcontentloaded" });
+  await page.goto("/fe/algorithm/quiz", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: /基礎 — 構文が読めれば解ける/ }),
   ).toBeVisible();
@@ -565,9 +566,9 @@ test("FE Quiz: 一覧が基礎 / 本番相当の 2 層に分かれている", as
 test("FE: 練習問題 20 問すべてが構文別レッスンから内部リンクされている", async ({
   page,
 }) => {
-  await page.goto("/fe/quiz", { waitUntil: "domcontentloaded" });
+  await page.goto("/fe/algorithm/quiz", { waitUntil: "domcontentloaded" });
   const allSlugs = await page
-    .locator('a[href^="/fe/quiz/"]')
+    .locator('a[href^="/fe/algorithm/quiz/"]')
     .evaluateAll((as) =>
       [...new Set(as.map((a) => a.getAttribute("href")!))].sort(),
     );
@@ -575,9 +576,9 @@ test("FE: 練習問題 20 問すべてが構文別レッスンから内部リン
 
   const linked = new Set<string>();
   for (const lesson of ["variable", "if", "while", "for", "array", "function"]) {
-    await page.goto(`/fe/lessons/${lesson}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/fe/algorithm/lessons/${lesson}`, { waitUntil: "domcontentloaded" });
     const hrefs = await page
-      .locator('a[href^="/fe/quiz/"]')
+      .locator('a[href^="/fe/algorithm/quiz/"]')
       .evaluateAll((as) => as.map((a) => a.getAttribute("href")!));
     // 各レッスンは自分の構文の問題を 1 問以上持つ
     expect(hrefs.length, `${lesson} に練習問題リンクが無い`).toBeGreaterThan(0);
@@ -591,7 +592,7 @@ test("FE: 練習問題 20 問すべてが構文別レッスンから内部リン
 });
 
 test("FE: FAQ が JSON-LD だけでなくページ上にも出ている", async ({ page }) => {
-  for (const path of ["/fe", "/fe/lessons/array"]) {
+  for (const path of ["/fe", "/fe/algorithm", "/fe/algorithm/lessons/array"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
     const faq = page.locator('[data-speakable="faq"]');
     await expect(faq, `${path} に可視 FAQ が無い`).toHaveCount(1);
@@ -610,7 +611,7 @@ test("FE: 1024px 未満のトップからでも FE に到達できる", async ({
 test("FE pages show FE affiliate books with the required disclosure", async ({
   page,
 }) => {
-  for (const path of ["/fe", "/fe/transpile", "/fe/lessons/array"]) {
+  for (const path of ["/fe", "/fe/algorithm", "/fe/algorithm/transpile", "/fe/algorithm/lessons/array"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
     const links = page.locator('a[href*="amazon.co.jp"]');
     const count = await links.count();
@@ -822,8 +823,8 @@ test("モバイルで body が横スクロールしない", async ({ page }) => 
   for (const path of [
     "/",
     "/fe",
-    "/fe/lessons/array",
-    "/fe/quiz",
+    "/fe/algorithm/lessons/array",
+    "/fe/algorithm/quiz",
     "/joho1",
     "/joho1/dncl",
     "/joho1/lessons/array",

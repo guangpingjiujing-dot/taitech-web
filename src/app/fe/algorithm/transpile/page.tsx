@@ -17,11 +17,11 @@ const PAGE_DESCRIPTION =
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: "/fe/transpile" },
+  alternates: { canonical: "/fe/algorithm/transpile" },
   openGraph: {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    url: "/fe/transpile",
+    url: "/fe/algorithm/transpile",
   },
   twitter: {
     card: "summary_large_image",
@@ -36,13 +36,13 @@ export default function TranspilePage() {
   return (
     <div className="py-8 lg:py-12">
       <FePlaygroundJsonLd
-        path="/fe/transpile"
+        path="/fe/algorithm/transpile"
         name="擬似言語 → Python / TypeScript 変換ツール"
         description={PAGE_DESCRIPTION}
         breadcrumb={[
           { name: "ホーム", item: site.url },
           { name: feSection.shortLabel, item: `${site.url}${feSection.path}` },
-          { name: "Python / TypeScript 変換", item: `${site.url}/fe/transpile` },
+          { name: "Python / TypeScript 変換", item: `${site.url}/fe/algorithm/transpile` },
         ]}
       />
       <Container size="wide">
@@ -134,12 +134,12 @@ export default function TranspilePage() {
                     hint: "一行ずつ実行して変数を追う",
                   },
                   {
-                    href: "/fe/lessons",
+                    href: "/fe/algorithm/lessons",
                     label: "構文別レッスンへ",
                     hint: "6 本の解説を順に読む",
                   },
                   {
-                    href: "/fe/quiz",
+                    href: "/fe/algorithm/quiz",
                     label: "練習問題へ",
                     hint: "出力を当てられるか試す",
                   },

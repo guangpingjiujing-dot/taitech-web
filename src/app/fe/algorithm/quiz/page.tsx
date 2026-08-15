@@ -19,11 +19,11 @@ const PAGE_DESCRIPTION = `基本情報技術者試験 (FE) 科目 B の擬似言
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: "/fe/quiz" },
+  alternates: { canonical: "/fe/algorithm/quiz" },
   openGraph: {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    url: "/fe/quiz",
+    url: "/fe/algorithm/quiz",
   },
   twitter: {
     card: "summary_large_image",
@@ -39,7 +39,7 @@ export default function FeQuizIndexPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "基本情報 擬似言語 練習問題",
-    url: `${site.url}/fe/quiz`,
+    url: `${site.url}/fe/algorithm/quiz`,
     description: PAGE_DESCRIPTION,
     inLanguage: "ja-JP",
     isPartOf: {
@@ -50,7 +50,7 @@ export default function FeQuizIndexPage() {
     hasPart: feQuizzes.map((q) => ({
       "@type": "Quiz",
       name: q.title,
-      url: `${site.url}/fe/quiz/${q.slug}`,
+      url: `${site.url}/fe/algorithm/quiz/${q.slug}`,
       abstract: q.description,
     })),
   };
@@ -69,7 +69,7 @@ export default function FeQuizIndexPage() {
         "@type": "ListItem",
         position: 3,
         name: "練習問題",
-        item: `${site.url}/fe/quiz`,
+        item: `${site.url}/fe/algorithm/quiz`,
       },
     ],
   };
@@ -140,7 +140,7 @@ export default function FeQuizIndexPage() {
             >
               解けなかった構文は
               <Link
-                href="/fe/lessons"
+                href="/fe/algorithm/lessons"
                 className="underline underline-offset-4 hover:opacity-80"
               >
                 構文別レッスン

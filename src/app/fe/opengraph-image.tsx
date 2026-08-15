@@ -13,149 +13,85 @@ export default function OGImage() {
           height: "100%",
           width: "100%",
           display: "flex",
+          flexDirection: "column",
           background: "#fafafa",
           fontFamily: "sans-serif",
+          padding: "72px",
+          justifyContent: "center",
         }}
       >
-        {/* Left: code snippet */}
         <div
           style={{
-            width: "48%",
-            height: "100%",
             display: "flex",
-            flexDirection: "column",
-            padding: "56px 32px 56px 56px",
-            justifyContent: "center",
+            color: "#6b6b68",
+            fontSize: 20,
+            fontWeight: 700,
+            letterSpacing: 4,
+            textTransform: "uppercase",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              border: "2px solid #0a0a0a",
-              background: "#ffffff",
-              boxShadow: "0 8px 24px rgba(10,10,10,0.08)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                background: "#f2f2f0",
-                padding: "10px 16px",
-                fontSize: 14,
-                fontFamily: "monospace",
-                borderBottom: "1px solid #d9d9d5",
-                color: "#0a0a0a",
-                fontWeight: 700,
-              }}
-            >
-              擬似言語.pcode
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                fontFamily: "monospace",
-                fontSize: 18,
-                lineHeight: 1.55,
-                color: "#0a0a0a",
-                padding: "18px 18px",
-              }}
-            >
-              <div style={{ display: "flex" }}>整数型: n ← 5</div>
-              <div style={{ display: "flex" }}>整数型: 合計 ← 0</div>
-              <div style={{ display: "flex" }}>for (i を 1 から n まで</div>
-              <div style={{ display: "flex", paddingLeft: 24 }}>
-                1 ずつ増やす)
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  paddingLeft: 24,
-                  background: "rgba(255, 220, 0, 0.25)",
-                  padding: "0 24px",
-                }}
-              >
-                合計 ← 合計 + i
-              </div>
-              <div style={{ display: "flex" }}>endfor</div>
-              <div style={{ display: "flex", color: "#6b6b68" }}>
-                print(合計)
-              </div>
-            </div>
-          </div>
+          FE · 基本情報技術者試験
         </div>
-        {/* Right: title */}
         <div
           style={{
-            width: "52%",
-            height: "100%",
             display: "flex",
             flexDirection: "column",
-            padding: "72px 72px 56px 40px",
-            justifyContent: "center",
+            marginTop: 24,
+            fontSize: 60,
+            fontWeight: 800,
+            lineHeight: 1.15,
+            color: "#0a0a0a",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              color: "#6b6b68",
-              fontSize: 20,
-              fontWeight: 700,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-            }}
-          >
-            FE · 科目 B
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              marginTop: 24,
-              fontSize: 48,
-              fontWeight: 800,
-              lineHeight: 1.15,
-              color: "#0a0a0a",
-            }}
-          >
-            <div style={{ display: "flex" }}>擬似言語を</div>
-            <div style={{ display: "flex" }}>ブラウザで実行</div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              marginTop: 28,
-              fontSize: 22,
-              lineHeight: 1.5,
-              color: "#6b6b68",
-            }}
-          >
-            一行ずつ実行して
-          </div>
-          <div
-            style={{
-              display: "flex",
-              marginTop: 6,
-              fontSize: 22,
-              lineHeight: 1.5,
-              color: "#6b6b68",
-            }}
-          >
-            変数の変化を目で追える 実行シミュレーター
-          </div>
-          <div
-            style={{
-              display: "flex",
-              marginTop: "auto",
-              paddingTop: 32,
-              borderTop: "1px solid #d9d9d5",
-              fontSize: 18,
-              color: "#6b6b68",
-            }}
-          >
-            taitech.dev / fe
-          </div>
+          <div style={{ display: "flex" }}>読むのではなく、</div>
+          <div style={{ display: "flex" }}>動かして対策する。</div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 32,
+            fontSize: 24,
+            lineHeight: 1.5,
+            color: "#6b6b68",
+          }}
+        >
+          擬似言語をブラウザで 1 行ずつ実行できる 無料の学習ツール集
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 40,
+            gap: 16,
+          }}
+        >
+          {["一行ずつ実行", "変数を可視化", "練習問題つき"].map((label) => (
+            <div
+              key={label}
+              style={{
+                display: "flex",
+                border: "2px solid #0a0a0a",
+                background: "#ffffff",
+                padding: "10px 20px",
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#0a0a0a",
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: "auto",
+            paddingTop: 40,
+            borderTop: "1px solid #d9d9d5",
+            fontSize: 18,
+            color: "#6b6b68",
+          }}
+        >
+          taitech.dev / fe
         </div>
       </div>
     ),

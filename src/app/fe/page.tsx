@@ -2,23 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Suspense } from "react";
-import { Playground } from "@/components/fe/Playground";
-import { PlaygroundDeepLink } from "@/components/fe/PlaygroundDeepLink";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 import { FAQ } from "@/components/layout/FAQ";
-import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
+import { FeHubJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
-import { site } from "@/lib/site";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
 
 const sectionMeta = sections.fe;
 
-const PAGE_TITLE = "基本情報技術者試験の擬似言語 実行シミュレーター";
-const PAGE_DESCRIPTION =
-  "基本情報技術者試験 (FE) 科目B で出題される擬似言語をその場で書いて、1 行ずつ実行して変数の変化を可視化し、Python / TypeScript に変換して読み比べることができる無料の学習ツール。";
+const PAGE_TITLE = sectionMeta.metaTitle ?? sectionMeta.label;
+const PAGE_DESCRIPTION = sectionMeta.metaDescription ?? sectionMeta.description;
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -36,134 +31,192 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * ハブに並べるツール。**SQL 実行シミュレーター (/fe/sql) を足すときはここに 1 件追加する**
+ * (docs/wip/20260815-fe-sql/00-overview.md §5-3)。JSON-LD の hasPart もこの配列から組む。
+ */
+const TOOLS = [
+  {
+    key: "algorithm",
+    path: "/fe/algorithm",
+    eyebrow: "科目 B",
+    name: "擬似言語 実行シミュレーター",
+    description:
+      "科目 B のアルゴリズム問題で使われる擬似言語を、その場で書いて実行できる。一行ずつ進めて変数の変化と出力を目で追える。",
+    bullets: [
+      "一行ずつ実行して変数の変化を可視化",
+      `構文別レッスン ${feLessons.length} 本 (変数 / if / while / for / 配列 / 関数)`,
+      `オリジナル練習問題 ${feQuizzes.length} 問 (解説つき)`,
+      "Python / TypeScript に変換して読み比べ",
+    ],
+    links: [
+      { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
+      { href: "/fe/algorithm/quiz", label: "練習問題を解く" },
+      { href: "/fe/algorithm/transpile", label: "多言語横並び比較" },
+    ],
+  },
+] as const;
+
 const FAQ_ITEMS = [
   {
-    q: "この実行シミュレーターはどんなツールですか？",
-    a: "基本情報技術者試験 (FE) 科目B で使われる擬似言語を、その場で書いて実行し、一行ずつ進めながら変数の変化と出力を可視化できる無料の学習ツールです。Python / TypeScript への変換もワンボタンで行えます。",
+    q: "このページのツールは無料ですか？",
+    a: "はい。すべて無料で、会員登録も不要です。コードの解析・実行・変換はすべてブラウザ内で完結し、サーバには送信されません。",
   },
   {
-    q: "対応している擬似言語の仕様はどれですか？",
-    a: "IPA が公表している「試験で使用する情報技術に関する用語・プログラム言語など Ver.5.1」の基本情報技術者試験 (FE) 部分に準拠しています。応用情報 (AP) 追加構文とオブジェクト指向 (クラス構文) は現時点で非対応です。",
+    q: "基本情報技術者試験の科目 A と科目 B は何が違いますか？",
+    a: "科目 A は 90 分・60 問の四肢択一で、テクノロジ系・マネジメント系・ストラテジ系を幅広く問います。科目 B は 100 分・20 問で、アルゴリズムとプログラミング (約 8 割) と情報セキュリティ (約 2 割) に絞られます。擬似言語が出るのは科目 B です。",
   },
   {
-    q: "配列の添字は 0 始まりですか？1 始まりですか？",
-    a: "基本情報の擬似言語は 1 始まりです。この実行シミュレーターでも 1 始まりで動作し、Python / TypeScript に変換する際は自動的に -1 が付与されコメントで理由が明示されます。",
+    q: "合格には何割とればよいですか？",
+    a: "科目 A・科目 B とも 1,000 点満点で 600 点以上が合格基準です。ただし採点は IRT (項目応答理論) 方式なので、単純に 6 割正答すれば合格というわけではありません。",
   },
   {
-    q: "サーバに送信されますか？",
-    a: "いいえ。コードの解析・実行・変換はすべてブラウザ内で完結し、サーバには送信されません。書いたコードはブラウザの localStorage 相当にのみ残ります。",
+    q: "いつ受験できますか？",
+    a: "CBT 方式による通年実施です。試験会場の空き枠を予約する形なので、自分の準備状況に合わせて受験日を決められます。",
   },
 ];
 
-export default function FeTopPage() {
+export default function FeHubPage() {
   return (
     <div className="py-8 lg:py-12">
-      <FePlaygroundJsonLd
+      <FeHubJsonLd
         path={sectionMeta.path}
         name={sectionMeta.label}
         description={PAGE_DESCRIPTION}
-        breadcrumb={[
-          { name: "ホーム", item: site.url },
-          { name: sectionMeta.shortLabel, item: `${site.url}${sectionMeta.path}` },
-        ]}
+        tools={TOOLS.map((t) => ({
+          name: t.name,
+          path: t.path,
+          description: t.description,
+        }))}
         faq={FAQ_ITEMS}
       />
       <Container size="wide">
         <div className="grid gap-8 xl:gap-10 xl:grid-cols-[minmax(0,1fr)_15rem]">
           <div className="min-w-0">
-            <header className="mb-6">
+            <header className="mb-10 max-w-3xl">
               <Eyebrow>基本情報技術者試験</Eyebrow>
               <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
-                擬似言語をブラウザで動かせる 実行シミュレーター
+                基本情報技術者試験を、動かして対策する
               </h1>
               <div
-                className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
+                className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
                 style={{ textWrap: "pretty" }}
               >
-                <p>科目B (プログラミング問題) の擬似言語をその場で書いて実行できます。</p>
                 <p>
-                  一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられます。
+                  紙の上で追うだけでは掴みにくい「動き」を、ブラウザ上で実際に動かして確かめられる学習ツールを置いています。
                 </p>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
-                </p>
+                <p>すべて無料・登録不要で、処理はブラウザ内で完結します。</p>
               </div>
             </header>
 
-            {/* Playground 自体は SSR して prerender HTML に markup を残す。
-                ?code= / ?from= の読み取りだけを Suspense 配下の client に閉じ込める
-                (server の searchParams で受けるとこのページが Dynamic になる) */}
-            <Playground>
-              <Suspense fallback={null}>
-                <PlaygroundDeepLink />
-              </Suspense>
-            </Playground>
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                ツール
+              </h2>
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
+                {TOOLS.map((t) => (
+                  <article
+                    key={t.key}
+                    /* min-w-0 が無いと grid item の min-content が本文の全長になり
+                       (globals.css の word-break: keep-all)、モバイルで横に溢れる */
+                    className="flex min-w-0 flex-col border border-[var(--border)] p-6 md:p-8"
+                  >
+                    <Eyebrow size="compact" as="div">
+                      {t.eyebrow}
+                    </Eyebrow>
+                    <h3 className="mt-2 text-xl font-bold tracking-tight [overflow-wrap:anywhere]">
+                      {t.name}
+                    </h3>
+                    <p
+                      className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed [overflow-wrap:anywhere]"
+                      style={{ textWrap: "pretty" }}
+                    >
+                      {t.description}
+                    </p>
+                    <ul className="mt-5 space-y-1.5 text-sm">
+                      {t.bullets.map((b) => (
+                        <li key={b} className="flex gap-2">
+                          <span className="text-[var(--muted-foreground)]">
+                            —
+                          </span>
+                          <span className="min-w-0 [overflow-wrap:anywhere]">
+                            {b}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-6 flex-1" />
+                    <Link
+                      href={t.path}
+                      className="mt-6 inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-bold hover:bg-[#262626] self-start"
+                    >
+                      このツールを開く →
+                    </Link>
+                    <ul className="mt-5 space-y-1 text-sm text-[var(--muted-foreground)]">
+                      {t.links.map((l) => (
+                        <li key={l.href}>
+                          <Link
+                            href={l.href}
+                            className="hover:text-[var(--foreground)] hover:underline underline-offset-4"
+                          >
+                            {l.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
 
             <section className="mt-16 max-w-3xl">
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-                擬似言語 (基本情報 科目B) とは
+                試験の構成
               </h2>
-              <div
-                className="mt-4 space-y-4 text-[var(--foreground)] leading-relaxed"
-                style={{ textWrap: "pretty" }}
-              >
-                <p>
-                  基本情報技術者試験の科目 B では、特定のプログラミング言語ではなく、IPA
-                  が定義した独自の「擬似言語」でアルゴリズムが出題されます。
-                </p>
-                <p>
-                  C や Java のような厳密な文法ではなく、日本語混じりの読みやすい記法で書かれます。
-                  初学者でも「何をしているか」を追いやすいのが特徴です。
-                </p>
-                <p>
-                  しかし紙面で追うだけでは、変数の値がどう変化するか、ループが何回まわるか、
-                  関数呼び出しでスタックがどう積まれるか、といった<strong>動的な挙動</strong>が掴みにくい面があります。
-                </p>
-                <p>
-                  このツールはその「動き」を可視化して、擬似言語のコードが実行時に何をしているかを直感的に理解するためのものです。
-                </p>
-              </div>
-
-              <h3 className="mt-10 text-lg font-bold tracking-tight">
-                主要構文の全体像
-              </h3>
               <p
-                className="mt-2 text-sm text-[var(--muted-foreground)]"
+                className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}
               >
-                IPA 公式仕様書の表記に沿った、主要な構文をまとめます。
+                CBT 方式による通年実施で、科目 A と科目 B を同じ日に続けて受験します。
               </p>
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)] text-left text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
-                      <th className="py-2 pr-3 font-semibold">構文</th>
-                      <th className="py-2 pr-3 font-semibold">記述例</th>
-                      <th className="py-2 font-semibold">意味</th>
+                      <th className="py-2 pr-3 font-semibold">科目</th>
+                      <th className="py-2 pr-3 font-semibold">時間 / 問数</th>
+                      <th className="py-2 font-semibold">出題範囲</th>
                     </tr>
                   </thead>
                   <tbody className="align-top">
-                    {SYNTAX_TABLE.map((row) => (
-                      <tr
-                        key={row.name}
-                        className="border-b border-[var(--border)]"
+                    <tr className="border-b border-[var(--border)]">
+                      <td className="py-2 pr-3 whitespace-nowrap font-semibold">
+                        科目 A
+                      </td>
+                      <td className="py-2 pr-3 whitespace-nowrap">
+                        90 分 / 60 問
+                      </td>
+                      <td
+                        className="py-2 text-[var(--muted-foreground)]"
+                        style={{ textWrap: "pretty" }}
                       >
-                        <td className="py-2 pr-3 whitespace-nowrap font-semibold">
-                          {row.name}
-                        </td>
-                        <td className="py-2 pr-3">
-                          <code className="whitespace-pre-wrap rounded bg-[var(--muted)] px-1.5 py-0.5 font-mono text-xs">
-                            {row.example}
-                          </code>
-                        </td>
-                        <td
-                          className="py-2 text-[var(--muted-foreground)]"
-                          style={{ textWrap: "pretty" }}
-                        >
-                          {row.meaning}
-                        </td>
-                      </tr>
-                    ))}
+                        テクノロジ系・マネジメント系・ストラテジ系の四肢択一。データベース分野の SQL もここに出る
+                      </td>
+                    </tr>
+                    <tr className="border-b border-[var(--border)]">
+                      <td className="py-2 pr-3 whitespace-nowrap font-semibold">
+                        科目 B
+                      </td>
+                      <td className="py-2 pr-3 whitespace-nowrap">
+                        100 分 / 20 問
+                      </td>
+                      <td
+                        className="py-2 text-[var(--muted-foreground)]"
+                        style={{ textWrap: "pretty" }}
+                      >
+                        アルゴリズムとプログラミング (約 8 割) と情報セキュリティ (約 2 割)。擬似言語が使われる
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -171,108 +224,41 @@ export default function FeTopPage() {
                 className="mt-4 text-sm text-[var(--muted-foreground)]"
                 style={{ textWrap: "pretty" }}
               >
-                配列は必ず 1 番目から始まります (0 始まりではありません)。
-                Python / TypeScript に変換する際は自動的に <code>-1</code>{" "}
-                が付与され、注釈コメントも生成されるので違いを直感的に確認できます。
+                合格基準は科目 A・科目 B とも 1,000 点満点で 600 点以上。採点は IRT
+                (項目応答理論) 方式なので、単純な正答率とは一致しません。
               </p>
             </section>
 
             <section className="mt-16 max-w-3xl">
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-                もっと詳しく — 構文別レッスン
-              </h2>
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                各構文の詳しい解説と、埋め込みエディタで動かせる例題を用意しています。
-              </p>
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                {feLessons.map((l) => (
-                  <li key={l.slug}>
-                    <Link
-                      href={`/fe/lessons/${l.slug}`}
-                      className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
-                    >
-                      <div className="text-xs text-[var(--muted-foreground)]">
-                        レッスン {l.order}
-                      </div>
-                      <div className="mt-1 font-semibold">{l.shortTitle}</div>
-                      <p
-                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-                        style={{ textWrap: "pretty" }}
-                      >
-                        {l.cardSummary}
-                      </p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
-                <Link
-                  href="/fe/lessons"
-                  className="underline underline-offset-4 hover:opacity-80"
-                >
-                  レッスン一覧を開く →
-                </Link>
-              </p>
-            </section>
-
-            <section className="mt-16 max-w-3xl">
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-                読めるようになったら — 練習問題 {feQuizzes.length} 問
-              </h2>
-              <p
-                className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
-                style={{ textWrap: "pretty" }}
-              >
-                コードを目で追って出力を答える 4 択のオリジナル問題です。
-                解答すると解説と、そのコードを実行シミュレーターで開くリンクが出ます。
-              </p>
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                {feQuizzes.slice(0, 4).map((q) => (
-                  <li key={q.slug}>
-                    <Link
-                      href={`/fe/quiz/${q.slug}`}
-                      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
-                    >
-                      <div className="text-xs text-[var(--muted-foreground)]">
-                        第 {q.order} 問
-                      </div>
-                      <div className="mt-1 font-semibold">{q.shortTitle}</div>
-                      <p
-                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
-                        style={{ textWrap: "pretty" }}
-                      >
-                        {q.challenge}
-                      </p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
-                <Link
-                  href="/fe/quiz"
-                  className="underline underline-offset-4 hover:opacity-80"
-                >
-                  練習問題一覧を開く（全 {feQuizzes.length} 問）→
-                </Link>
-              </p>
-            </section>
-
-            <section className="mt-16 max-w-3xl">
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-                さらに深く比較したい
+                データベース分野を深く学ぶ
               </h2>
               <p
                 className="mt-3 text-sm text-[var(--foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}
               >
-                擬似言語と Python / TypeScript を並べて読み比べたい場合は、
+                科目 A のデータベース分野は、
                 <Link
-                  href="/fe/transpile"
+                  href="/data-modeling/normalization/why"
                   className="underline underline-offset-4 hover:opacity-80"
                 >
-                  多言語横並び比較ツール
+                  正規化
                 </Link>
-                を用意しています。3 言語同時ビューで、構文ごとの差分を目で追えます。
+                と
+                <Link
+                  href="/data-modeling/er-diagram"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  ER 図
+                </Link>
+                が頻出です。試験対策の枠を超えて仕組みから理解したい場合は、
+                <Link
+                  href="/why-need-rdb"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  もしもこの世界に RDB がなかったら
+                </Link>
+                から読むと、制約やトランザクションが何のために存在するのかが掴めます。
               </p>
             </section>
 
@@ -295,38 +281,3 @@ export default function FeTopPage() {
     </div>
   );
 }
-
-const SYNTAX_TABLE = [
-  {
-    name: "変数宣言",
-    example: "整数型: x ← 0",
-    meaning: "型を明示して初期値を与える。← は代入を表す",
-  },
-  {
-    name: "条件分岐",
-    example:
-      "if (x > 0) then\n  ...\nelseif (...)\n  ...\nelse\n  ...\nendif",
-    meaning: "条件によって処理を分岐する",
-  },
-  {
-    name: "繰り返し (while)",
-    example: "while (条件)\n  ...\nendwhile",
-    meaning: "条件が真の間くり返す",
-  },
-  {
-    name: "繰り返し (for)",
-    example: "for (i を 1 から n まで 1 ずつ増やす)\n  ...\nendfor",
-    meaning: "回数を指定してくり返す (1 始まり、n を含む)",
-  },
-  {
-    name: "配列",
-    example: "整数型の配列: arr ← {1, 2, 3}",
-    meaning: "複数の値をまとめて扱う。添字は 1 始まり",
-  },
-  {
-    name: "関数定義",
-    example: "○整数型: name(整数型: a)\n  return a",
-    meaning: "○ から始めて関数を定義。手続き (戻り値なし) は型を省略",
-  },
-];
-

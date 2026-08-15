@@ -27,7 +27,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const quiz = findFeQuiz(slug);
   if (!quiz) return {};
-  const path = `/fe/quiz/${quiz.slug}`;
+  const path = `/fe/algorithm/quiz/${quiz.slug}`;
   return {
     title: quiz.title,
     description: quiz.description,
@@ -57,7 +57,7 @@ export default async function FeQuizPage({
   const sectionMeta = sections.fe;
   const lesson = findFeLesson(quiz.lesson);
   const { prev, next } = feQuizNeighbors(quiz.slug);
-  const path = `/fe/quiz/${quiz.slug}`;
+  const path = `/fe/algorithm/quiz/${quiz.slug}`;
 
   return (
     <>
@@ -70,7 +70,7 @@ export default async function FeQuizPage({
         breadcrumb={[
           { name: "ホーム", item: site.url },
           { name: sectionMeta.shortLabel, item: `${site.url}${sectionMeta.path}` },
-          { name: "練習問題", item: `${site.url}/fe/quiz` },
+          { name: "練習問題", item: `${site.url}/fe/algorithm/quiz` },
           { name: quiz.shortTitle, item: `${site.url}${path}` },
         ]}
         question={quiz.prompt}
@@ -87,7 +87,7 @@ export default async function FeQuizPage({
               items={[
                 { href: "/", label: "ホーム" },
                 { href: sectionMeta.path, label: "擬似言語 実行シミュレーター" },
-                { href: "/fe/quiz", label: "練習問題" },
+                { href: "/fe/algorithm/quiz", label: "練習問題" },
                 { label: quiz.shortTitle },
               ]}
             />
@@ -102,7 +102,7 @@ export default async function FeQuizPage({
               <p className="mt-3 text-sm text-[var(--muted-foreground)]">
                 関連レッスン:{" "}
                 <Link
-                  href={`/fe/lessons/${lesson.slug}`}
+                  href={`/fe/algorithm/lessons/${lesson.slug}`}
                   className="underline underline-offset-4 hover:opacity-80"
                 >
                   {lesson.title}
@@ -117,16 +117,16 @@ export default async function FeQuizPage({
             <PrevNextCards
               ariaLabel="前後の練習問題"
               prev={
-                prev ? { href: `/fe/quiz/${prev.slug}`, shortTitle: prev.shortTitle } : null
+                prev ? { href: `/fe/algorithm/quiz/${prev.slug}`, shortTitle: prev.shortTitle } : null
               }
               next={
-                next ? { href: `/fe/quiz/${next.slug}`, shortTitle: next.shortTitle } : null
+                next ? { href: `/fe/algorithm/quiz/${next.slug}`, shortTitle: next.shortTitle } : null
               }
             />
 
             <p className="mt-8 text-sm text-[var(--muted-foreground)]">
               <Link
-                href="/fe/quiz"
+                href="/fe/algorithm/quiz"
                 className="underline underline-offset-4 hover:opacity-80"
               >
                 練習問題一覧に戻る →

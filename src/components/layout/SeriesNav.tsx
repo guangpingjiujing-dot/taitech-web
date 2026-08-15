@@ -38,7 +38,7 @@ const SERIES: Series[] = [
   },
   {
     key: "fe",
-    label: "基本情報 擬似言語",
+    label: "基本情報技術者試験",
     href: "/fe",
   },
   {

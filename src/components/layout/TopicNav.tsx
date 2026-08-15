@@ -60,7 +60,7 @@ export function TopicNav({
                 label: "構文別レッスン",
                 items: feLessons.map((l) => ({
                   slug: l.slug,
-                  path: `/fe/lessons/${l.slug}`,
+                  path: `/fe/algorithm/lessons/${l.slug}`,
                   shortTitle: l.shortTitle,
                 })),
               },
@@ -158,12 +158,24 @@ export function TopicNav({
                     href="/fe"
                     className={linkClass(
                     "/fe",
-                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                    "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
                   )}
                   aria-current={current("/fe")}
                   >
+                    対策ツール一覧
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/algorithm"
+                    className={linkClass(
+                    "/fe/algorithm",
+                    "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
+                  )}
+                  aria-current={current("/fe/algorithm")}
+                  >
                     <div className="font-semibold group-hover:underline underline-offset-4">
-                      実行シミュレーター
+                      擬似言語 実行シミュレーター
                     </div>
                     <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                       その場で書いて、一行ずつ動かす
@@ -172,12 +184,12 @@ export function TopicNav({
                 </li>
                 <li>
                   <Link
-                    href="/fe/transpile"
+                    href="/fe/algorithm/transpile"
                     className={linkClass(
-                    "/fe/transpile",
+                    "/fe/algorithm/transpile",
                     "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
                   )}
-                  aria-current={current("/fe/transpile")}
+                  aria-current={current("/fe/algorithm/transpile")}
                   >
                     <div className="font-semibold group-hover:underline underline-offset-4">
                       多言語横並び比較
@@ -244,12 +256,12 @@ export function TopicNav({
             {g.key === "fe-lessons" && (
               <li>
                 <Link
-                  href="/fe/lessons"
+                  href="/fe/algorithm/lessons"
                   className={linkClass(
-                    "/fe/lessons",
+                    "/fe/algorithm/lessons",
                     "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--foreground)] font-semibold hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
                   )}
-                  aria-current={current("/fe/lessons")}
+                  aria-current={current("/fe/algorithm/lessons")}
                 >
                   レッスン一覧
                 </Link>
@@ -258,12 +270,12 @@ export function TopicNav({
             {g.key === "fe-quiz" && (
               <li>
                 <Link
-                  href="/fe/quiz"
+                  href="/fe/algorithm/quiz"
                   className={linkClass(
-                    "/fe/quiz",
+                    "/fe/algorithm/quiz",
                     "group block border-l-2 -ml-px px-3 py-2 leading-snug text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors",
                   )}
-                  aria-current={current("/fe/quiz")}
+                  aria-current={current("/fe/algorithm/quiz")}
                 >
                   <div className="font-semibold group-hover:underline underline-offset-4">
                     練習問題をすべて見る

@@ -68,7 +68,7 @@ function postMarkdown(quiz: FeQuizMeta): string {
     quiz.trap,
     ``,
     `このコードは1行ずつ実行して、変数の値の変化を見ながら確かめられます。`,
-    `${SITE}/fe/quiz/${quiz.slug}`,
+    `${SITE}/fe/algorithm/quiz/${quiz.slug}`,
     ``,
     `#基本情報技術者試験 #擬似言語`,
   ].join("\n");
@@ -111,8 +111,8 @@ ${answerText}
 
 - 正解: **${quiz.answer}**
 - ひっかけ: ${quiz.trap}
-- 関連レッスン: ${SITE}/fe/lessons/${quiz.lesson}
-- 解説ページ: ${SITE}/fe/quiz/${quiz.slug}
+- 関連レッスン: ${SITE}/fe/algorithm/lessons/${quiz.lesson}
+- 解説ページ: ${SITE}/fe/algorithm/quiz/${quiz.slug}
 `;
 }
 

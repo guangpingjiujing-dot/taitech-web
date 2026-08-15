@@ -5,7 +5,7 @@ import type { QuizNamespace } from "@/lib/quiz/progress";
 /**
  * 練習問題 1 問への導線カード (presentation)。
  *
- * `/fe/quiz` `/joho1/quiz` の一覧と、各レッスン末尾の「この構文の練習問題」で使う。
+ * `/fe/algorithm/quiz` `/joho1/quiz` の一覧と、各レッスン末尾の「この構文の練習問題」で使う。
  * セクション固有の型 (FeQuizMeta / Joho1QuizMeta) は受け取らず、表示に要る値だけ取る。
  * データ層は `components/{section}/QuizIndexCard.tsx` のラッパが持つ
  * (AGENTS.md の presentation / データ層分離パターン)。

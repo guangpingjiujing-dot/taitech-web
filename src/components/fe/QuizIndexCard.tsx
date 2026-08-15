@@ -19,7 +19,7 @@ export function QuizIndexCard({
   return (
     <QuizIndexCardView
       namespace="fe"
-      href={`/fe/quiz/${quiz.slug}`}
+      href={`/fe/algorithm/quiz/${quiz.slug}`}
       slug={quiz.slug}
       order={quiz.order}
       total={feQuizzes.length}

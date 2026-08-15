@@ -6,10 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { usePlayground } from "@/components/playground/playgroundStore";
 
 /**
- * `/fe` を `?code=` / `?from=` 付きで開いたときの処理。
+ * `/fe/algorithm` を `?code=` / `?from=` 付きで開いたときの処理。
  *
  * **Playground 本体の外には出さない**: server component の `searchParams` で
- * 受けると `/fe` が Dynamic になり静的プリレンダできなくなる一方、
+ * 受けると `/fe/algorithm` が Dynamic になり静的プリレンダできなくなる一方、
  * Playground ごとクライアントに寄せると prerender HTML からエディタの markup が
  * 消える。そこで Playground は SSR したまま、クエリの読み取りだけをこの
  * 小さな client component (Suspense 配下) に閉じ込めてストアへ流し込む。
@@ -21,9 +21,16 @@ export function PlaygroundDeepLink() {
 
   const code = params.get("code");
   const from = params.get("from");
-  // オープンリダイレクト防止: 自サイトの FE 配下だけを戻り先として許可する
+  /*
+   * オープンリダイレクト防止: 自サイトの FE 配下だけを戻り先として許可する。
+   * 2026-08-15 の URL 再編で `/fe/lessons/*` `/fe/quiz/*` は
+   * `/fe/algorithm/*` に移った。**旧パスも許可したまま残す**: 公開済みの X 投稿から
+   * 旧 URL 経由で来た人は 308 でここに着くが、`from=` の値は旧パスのままになる。
+   */
   const backHref =
-    from && /^\/fe\/(lessons|quiz)\/[a-z0-9-]+$/.test(from) ? from : null;
+    from && /^\/fe\/(algorithm\/)?(lessons|quiz)\/[a-z0-9-]+$/.test(from)
+      ? from
+      : null;
 
   useEffect(() => {
     // 適用は 1 回だけ。ユーザーが編集し始めた後に上書きしない

@@ -84,7 +84,7 @@ function Hero() {
             データベースを学ぶ →
           </Link>
           <Link
-            href={sections.fe.path}
+            href="/fe/algorithm"
             className="inline-flex items-center gap-2 border border-[var(--foreground)] px-5 py-3 text-sm font-bold hover:bg-[var(--muted)]"
           >
             擬似言語を動かす →
@@ -222,7 +222,7 @@ function SeriesGroups() {
         {
           key: "fe",
           href: sections.fe.path,
-          title: "基本情報 擬似言語 実行シミュレーター",
+          title: "基本情報技術者試験 対策ツール",
           lead: "科目 B の擬似言語をブラウザで書いて動かす。一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられる。",
           bullets: [
             "擬似言語を一行ずつ実行して変数を可視化",
@@ -230,8 +230,9 @@ function SeriesGroups() {
             `オリジナル練習問題 ${feQuizzes.length} 問 (解説つき)`,
           ],
           links: [
-            { href: "/fe/lessons", label: "構文別レッスン" },
-            { href: "/fe/quiz", label: "練習問題を解く" },
+            { href: "/fe/algorithm", label: "擬似言語 実行シミュレーター" },
+            { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
+            { href: "/fe/algorithm/quiz", label: "練習問題を解く" },
           ],
         },
         {

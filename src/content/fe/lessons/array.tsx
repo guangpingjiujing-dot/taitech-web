@@ -105,7 +105,7 @@ export default function ArrayBody() {
       <p>
         擬似言語が 1 始まりなのに対し、Python も TypeScript も 0 始まりです。
         この実行シミュレーターの{" "}
-        <Link href="/fe/transpile">多言語横並び比較ツール</Link>{" "}
+        <Link href="/fe/algorithm/transpile">多言語横並び比較ツール</Link>{" "}
         で変換すると、擬似言語の <code>arr[i]</code> が Python / TypeScript
         の <code>arr[i - 1]</code> に置き換わり、
         <strong>「擬似言語は 1 始まりなので -1」</strong>{" "}
@@ -139,7 +139,7 @@ export default function ArrayBody() {
 
       <p>
         配列が読めるようになったら、最後のレッスン{" "}
-        <Link href="/fe/lessons/function">関数と手続き</Link>{" "}
+        <Link href="/fe/algorithm/lessons/function">関数と手続き</Link>{" "}
         に進みましょう。処理をまとめて名前を付けると、コードがぐっと読みやすくなります。
       </p>
     </>

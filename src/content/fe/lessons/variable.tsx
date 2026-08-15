@@ -111,7 +111,7 @@ export default function VariableBody() {
 
       <p>
         変数と型の書き方が読めるようになったら、次は{" "}
-        <Link href="/fe/lessons/if">条件分岐 (if / elseif / else)</Link>{" "}
+        <Link href="/fe/algorithm/lessons/if">条件分岐 (if / elseif / else)</Link>{" "}
         に進みましょう。
       </p>
     </>

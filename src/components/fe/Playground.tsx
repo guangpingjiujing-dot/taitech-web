@@ -456,7 +456,7 @@ function PlaygroundInner({
             className="text-[var(--primary-foreground)]! no-underline! hover:no-underline!"
           >
             <Link
-              href={`/fe?code=${encodeURIComponent(code)}`}
+              href={`/fe/algorithm?code=${encodeURIComponent(code)}`}
               rel="nofollow"
             >
               このコードを実行シミュレーターで開く →

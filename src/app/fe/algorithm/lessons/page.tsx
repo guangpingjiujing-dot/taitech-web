@@ -17,11 +17,11 @@ const PAGE_DESCRIPTION =
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: "/fe/lessons" },
+  alternates: { canonical: "/fe/algorithm/lessons" },
   openGraph: {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    url: "/fe/lessons",
+    url: "/fe/algorithm/lessons",
   },
   twitter: {
     card: "summary_large_image",
@@ -37,7 +37,7 @@ export default function FeLessonsIndexPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "基本情報 擬似言語 構文別レッスン",
-    url: `${site.url}/fe/lessons`,
+    url: `${site.url}/fe/algorithm/lessons`,
     description: PAGE_DESCRIPTION,
     inLanguage: "ja-JP",
     isPartOf: {
@@ -48,7 +48,7 @@ export default function FeLessonsIndexPage() {
     hasPart: feLessons.map((l) => ({
       "@type": "LearningResource",
       headline: l.title,
-      url: `${site.url}/fe/lessons/${l.slug}`,
+      url: `${site.url}/fe/algorithm/lessons/${l.slug}`,
       abstract: l.definition,
     })),
   };
@@ -67,7 +67,7 @@ export default function FeLessonsIndexPage() {
         "@type": "ListItem",
         position: 3,
         name: "構文別レッスン",
-        item: `${site.url}/fe/lessons`,
+        item: `${site.url}/fe/algorithm/lessons`,
       },
     ],
   };
@@ -112,7 +112,7 @@ export default function FeLessonsIndexPage() {
               {feLessons.map((l) => (
                 <li key={l.slug}>
                   <Link
-                    href={`/fe/lessons/${l.slug}`}
+                    href={`/fe/algorithm/lessons/${l.slug}`}
                     className="block rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
                   >
                     <div className="text-xs text-[var(--muted-foreground)]">
@@ -140,7 +140,7 @@ export default function FeLessonsIndexPage() {
               <ul className="mt-3 grid gap-2 sm:grid-cols-3">
                 <li>
                   <Link
-                    href="/fe/quiz"
+                    href="/fe/algorithm/quiz"
                     className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
                   >
                     <div className="text-sm font-semibold group-hover:underline underline-offset-4">
@@ -166,7 +166,7 @@ export default function FeLessonsIndexPage() {
                 </li>
                 <li>
                   <Link
-                    href="/fe/transpile"
+                    href="/fe/algorithm/transpile"
                     className="group block rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60 transition-colors"
                   >
                     <div className="text-sm font-semibold group-hover:underline underline-offset-4">

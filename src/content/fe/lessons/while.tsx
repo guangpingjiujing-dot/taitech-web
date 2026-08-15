@@ -99,7 +99,7 @@ endwhile`}</code>
       <p>
         こういう「終了条件が動的に決まる」処理は for では書きにくく、while
         の方が自然です。for と while の使い分けの感覚は{" "}
-        <Link href="/fe/lessons/for">次の for のレッスン</Link>{" "}
+        <Link href="/fe/algorithm/lessons/for">次の for のレッスン</Link>{" "}
         と読み比べると掴めます。
       </p>
 
@@ -122,7 +122,7 @@ endwhile`}</code>
 
       <p>
         while が読めるようになったら、次は「回数を明示する」形の{" "}
-        <Link href="/fe/lessons/for">繰り返し (for)</Link>{" "}
+        <Link href="/fe/algorithm/lessons/for">繰り返し (for)</Link>{" "}
         に進みましょう。境界条件の考え方は共通です。
       </p>
     </>

@@ -160,16 +160,16 @@ endif`}</code>
       </p>
       <ul>
         <li>
-          <Link href="/fe/quiz">練習問題</Link>{" "}
+          <Link href="/fe/algorithm/quiz">練習問題</Link>{" "}
           を解いて、コードを目で追って出力を言い当てられるか確かめる
           (ここまで読めていれば解けるはずの基礎 10 問と、本番相当の 10 問がある)
         </li>
         <li>
-          <Link href="/fe">実行シミュレーター</Link>{" "}
+          <Link href="/fe/algorithm">実行シミュレーター</Link>{" "}
           に戻り、自分でコードを書いて動かしてみる
         </li>
         <li>
-          <Link href="/fe/transpile">多言語横並び比較ツール</Link>{" "}
+          <Link href="/fe/algorithm/transpile">多言語横並び比較ツール</Link>{" "}
           で、擬似言語と Python / TypeScript を並べて読み比べる
         </li>
         <li>

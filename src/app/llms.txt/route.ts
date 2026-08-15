@@ -67,18 +67,18 @@ function renderSectionBlock(section: Section): string[] {
     lines.push(`### ツール`);
     lines.push(``);
     lines.push(
-      `- [擬似言語 実行シミュレーター](${site.url}/fe): 擬似言語を書いて実行し、一行ずつ変数の変化を追える。`,
+      `- [擬似言語 実行シミュレーター](${site.url}/fe/algorithm): 擬似言語を書いて実行し、一行ずつ変数の変化を追える。`,
     );
     lines.push(
-      `- [擬似言語 → Python / TypeScript 変換](${site.url}/fe/transpile): 同じロジックを 3 言語横並びで比較できる。配列の添字が 1 始まり → 0 始まりに変換される様子も確認できる。`,
+      `- [擬似言語 → Python / TypeScript 変換](${site.url}/fe/algorithm/transpile): 同じロジックを 3 言語横並びで比較できる。配列の添字が 1 始まり → 0 始まりに変換される様子も確認できる。`,
     );
     lines.push(``);
     lines.push(`### 構文別レッスン`);
     lines.push(``);
-    lines.push(`一覧: ${site.url}/fe/lessons`);
+    lines.push(`一覧: ${site.url}/fe/algorithm/lessons`);
     lines.push(``);
     for (const l of feLessons) {
-      lines.push(`- [${l.title}](${site.url}/fe/lessons/${l.slug}): ${l.description}`);
+      lines.push(`- [${l.title}](${site.url}/fe/algorithm/lessons/${l.slug}): ${l.description}`);
     }
     lines.push(``);
     lines.push(`### 引用可能な定義`);
@@ -89,14 +89,14 @@ function renderSectionBlock(section: Section): string[] {
     lines.push(``);
     lines.push(`### 練習問題 (オリジナル ${feQuizzes.length} 問)`);
     lines.push(``);
-    lines.push(`一覧: ${site.url}/fe/quiz`);
+    lines.push(`一覧: ${site.url}/fe/algorithm/quiz`);
     lines.push(``);
     lines.push(
       `IPA 公式過去問の転載はしていない。全問オリジナルで、解答キーはインタプリタで実行して検証している。`,
     );
     lines.push(``);
     for (const q of feQuizzes) {
-      lines.push(`- [${q.shortTitle}](${site.url}/fe/quiz/${q.slug}): ${q.challenge}`);
+      lines.push(`- [${q.shortTitle}](${site.url}/fe/algorithm/quiz/${q.slug}): ${q.challenge}`);
     }
     lines.push(``);
     return lines;

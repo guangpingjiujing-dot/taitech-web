@@ -187,7 +187,8 @@ export const books: Book[] = [
   },
 
   // --- 基本情報技術者試験 (FE) ---
-  // topics の slug は `fe-playground` (/fe) / `fe-transpile` (/fe/transpile)
+  // topics の slug は `fe-playground` (/fe ハブ と /fe/algorithm で共用)
+  // / `fe-transpile` (/fe/algorithm/transpile)
   // / `fe-lessons` (レッスン一覧) / `fe-{lesson slug}` (各レッスン)
   // / `fe-quiz` (練習問題)。
   {

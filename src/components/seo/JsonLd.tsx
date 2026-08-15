@@ -395,6 +395,73 @@ function buildBreadcrumb(topic: NonNullable<ReturnType<typeof findTopic>>) {
  * SoftwareApplication + WebPage + BreadcrumbList (+ optional FAQ) for
  * interactive Playground-style pages under /fe.
  */
+/**
+ * `/fe` セクションハブ用。`SectionHubJsonLd` を使わないのは、あれが `topicsInSection()`
+ * (topics レジストリ) から `hasPart` を組むため。FE はレジストリを持たず**ツールの集合**なので、
+ * hasPart を呼び出し側から明示的に受け取る。
+ */
+export function FeHubJsonLd({
+  path,
+  name,
+  description,
+  tools,
+  faq,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  tools: { name: string; path: string; description: string }[];
+  faq?: { q: string; a: string }[];
+}) {
+  const url = `${site.url}${path}`;
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name,
+      description,
+      url,
+      inLanguage: "ja-JP",
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+      hasPart: tools.map((t) => ({
+        "@type": "SoftwareApplication",
+        name: t.name,
+        description: t.description,
+        url: `${site.url}${t.path}`,
+        inLanguage: "ja-JP",
+        applicationCategory: "EducationalApplication",
+        operatingSystem: "Any (Web browser)",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "JPY" },
+        author: AUTHOR_PERSON,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
+        { "@type": "ListItem", position: 2, name: name, item: url },
+      ],
+    },
+  ];
+  if (faq && faq.length > 0) {
+    data.push(buildFaqPage({ items: faq, aboutName: name, pageUrl: url }));
+  }
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
 export function FePlaygroundJsonLd({
   path,
   name,
@@ -468,7 +535,7 @@ export function FePlaygroundJsonLd({
 
 /**
  * LearningResource + WebPage + BreadcrumbList (+ optional FAQ) for
- * lesson pages under /fe/lessons/[slug].
+ * lesson pages under /fe/algorithm/lessons/[slug].
  */
 export function FeLessonJsonLd({
   path,
@@ -642,7 +709,7 @@ export function Joho1PageJsonLd({
  */
 /**
  * 4 択練習問題 1 問分の Quiz / Question 構造化データ。
- * `/fe/quiz` と `/joho1/quiz` の両方から使うので、所属セクションと想定読者は引数で取る。
+ * `/fe/algorithm/quiz` と `/joho1/quiz` の両方から使うので、所属セクションと想定読者は引数で取る。
  */
 export function QuizJsonLd({
   section = "fe",

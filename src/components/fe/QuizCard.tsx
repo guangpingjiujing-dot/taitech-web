@@ -8,9 +8,9 @@ import { findFeLesson } from "@/content/fe/lessons";
  */
 export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
   const lesson = findFeLesson(quiz.lesson);
-  const runHref = `/fe?code=${encodeURIComponent(
+  const runHref = `/fe/algorithm?code=${encodeURIComponent(
     feQuizRunnableCode(quiz),
-  )}&from=${encodeURIComponent(`/fe/quiz/${quiz.slug}`)}`;
+  )}&from=${encodeURIComponent(`/fe/algorithm/quiz/${quiz.slug}`)}`;
 
   return (
     <QuizCardView
@@ -23,7 +23,7 @@ export function QuizCard({ quiz }: { quiz: FeQuizMeta }) {
       explanation={quiz.explanation}
       trap={quiz.trap}
       runHref={runHref}
-      lessonHref={lesson ? `/fe/lessons/${lesson.slug}` : undefined}
+      lessonHref={lesson ? `/fe/algorithm/lessons/${lesson.slug}` : undefined}
       lessonLabel={lesson?.shortTitle}
     />
   );

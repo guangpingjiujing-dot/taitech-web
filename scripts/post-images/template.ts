@@ -7,7 +7,7 @@
  * - satori の flexbox 限定 CSS ではなく grid / pre が素直に書ける
  * - docs/x-posts/README.md が既に「Chrome headless で PNG 化」を標準手順にしている
  *
- * 配色はサイトの OG 画像 (src/app/fe/quiz/[slug]/opengraph-image.tsx) に合わせたモノクロ。
+ * 配色はサイトの OG 画像 (src/app/fe/algorithm/quiz/[slug]/opengraph-image.tsx) に合わせたモノクロ。
  * 絵文字は使わない (docs/x-posts/README.md の投稿方針)。
  */
 import type { FeQuizMeta } from "@/content/fe/quiz";

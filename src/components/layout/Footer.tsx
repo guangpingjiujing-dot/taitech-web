@@ -11,10 +11,11 @@ export function Footer() {
   // FE は topics レジストリを持たないので個別に列挙する。
   // フッターは全ページ・全ブレークポイントに出るので、モバイルから FE に入る唯一の導線でもある。
   const feLinks = [
-    { href: "/fe", label: "実行シミュレーター" },
-    { href: "/fe/lessons", label: "構文別レッスン" },
-    { href: "/fe/quiz", label: `練習問題 ${feQuizzes.length} 問` },
-    { href: "/fe/transpile", label: "多言語横並び比較" },
+    { href: "/fe", label: "対策ツール一覧" },
+    { href: "/fe/algorithm", label: "擬似言語 実行シミュレーター" },
+    { href: "/fe/algorithm/lessons", label: "構文別レッスン" },
+    { href: "/fe/algorithm/quiz", label: `練習問題 ${feQuizzes.length} 問` },
+    { href: "/fe/algorithm/transpile", label: "多言語横並び比較" },
   ];
   // joho1 も同様。フッターが無いと、新規 9 ページがサイト全体からの恒常リンクを
   // ドロワーと hub カードしか持たない状態になる

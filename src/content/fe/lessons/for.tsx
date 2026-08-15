@@ -135,7 +135,7 @@ endfor`}</code>
 
       <p>
         for が読めるようになったら、次は「大量のデータをまとめて扱う」ための{" "}
-        <Link href="/fe/lessons/array">配列 (1 始まり)</Link>{" "}
+        <Link href="/fe/algorithm/lessons/array">配列 (1 始まり)</Link>{" "}
         に進みましょう。for と組み合わせるとぐっと表現力が上がります。
       </p>
     </>
