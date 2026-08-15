@@ -476,6 +476,38 @@ async function typeSql(page: Page, sql: string) {
   await editor.pressSequentially(sql, { delay: 0 });
 }
 
+/**
+ * 引っ越しの 308 を守る回帰テスト。
+ *
+ * `next.config.ts` の 6 ルールは削除トリガーが来るまで (最長 2027-02-15) 残す前提。
+ * その間に誰かが `/fe/algorithm` 配下をいじってリダイレクトを壊しても、
+ * このテストが無いと気づけない。公開済みの X 投稿が旧 URL を直リンクしている。
+ */
+test("FE: 旧 URL が 308 で新 URL に着地する", async ({ request }) => {
+  const cases: [string, string][] = [
+    ["/fe/lessons", "/fe/algorithm/lessons"],
+    ["/fe/lessons/variable", "/fe/algorithm/lessons/variable"],
+    ["/fe/quiz", "/fe/algorithm/quiz"],
+    ["/fe/quiz/assign-swap", "/fe/algorithm/quiz/assign-swap"],
+    ["/fe/transpile", "/fe/algorithm/transpile"],
+  ];
+
+  for (const [oldPath, newPath] of cases) {
+    const res = await request.get(oldPath, { maxRedirects: 0 });
+    expect(res.status(), `${oldPath} の status`).toBe(308);
+    expect(res.headers()["location"], `${oldPath} の Location`).toContain(newPath);
+  }
+
+  // `/fe` 自体はハブなのでリダイレクトしない
+  const hub = await request.get("/fe", { maxRedirects: 0 });
+  expect(hub.status()).toBe(200);
+
+  // ただし Playground の deep link だけはツール側へ流す
+  const deepLink = await request.get("/fe?code=abc", { maxRedirects: 0 });
+  expect(deepLink.status()).toBe(308);
+  expect(deepLink.headers()["location"]).toContain("/fe/algorithm");
+});
+
 test("FE SQL: 実行すると結果の表が出る", async ({ page }) => {
   const { errors, warnings } = watchConsole(page);
   await page.goto("/fe/sql", { waitUntil: "networkidle" });
@@ -615,11 +647,18 @@ test("FE SQL: レッスンから練習問題へ、練習問題からレッスン
   await page.goto("/fe/sql/lessons/aggregate", { waitUntil: "domcontentloaded" });
   const toQuiz = page.locator('a[href^="/fe/sql/quiz/"]').first();
   await expect(toQuiz).toBeVisible();
+  const quizHref = await toQuiz.getAttribute("href");
   await toQuiz.click();
+  // 遷移を待たずに次を探すと、前のページの DOM を見て落ちることがある
+  await page.waitForURL(new RegExp(`${quizHref}$`));
 
-  await expect(
-    page.locator('a[href^="/fe/sql/lessons/"]').first(),
-  ).toBeVisible();
+  /*
+   * `:visible` で絞る。解答前の QuizCard 内にも「レッスンを読む」リンクがあるが、
+   * あれは解説ごと hidden にしてある (クローラには読ませ、人間には解答後に見せる)。
+   * 素の `.first()` だとその hidden なリンクを掴んでしまう。
+   */
+  const toLesson = page.locator('a[href^="/fe/sql/lessons/"]:visible').first();
+  await expect(toLesson).toBeVisible();
 });
 
 test("FE SQL: 練習問題がすべてレッスンから内部リンクされている", async ({

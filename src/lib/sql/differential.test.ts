@@ -247,6 +247,67 @@ describe("SQLite と結果が一致すること", () => {
   });
 });
 
+/**
+ * **句の組み合わせ。**
+ *
+ * 単機能のケースだけを並べていた間は 63 件が全部緑のまま、
+ * 「集合演算 + ORDER BY」「GROUP BY + 修飾子つきの列」などがまとめて壊れていた。
+ * 機能どうしの境界にこそ穴が出るので、組み合わせを明示的に列挙する。
+ */
+describe("句の組み合わせ", () => {
+  describe("集合演算 × ORDER BY", () => {
+    it.each([
+      "SELECT 商品番号 FROM 商品 UNION SELECT 商品番号 FROM 在庫 ORDER BY 商品番号 DESC",
+      "SELECT 商品番号 FROM 商品 UNION SELECT 商品番号 FROM 在庫 ORDER BY 商品番号",
+      "SELECT 商品番号 FROM 商品 UNION ALL SELECT 商品番号 FROM 在庫 ORDER BY 商品番号 DESC",
+      "SELECT 商品番号 FROM 商品 EXCEPT SELECT 商品番号 FROM 在庫 ORDER BY 商品番号 DESC",
+      "SELECT 商品番号 FROM 商品 INTERSECT SELECT 商品番号 FROM 在庫 ORDER BY 商品番号 DESC",
+      "SELECT 商品番号 FROM 商品 UNION SELECT 商品番号 FROM 在庫 ORDER BY 1 DESC",
+    ])("%s", (sql) => expectSameAsSqlite(sql));
+  });
+
+  describe("GROUP BY × 修飾子の有無", () => {
+    it.each([
+      "SELECT 分類, COUNT(*) FROM 商品 GROUP BY 商品.分類",
+      "SELECT 商品.分類, COUNT(*) FROM 商品 GROUP BY 分類",
+      "SELECT 商品.分類, COUNT(*) FROM 商品 GROUP BY 商品.分類",
+      "SELECT 分類, SUM(在庫数) FROM 商品, 在庫 WHERE 商品.商品番号 = 在庫.商品番号 GROUP BY 商品.分類",
+      "SELECT 商品.分類, COUNT(*) FROM 商品, 在庫 WHERE 商品.商品番号 = 在庫.商品番号 GROUP BY 分類",
+      "SELECT S.分類, COUNT(*) FROM 商品 S GROUP BY S.分類",
+    ])("%s", (sql) => expectSameAsSqlite(sql));
+
+    it("GROUP BY に書いた式そのものは SELECT に書ける", () => {
+      expectSameAsSqlite("SELECT 単価 * 2, COUNT(*) FROM 商品 GROUP BY 単価 * 2");
+    });
+  });
+
+  describe("ORDER BY × 列番号 / 別名", () => {
+    it.each([
+      "SELECT 商品名, 単価 FROM 商品 ORDER BY 2 DESC",
+      "SELECT 商品名, 単価 FROM 商品 ORDER BY 2",
+      "SELECT 商品名, 単価 FROM 商品 ORDER BY 1",
+      "SELECT 分類, COUNT(*) FROM 商品 GROUP BY 分類 ORDER BY 2 DESC, 1",
+      "SELECT 単価 AS 価格 FROM 商品 ORDER BY 価格 DESC",
+    ])("%s", (sql) => expectSameAsSqlite(sql));
+  });
+
+  describe("DISTINCT × ORDER BY (出力にある列)", () => {
+    it.each([
+      "SELECT DISTINCT 分類 FROM 商品 ORDER BY 分類 DESC",
+      "SELECT DISTINCT 分類 FROM 商品 ORDER BY 1 DESC",
+      "SELECT DISTINCT 商品番号 FROM 在庫 ORDER BY 商品番号",
+    ])("%s", (sql) => expectSameAsSqlite(sql));
+  });
+
+  describe("結合 × 集約 × 並べ替え", () => {
+    it.each([
+      "SELECT 商品.分類, COUNT(*) FROM 商品, 在庫 WHERE 商品.商品番号 = 在庫.商品番号 GROUP BY 商品.分類 ORDER BY 商品.分類",
+      "SELECT 商品.分類, SUM(在庫.在庫数) FROM 商品 INNER JOIN 在庫 ON 商品.商品番号 = 在庫.商品番号 GROUP BY 商品.分類 HAVING SUM(在庫.在庫数) > 0",
+      "SELECT 商品.商品番号, COUNT(在庫.倉庫) FROM 商品 LEFT OUTER JOIN 在庫 ON 商品.商品番号 = 在庫.商品番号 GROUP BY 商品.商品番号 ORDER BY 1",
+    ])("%s", (sql) => expectSameAsSqlite(sql));
+  });
+});
+
 describe("意図的に SQLite と違う挙動 (差分テストの対象外)", () => {
   it("GROUP BY の非集約列: SQLite は通すが、自作は標準 SQL どおりエラーにする", () => {
     const fixture = shohinZaikoDb();
@@ -268,5 +329,32 @@ describe("意図的に SQLite と違う挙動 (差分テストの対象外)", ()
     sqlite.close();
 
     expect(() => ownRows(sql, fixture)).toThrow(/比較できません/);
+  });
+
+  it("SELECT * + GROUP BY: SQLite は通すが、自作はエラーにする", () => {
+    const fixture = shohinZaikoDb();
+    const sql = "SELECT * FROM 商品 GROUP BY 分類";
+
+    const sqlite = loadIntoSqlite(fixture);
+    expect(() => sqliteRows(sqlite, sql)).not.toThrow();
+    sqlite.close();
+
+    expect(() => ownRows(sql, fixture)).toThrow(/`\*` で全列を取り出せません/);
+  });
+
+  it("DISTINCT + 出力に無い列の ORDER BY: 壊れた順序を返さずエラーにする", () => {
+    // SQLite は通してしまう (どの行の値で並べたかは不定)。
+    // 標準 SQL ではこの書き方自体が不正なので、明示的に落とす
+    const fixture = shohinZaikoDb();
+    expect(() =>
+      ownRows("SELECT DISTINCT 分類 FROM 商品 ORDER BY 単価 DESC", fixture),
+    ).toThrow(/SELECT DISTINCT のときは/);
+  });
+
+  it("ORDER BY の列番号が範囲外なら、黙って無視せずエラーにする", () => {
+    const fixture = shohinZaikoDb();
+    expect(() => ownRows("SELECT 商品名 FROM 商品 ORDER BY 3", fixture)).toThrow(
+      /列番号 3 は範囲外/,
+    );
   });
 });

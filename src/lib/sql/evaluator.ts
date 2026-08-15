@@ -1,6 +1,7 @@
 import type {
   Expr,
   Join,
+  OrderByItem,
   Position,
   Query,
   SelectCore,
@@ -162,15 +163,50 @@ interface Scope {
 interface GroupContext {
   fields: Field[];
   rows: SqlValue[][];
-  /** GROUP BY に書かれた式のキー。ここに無い列を裸で使うとエラー */
+  /** GROUP BY に書かれた式のキー (`groupKeyOf` で作る)。ここに無い列を裸で使うとエラー */
   groupedKeys: Set<string>;
 }
 
-/** 位置情報を落とした構造キー。GROUP BY との照合に使う */
+/** 位置情報を落とした構造キー */
 function exprKey(expr: Expr): string {
   return JSON.stringify(expr, (key, value) =>
     key === "pos" || key === "spans" || key === "span" ? undefined : value,
   );
+}
+
+/**
+ * 現在のスコープでの列の位置。見つからなければ null (＝外側への相関参照)。
+ * 曖昧な場合は先頭を返し、実際の評価時に `lookupColumn` が
+ * `AMBIGUOUS_COLUMN` で落とす。
+ */
+function findFieldIndex(
+  fields: Field[],
+  qualifier: string | null,
+  name: string,
+): number | null {
+  for (let i = 0; i < fields.length; i++) {
+    const f = fields[i];
+    if (!sameName(f.name, name)) continue;
+    if (qualifier !== null && !sameName(f.qualifier, qualifier)) continue;
+    return i;
+  }
+  return null;
+}
+
+/**
+ * GROUP BY との照合キー。
+ *
+ * **列参照は「解決した列の位置」でキーにする。** 構造キー (`exprKey`) だけで比べると
+ * `GROUP BY 商品.分類` と `SELECT 分類` が別物になり、同じ列を指しているのに
+ * 「GROUP BY に含まれていない」という**事実と違うエラー**が出る。
+ * 結合してから集約する形は過去問の主戦場なので、ここが壊れると学習を能動的に妨げる。
+ */
+function groupKeyOf(expr: Expr, fields: Field[]): string {
+  if (expr.kind === "ColumnRef") {
+    const index = findFieldIndex(fields, expr.qualifier, expr.name);
+    if (index !== null) return `field:${index}`;
+  }
+  return `expr:${exprKey(expr)}`;
 }
 
 /* ========================================================================
@@ -268,8 +304,14 @@ class Evaluator {
     outer: Scope | null,
     stages: Stage[] | null,
   ): WorkingSet {
+    /*
+     * **右辺にも段階を積む。** 右を `null` で評価すると「右の表をどう作ったか」が
+     * 一度も見えず、`set-ops` レッスンの「段階を追う」が片側しか説明しない。
+     * 段階は左 → 右 → 集合演算の順に並び、これは実際の評価順そのもの。
+     * どちらの SELECT の段階かは、各段階のラベルに出る表名で読み分けられる。
+     */
     const left = this.evalQuery(node.left, outer, stages);
-    const right = this.evalQuery(node.right, outer, null);
+    const right = this.evalQuery(node.right, outer, stages);
 
     if (left.fields.length !== right.fields.length) {
       throw new SqlRuntimeError(
@@ -297,7 +339,7 @@ class Evaluator {
         break;
     }
 
-    const result: WorkingSet = { fields: left.fields, rows };
+    let result: WorkingSet = { fields: left.fields, rows };
     if (stages) {
       stages.push({
         kind: "set-op",
@@ -306,7 +348,69 @@ class Evaluator {
         table: toResultTable(result),
       });
     }
+
+    // 集合演算全体に掛かる ORDER BY。結果には出力列しか無いので、出力列だけで解決する
+    if (node.orderBy.length > 0) {
+      result = this.orderByOutputColumns(result, node.orderBy);
+      if (stages) {
+        stages.push({
+          kind: "order-by",
+          label: `ORDER BY: ${result.rows.length} 行を並べ替え`,
+          clauseRange: node.orderBySpan ?? null,
+          table: toResultTable(result),
+        });
+      }
+    }
+
     return result;
+  }
+
+  /**
+   * 出力列だけで並べ替える。集合演算の結果には元の表の列が残っていないので、
+   * 列名か列番号でしか指定できない。
+   */
+  private orderByOutputColumns(
+    set: WorkingSet,
+    orderBy: OrderByItem[],
+  ): WorkingSet {
+    const keys = orderBy.map((item) => {
+      if (item.expr.kind === "NumberLit") {
+        const ordinal = item.expr.value;
+        if (!Number.isInteger(ordinal) || ordinal < 1 || ordinal > set.fields.length) {
+          throw new SqlRuntimeError(
+            "UNKNOWN_COLUMN",
+            `ORDER BY の列番号 ${ordinal} は範囲外です (出力は ${set.fields.length} 列)`,
+            item.expr.pos,
+          );
+        }
+        return ordinal - 1;
+      }
+      if (item.expr.kind === "ColumnRef") {
+        const index = set.fields.findIndex((f) =>
+          sameName(f.name, (item.expr as { name: string }).name),
+        );
+        if (index >= 0) return index;
+      }
+      throw new SqlRuntimeError(
+        "UNKNOWN_COLUMN",
+        "集合演算の ORDER BY には、結果に出ている列名か列番号しか書けません",
+        item.expr.pos,
+        {
+          hint: `使える列: ${set.fields.map((f) => f.name).join(" / ")}`,
+        },
+      );
+    });
+
+    const rows = [...set.rows].sort((a, b) => {
+      for (let k = 0; k < keys.length; k++) {
+        const direction = orderBy[k].direction === "DESC" ? -1 : 1;
+        const cmp = totalOrder(a[keys[k]], b[keys[k]]);
+        if (cmp !== 0) return cmp * direction;
+      }
+      return 0;
+    });
+
+    return { fields: set.fields, rows };
   }
 
   private evalSelectCore(
@@ -374,7 +478,9 @@ class Evaluator {
     let groupCtx: GroupContext | null = null;
 
     if (grouping) {
-      const groupedKeys = new Set(node.groupBy.map(exprKey));
+      const groupedKeys = new Set(
+        node.groupBy.map((e) => groupKeyOf(e, set.fields)),
+      );
       groupCtx = { fields: set.fields, rows: [], groupedKeys };
       groups = this.groupRows(set, node.groupBy, outer);
 
@@ -609,6 +715,22 @@ class Evaluator {
     // 列の見出しを先に確定させる
     for (const item of node.columns) {
       if (item.expr.kind === "StarRef") {
+        /*
+         * `SELECT * ... GROUP BY 分類` は標準 SQL ではエラー。`*` が展開する列は
+         * どれも GROUP BY のキーになりようがないので一律で弾く。
+         * ここを通してしまうと SQLite と同じ寛容さになり、
+         * 「SQLite の寛容さが誤学習になるから自作した」という前提が崩れる。
+         */
+        if (grouping) {
+          throw new SqlRuntimeError(
+            "NOT_GROUPED",
+            "GROUP BY を使うときは `*` で全列を取り出せません",
+            item.expr.pos,
+            {
+              hint: "1 グループに複数行がまとまるため、どの行の値を出すか決まりません。GROUP BY に書いた列と集約関数だけを SELECT に並べてください。",
+            },
+          );
+        }
         const q = item.expr.qualifier;
         const matched = set.fields.filter(
           (f) => q === null || sameName(f.qualifier, q),
@@ -676,11 +798,39 @@ class Evaluator {
      * まず出力列で解決し、見つからなければ元の表の列として解決する。
      */
     const keys = node.orderBy.map((item) => {
+      // `ORDER BY 2` は「2 番目の出力列」を指す標準 SQL の書き方
+      if (item.expr.kind === "NumberLit") {
+        const ordinal = item.expr.value;
+        if (!Number.isInteger(ordinal) || ordinal < 1 || ordinal > projected.fields.length) {
+          throw new SqlRuntimeError(
+            "UNKNOWN_COLUMN",
+            `ORDER BY の列番号 ${ordinal} は範囲外です (出力は ${projected.fields.length} 列)`,
+            item.expr.pos,
+            { hint: "列番号は 1 から始まり、SELECT に並べた列の個数までです。" },
+          );
+        }
+        return { outputIndex: ordinal - 1, expr: null };
+      }
       if (item.expr.kind === "ColumnRef" && item.expr.qualifier === null) {
         const idx = projected.fields.findIndex((f) =>
           sameName(f.name, (item.expr as { name: string }).name),
         );
         if (idx >= 0) return { outputIndex: idx, expr: null };
+      }
+      /*
+       * 出力に無い列で並べ替えようとしている。**DISTINCT のときは成立しない。**
+       * 重複を除去した後の行と元の入力行が 1 対 1 で対応しなくなるので、
+       * 元の表の値を引くと無関係な行の値で比較してしまう (標準 SQL でも不正)。
+       */
+      if (node.distinct) {
+        throw new SqlRuntimeError(
+          "UNKNOWN_COLUMN",
+          "SELECT DISTINCT のときは、SELECT に無い列で並べ替えできません",
+          item.expr.pos,
+          {
+            hint: "重複を除いた後の行が元のどの行だったか決まらないためです。並べ替えに使う列を SELECT に加えてください。",
+          },
+        );
       }
       return { outputIndex: -1, expr: item.expr };
     });
@@ -740,6 +890,16 @@ class Evaluator {
     scope: Scope,
     ctx: GroupContext | null = null,
   ): SqlValue {
+    /*
+     * **GROUP BY に書かれた式そのものは、グループ内で値が一定なので代表行で評価する。**
+     * これを先に見ないと `GROUP BY 単価 * 2` に対する `SELECT 単価 * 2` が、
+     * 中の `単価` まで降りたところで「GROUP BY に含まれていない」と誤って落ちる。
+     * ctx を外して再入するので無限再帰にはならない。
+     */
+    if (ctx && expr.kind !== "FuncCall" && ctx.groupedKeys.has(groupKeyOf(expr, ctx.fields))) {
+      return this.evalExpr(expr, scope, null);
+    }
+
     switch (expr.kind) {
       case "NumberLit":
         return expr.value;
@@ -759,7 +919,15 @@ class Evaluator {
         );
 
       case "ColumnRef": {
-        if (ctx && !ctx.groupedKeys.has(exprKey(expr))) {
+        /*
+         * ここに来た時点で、この列は GROUP BY のキーではない (キーなら上で処理済み)。
+         * **現在のスコープに在る列だけを弾く。** 見つからないものは外側への
+         * 相関参照なので、このレベルの GROUP BY の制約は受けない。
+         */
+        if (
+          ctx &&
+          findFieldIndex(ctx.fields, expr.qualifier, expr.name) !== null
+        ) {
           throw new SqlRuntimeError(
             "NOT_GROUPED",
             `「${expr.name}」は GROUP BY に含まれていないので、そのままでは取り出せません`,
@@ -1145,21 +1313,30 @@ class Evaluator {
       },
     });
 
+    /*
+     * **代入先の解決は行ループの外でやる。** 中でやると、WHERE に一致する行が
+     * 0 件のときにループ本体が一度も走らず、**列名の打ち間違いが素通りして
+     * 「0 行が対象」で成功してしまう**。
+     */
+    const assignments = stmt.assignments.map((assign) => {
+      const index = schemaNames.findIndex((n) => sameName(n, assign.column));
+      if (index < 0) {
+        throw new SqlRuntimeError(
+          "UNKNOWN_COLUMN",
+          `列「${assign.column}」は表「${table.schema.name}」にありません`,
+          stmt.pos,
+          { hint: `使える列: ${schemaNames.join(" / ")}` },
+        );
+      }
+      return { index, value: assign.value };
+    });
+
     table.rows.forEach((row, i) => {
       if (!targets[i]) return;
       // 右辺は「更新前の行」に対して評価する (同じ文の中で連鎖しない)
       const snapshot = [...row];
-      for (const assign of stmt.assignments) {
-        const idx = schemaNames.findIndex((n) => sameName(n, assign.column));
-        if (idx < 0) {
-          throw new SqlRuntimeError(
-            "UNKNOWN_COLUMN",
-            `列「${assign.column}」は表「${table.schema.name}」にありません`,
-            stmt.pos,
-            { hint: `使える列: ${schemaNames.join(" / ")}` },
-          );
-        }
-        row[idx] = this.evalExpr(assign.value, {
+      for (const assign of assignments) {
+        row[assign.index] = this.evalExpr(assign.value, {
           fields,
           row: snapshot,
           parent: null,
@@ -1264,7 +1441,7 @@ class Evaluator {
               "NOT_NULL_VIOLATION",
               `非NULL制約に違反しました: ${table.schema.name}.${c.column} に NULL は入れられません`,
               pos,
-              { offendingRowIndex: bad },
+              { offendingRowIndex: bad, offendingTable: table.schema.name },
             );
           }
         }
@@ -1281,7 +1458,7 @@ class Evaluator {
                 "NOT_NULL_VIOLATION",
                 `主キー ${table.schema.name}.${c.columns.join(", ")} に NULL は入れられません`,
                 pos,
-                { offendingRowIndex: bad },
+                { offendingRowIndex: bad, offendingTable: table.schema.name },
               );
             }
           }
@@ -1302,6 +1479,7 @@ class Evaluator {
                 pos,
                 {
                   offendingRowIndex: i,
+                  offendingTable: table.schema.name,
                   hint: `${seen.get(key)! + 1} 行目と同じ値です。`,
                 },
               );
@@ -1327,7 +1505,7 @@ class Evaluator {
                 "CHECK_VIOLATION",
                 `検査制約に違反しました: ${table.schema.name} の条件を満たさない行があります`,
                 pos,
-                { offendingRowIndex: i },
+                { offendingRowIndex: i, offendingTable: table.schema.name },
               );
             }
           }
@@ -1367,6 +1545,7 @@ class Evaluator {
                 pos,
                 {
                   offendingRowIndex: i,
+                  offendingTable: table.schema.name,
                   hint: `先に ${c.refTable} 側の行を用意するか、${table.schema.name} 側を先に消してください。`,
                 },
               );

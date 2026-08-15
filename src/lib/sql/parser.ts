@@ -263,6 +263,11 @@ class Parser {
    * シラバス 2 番「集合演算」の和・差・積に対応する。
    */
   parseQuery(): Query {
+    /*
+     * **オペランドには ORDER BY を読ませない。** 標準 SQL の ORDER BY は
+     * 問合せ式の末尾に 1 つだけで、集合演算全体に掛かる。右辺の SELECT に
+     * 読ませると `evalSetOp` が行を連結した時点で捨てられてしまう。
+     */
     let left: Query = this.parseSelectCore();
     while (this.isKeyword("UNION", "EXCEPT", "INTERSECT")) {
       const opToken = this.advance();
@@ -278,11 +283,45 @@ class Parser {
         left,
         right,
         span: { from: opToken.pos.offset, to: opToken.end },
+        orderBy: [],
       };
     }
+
+    // 末尾の ORDER BY を、組み上がった問合せ式の最上位へ付ける
+    if (this.isKeyword("ORDER")) {
+      const orderToken = this.advance();
+      const orderBy = this.parseOrderByItems();
+      const span = this.span(orderToken.pos.offset);
+      if (left.kind === "SetOperation") {
+        left.orderBy = orderBy;
+        left.orderBySpan = span;
+      } else {
+        left.orderBy = orderBy;
+        left.spans.orderBy = span;
+      }
+    }
+
     return left;
   }
 
+  /** `ORDER BY` を消費済みの状態で、並べ替えキーの列を読む */
+  private parseOrderByItems(): OrderByItem[] {
+    this.expectKeyword("BY", "ORDER のあとには BY が必要です。");
+    const items: OrderByItem[] = [];
+    do {
+      const expr = this.parseExpr();
+      let direction: "ASC" | "DESC" = "ASC";
+      if (this.eatKeyword("DESC")) direction = "DESC";
+      else this.eatKeyword("ASC");
+      items.push({ expr, direction });
+    } while (this.eatPunct(","));
+    return items;
+  }
+
+  /**
+   * SELECT 1 本分。**ORDER BY はここでは読まない** — 問合せ式の末尾に 1 つだけ
+   * 書けるものなので `parseQuery` が読んで最上位のノードへ付ける。
+   */
   private parseSelectCore(): SelectCore {
     const selectToken = this.expectKeyword("SELECT");
     const spans: ClauseSpans = {};
@@ -329,19 +368,6 @@ class Parser {
       spans.having = this.span(havingToken.pos.offset);
     }
 
-    const orderBy: OrderByItem[] = [];
-    if (this.isKeyword("ORDER")) {
-      const orderToken = this.advance();
-      this.expectKeyword("BY", "ORDER のあとには BY が必要です。");
-      do {
-        const expr = this.parseExpr();
-        let direction: "ASC" | "DESC" = "ASC";
-        if (this.eatKeyword("DESC")) direction = "DESC";
-        else this.eatKeyword("ASC");
-        orderBy.push({ expr, direction });
-      } while (this.eatPunct(","));
-      spans.orderBy = this.span(orderToken.pos.offset);
-    }
 
     return {
       kind: "SelectCore",
@@ -353,7 +379,8 @@ class Parser {
       where,
       groupBy,
       having,
-      orderBy,
+      // ORDER BY は parseQuery が後から差し込む
+      orderBy: [],
       spans,
     };
   }
@@ -375,6 +402,14 @@ class Parser {
   }
 
   private parseTableRef(): TableRef {
+    // 派生表は非対応。「表名が必要です」だと書き方を間違えたようにしか読めない
+    if (this.isPunct("(")) {
+      throw new SqlParseError(
+        "FROM に副問合せ (派生表) は書けません",
+        this.current.pos,
+        "基本情報の出題範囲では、FROM に書けるのは表かビューの名前だけです。副問合せは WHERE 句で使ってください。",
+      );
+    }
     const token = this.expectIdentifier("表名");
     let alias: string | null = null;
     if (this.eatKeyword("AS")) {
@@ -733,6 +768,18 @@ class Parser {
 
     if (token.kind === "identifier") {
       this.advance();
+      /*
+       * 識別子のあとに `(` が続いたら関数呼び出し。集約関数 5 種は上で処理済みなので、
+       * ここに来るのは非対応の関数 (UPPER / SUBSTR など)。
+       * 素通しすると「文の区切りが必要です」という無関係なエラーになる。
+       */
+      if (this.isPunct("(")) {
+        throw new SqlParseError(
+          `関数 ${token.text} には対応していません`,
+          token.pos,
+          "基本情報の出題範囲で使える関数は COUNT / SUM / AVG / MAX / MIN の 5 つ (集約関数) だけです。",
+        );
+      }
       // `商品.商品番号` / `商品.*`
       if (this.isPunct(".")) {
         this.advance();

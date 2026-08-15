@@ -246,6 +246,15 @@ export interface SetOperation extends BaseNode {
   left: Query;
   right: Query;
   span: Span;
+  /**
+   * 集合演算 **全体** に掛かる ORDER BY。
+   *
+   * 標準 SQL では ORDER BY は問合せ式の末尾に 1 つだけ書ける。ここを持たずに
+   * 右辺の `SelectCore` に読ませてしまうと、集合演算が行を連結した時点で
+   * 並べ替えが捨てられ、**無言で ORDER BY が効かなくなる**。
+   */
+  orderBy: OrderByItem[];
+  orderBySpan?: Span;
 }
 
 export type Query = SelectCore | SetOperation;

@@ -63,14 +63,17 @@ function isAsciiIdentPart(ch: string): boolean {
 
 /**
  * 日本語の識別子。過去問の識別子は「商品番号」「在庫」のように
- * 漢字・カタカナ・全角英数で書かれる (H26春問28)。
+ * 漢字・カタカナで書かれる (H26春問28)。
  *
- * 範囲は既存の `src/components/fe/pseudoLanguage.ts` と同じものを使っている。
- * ひらがなを含めていないのは擬似言語と同じ理由 (キーワードとの境界が曖昧になる)
- * だが、SQL のキーワードはすべて英字なので実害は無く、単に表記ゆれを避けるため。
+ * **ひらがなも許可する。** 擬似言語 (`src/lib/pseudo/lexer.ts`) はひらがなを弾いて
+ * いるが、あれは `i を 1 から 5 まで` の「を」「から」「まで」がキーワードで、
+ * ひらがなを識別子に許すと境界が曖昧になるため。**SQL のキーワードはすべて英字**なので
+ * その問題が起きない。弾くと `SELECT ふりがな FROM 商品` が
+ * 「予期しない文字 'ふ' です」になるだけで、学習者に何の利益も無い。
  */
 function isCjkIdentPart(ch: string): boolean {
   const code = ch.codePointAt(0) ?? 0;
+  if (code >= 0x3041 && code <= 0x309f) return true; // ひらがな
   if (code >= 0x4e00 && code <= 0x9fff) return true; // CJK 統合漢字
   if (code >= 0x3005 && code <= 0x3006) return true; // 々 〆
   if (code >= 0x30a0 && code <= 0x30ff) return true; // カタカナ
@@ -86,6 +89,14 @@ export function tokenize(source: string): Token[] {
   let line = 1;
   let lineStart = 0;
 
+  /**
+   * `line` / `lineStart` は走査中に進むので、**この関数はいつ呼ぶかで結果が変わる**。
+   *
+   * 文字列やブロックコメントのように中に改行を含みうるトークンでは、
+   * **中身を読み進める前に開始位置を捕まえておくこと**。読み終えてから呼ぶと
+   * 行がずれ、`offset - lineStart + 1` が負になることすらある
+   * (未終端リテラルのエラー位置がこれで壊れていた)。
+   */
   const posAt = (offset: number): Position => ({
     line,
     column: offset - lineStart + 1,
@@ -130,6 +141,7 @@ export function tokenize(source: string): Token[] {
     // ブロックコメント
     if (ch === "/" && source[i + 1] === "*") {
       const start = i;
+      const startPos = posAt(start);
       i += 2;
       let closed = false;
       while (i < source.length) {
@@ -147,7 +159,7 @@ export function tokenize(source: string): Token[] {
       if (!closed) {
         throw new SqlLexError(
           "ブロックコメントが閉じられていません",
-          posAt(start),
+          startPos,
           "`/*` に対応する `*/` を書いてください。",
         );
       }
@@ -157,6 +169,7 @@ export function tokenize(source: string): Token[] {
     // 文字列リテラル。標準 SQL はシングルクォートで、'' がエスケープ
     if (ch === "'") {
       const start = i;
+      const startPos = posAt(start);
       i++;
       let value = "";
       let closed = false;
@@ -181,7 +194,7 @@ export function tokenize(source: string): Token[] {
       if (!closed) {
         throw new SqlLexError(
           "文字列が閉じられていません",
-          posAt(start),
+          startPos,
           "文字列はシングルクォートで囲みます。例: '2026-08-15'",
         );
       }
@@ -189,7 +202,7 @@ export function tokenize(source: string): Token[] {
         kind: "string",
         text: value,
         upper: value,
-        pos: posAt(start),
+        pos: startPos,
         end: i,
       });
       continue;
@@ -198,6 +211,7 @@ export function tokenize(source: string): Token[] {
     // ダブルクォートで囲んだ区切り識別子
     if (ch === '"') {
       const start = i;
+      const startPos = posAt(start);
       i++;
       let value = "";
       let closed = false;
@@ -213,14 +227,14 @@ export function tokenize(source: string): Token[] {
       if (!closed) {
         throw new SqlLexError(
           "識別子の二重引用符が閉じられていません",
-          posAt(start),
+          startPos,
         );
       }
       tokens.push({
         kind: "identifier",
         text: value,
         upper: value.toUpperCase(),
-        pos: posAt(start),
+        pos: startPos,
         end: i,
       });
       continue;

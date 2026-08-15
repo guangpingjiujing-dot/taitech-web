@@ -50,6 +50,8 @@ export interface SqlError {
   lessonPath: string | null;
   /** 制約違反のときに表の上で指す行 */
   offendingRowIndex: number | null;
+  /** その行がどの表のものか。表名が無いと全部の表の同じ行番号を光らせてしまう */
+  offendingTable: string | null;
 }
 
 export type SqlPlaygroundStatus = "idle" | "result" | "stepping" | "error";
@@ -104,6 +106,7 @@ function toSqlError(e: unknown): SqlError {
       hint: null,
       lessonPath: e.lessonPath,
       offendingRowIndex: null,
+      offendingTable: null,
     };
   }
   if (e instanceof SqlLexError) {
@@ -113,6 +116,7 @@ function toSqlError(e: unknown): SqlError {
       hint: e.hint ?? null,
       lessonPath: null,
       offendingRowIndex: null,
+      offendingTable: null,
     };
   }
   if (e instanceof SqlParseError) {
@@ -122,6 +126,7 @@ function toSqlError(e: unknown): SqlError {
       hint: e.hint ?? null,
       lessonPath: null,
       offendingRowIndex: null,
+      offendingTable: null,
     };
   }
   if (e instanceof SqlRuntimeError) {
@@ -131,6 +136,7 @@ function toSqlError(e: unknown): SqlError {
       hint: e.hint ?? null,
       lessonPath: null,
       offendingRowIndex: e.offendingRowIndex ?? null,
+      offendingTable: e.offendingTable ?? null,
     };
   }
   return {
@@ -139,6 +145,7 @@ function toSqlError(e: unknown): SqlError {
     hint: null,
     lessonPath: null,
     offendingRowIndex: null,
+    offendingTable: null,
   };
 }
 

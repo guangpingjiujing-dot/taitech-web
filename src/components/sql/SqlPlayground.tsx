@@ -426,7 +426,13 @@ function SchemaPanel({ defaultOpen }: { defaultOpen: boolean }) {
                   qualifier: null,
                 }))}
                 rows={table.rows}
-                offendingRowIndex={error?.offendingRowIndex ?? null}
+                /* 違反した表にだけ印を付ける。表名を見ないと、在庫表の 3 行目で
+                   落ちたときに商品表の 3 行目まで赤くなる */
+                offendingRowIndex={
+                  error?.offendingTable === table.schema.name
+                    ? error.offendingRowIndex
+                    : null
+                }
                 emptyMessage="この表にはまだ行がありません（0 行）"
               />
             </div>
@@ -443,15 +449,39 @@ function SchemaPanel({ defaultOpen }: { defaultOpen: boolean }) {
   );
 }
 
+/**
+ * 表に付いている制約の要約。
+ *
+ * **4 制約すべてを出す。** `ddl-constraints` レッスンが一意性・参照・検査・非NULL の
+ * 4 つを教えるのに、画面には主キーと外部キーしか出ていないと、
+ * 「CHECK に違反しました」と言われた学習者がその制約の存在を確認できない。
+ */
 function describeConstraints(
   constraints: Database["tables"][number]["schema"]["constraints"],
 ): string {
   const parts: string[] = [];
+  const notNull: string[] = [];
   for (const c of constraints) {
-    if (c.kind === "PrimaryKey") parts.push(`主キー: ${c.columns.join(", ")}`);
-    if (c.kind === "ForeignKey") {
-      parts.push(`${c.columns.join(", ")} → ${c.refTable}`);
+    switch (c.kind) {
+      case "PrimaryKey":
+        parts.push(`主キー: ${c.columns.join(", ")}`);
+        break;
+      case "Unique":
+        parts.push(`一意: ${c.columns.join(", ")}`);
+        break;
+      case "ForeignKey":
+        parts.push(`${c.columns.join(", ")} → ${c.refTable}`);
+        break;
+      case "Check":
+        parts.push(
+          c.columns.length > 0 ? `検査: ${c.columns.join(", ")}` : "検査制約あり",
+        );
+        break;
+      case "NotNull":
+        notNull.push(c.column);
+        break;
     }
   }
+  if (notNull.length > 0) parts.push(`非NULL: ${notNull.join(", ")}`);
   return parts.join(" / ");
 }

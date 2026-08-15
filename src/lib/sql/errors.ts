@@ -98,11 +98,21 @@ export class SqlRuntimeError extends Error {
    * (docs/wip/20260815-fe-sql/01-implementation-design.md §3-3)。
    */
   readonly offendingRowIndex: number | undefined;
+  /**
+   * その行が **どの表の** 行か。
+   * **行番号だけでは足りない。** 表名が無いと UI は全部の表の同じ行番号を
+   * 光らせることになり、在庫表の 3 行目で落ちたのに商品表の 3 行目まで赤くなる。
+   */
+  readonly offendingTable: string | undefined;
   constructor(
     kind: SqlRuntimeErrorKind,
     message: string,
     pos: Position,
-    options?: { hint?: string; offendingRowIndex?: number },
+    options?: {
+      hint?: string;
+      offendingRowIndex?: number;
+      offendingTable?: string;
+    },
   ) {
     const hint = options?.hint;
     const hintText = hint ? `\nヒント: ${hint}` : "";
@@ -113,5 +123,6 @@ export class SqlRuntimeError extends Error {
     this.hint = hint;
     this.detail = message;
     this.offendingRowIndex = options?.offendingRowIndex;
+    this.offendingTable = options?.offendingTable;
   }
 }
