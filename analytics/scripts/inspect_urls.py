@@ -54,17 +54,32 @@ def token() -> str:
     return creds.token
 
 
-def inspect(session: requests.Session, access_token: str, url: str) -> dict:
-    resp = session.post(
-        INSPECT_ENDPOINT,
-        headers={"Authorization": f"Bearer {access_token}"},
-        # languageCode を ja にすると coverageState が日本語で返り SQL で扱いづらい。
-        # en-US に固定して安定した識別子 ("Submitted and indexed" 等) を得る。
-        json={"inspectionUrl": url, "siteUrl": SITE_URL, "languageCode": "en-US"},
-        timeout=60,
-    )
-    resp.raise_for_status()
-    return resp.json().get("inspectionResult", {})
+def inspect(session: requests.Session, access_token: str, url: str,
+            attempts: int = 3) -> dict:
+    """URL Inspection を 1 件取得。
+
+    Google 側の ReadTimeout は 100 URL 規模だと普通に発生するのでリトライする
+    (2026-08-11 に 1 件のタイムアウトで全体が落ちた)。
+    """
+    last: Exception | None = None
+    for i in range(attempts):
+        try:
+            resp = session.post(
+                INSPECT_ENDPOINT,
+                headers={"Authorization": f"Bearer {access_token}"},
+                # languageCode を ja にすると coverageState が日本語で返り SQL で扱いづらい。
+                # en-US に固定して安定した識別子 ("Submitted and indexed" 等) を得る。
+                json={"inspectionUrl": url, "siteUrl": SITE_URL, "languageCode": "en-US"},
+                timeout=90,
+            )
+            resp.raise_for_status()
+            return resp.json().get("inspectionResult", {})
+        except requests.RequestException as e:
+            last = e
+            if i < attempts - 1:
+                time.sleep(2 ** i)
+    assert last is not None
+    raise last
 
 
 def main() -> int:
@@ -84,11 +99,14 @@ def main() -> int:
     fetched = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     counts: dict[str, int] = {}
+    errors = 0
     for i, url in enumerate(urls, 1):
         try:
             result = inspect(session, access_token, url)
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
+            # 1 件の失敗で全体を捨てない。残りを続行し、最後に件数で気付けるようにする。
             print(f"  [{i}/{len(urls)}] ERROR {url}: {e}", file=sys.stderr)
+            errors += 1
             continue
 
         idx = result.get("indexStatusResult", {})
@@ -122,6 +140,10 @@ def main() -> int:
              idx.get("crawledAs", ""), rich.get("verdict", ""), 1, fetched),
         )
         print(f"  [{i}/{len(urls)}] {coverage or '(no data)'}  {url}", file=sys.stderr)
+        # 逐次コミット。最後に 1 回だけだと途中でこけた瞬間に全件失う
+        # (2026-08-11 に実際に 101 件が丸ごと消えた)。
+        if i % 10 == 0:
+            conn.commit()
         time.sleep(0.15)  # 600 query/min の上限に対する安全マージン
 
     run_id = f"{fetched}-url_inspect"
@@ -137,7 +159,11 @@ def main() -> int:
     print("\n=== coverage_state 内訳 ===", file=sys.stderr)
     for state, n in sorted(counts.items(), key=lambda kv: -kv[1]):
         print(f"  {n:3d}  {state or '(no data)'}", file=sys.stderr)
-    return 0
+    ok = sum(counts.values())
+    print(f"\n収集 {ok}/{len(urls)} 件 (失敗 {errors} 件)", file=sys.stderr)
+    if errors:
+        print("失敗があるので台帳は不完全。再実行して埋めること。", file=sys.stderr)
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":
