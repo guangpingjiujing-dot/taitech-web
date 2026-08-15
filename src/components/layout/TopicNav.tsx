@@ -7,6 +7,8 @@ import {
 import { feLessons } from "@/content/fe/lessons";
 import { joho1Lessons } from "@/content/joho1/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
+import { sqlLessons } from "@/content/fe/sql/lessons";
+import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
 
@@ -197,6 +199,30 @@ export function TopicNav({
                     <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)] leading-tight">
                       評価順を 1 つずつ確認する
                     </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/sql/lessons"
+                    className={linkClass(
+                      "/fe/sql/lessons",
+                      "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--muted-foreground)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)] transition-colors",
+                    )}
+                    aria-current={current("/fe/sql/lessons")}
+                  >
+                    SQL レッスン {sqlLessons.length} 本
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/fe/sql/quiz"
+                    className={linkClass(
+                      "/fe/sql/quiz",
+                      "block border-l-2 -ml-px px-3 py-1.5 leading-snug text-[var(--muted-foreground)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)] transition-colors",
+                    )}
+                    aria-current={current("/fe/sql/quiz")}
+                  >
+                    SQL 練習問題 {sqlQuizzes.length} 問
                   </Link>
                 </li>
                 <li>

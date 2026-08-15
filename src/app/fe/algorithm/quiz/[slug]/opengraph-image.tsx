@@ -93,7 +93,7 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            taitech.dev / fe / quiz / {slug}
+            taitech.dev / fe / algorithm / quiz / {slug}
           </div>
         </div>
         {/* Right: the question code */}

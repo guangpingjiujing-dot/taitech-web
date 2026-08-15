@@ -68,7 +68,10 @@ const TOOLS = [
       "INSERT / UPDATE / DELETE は実行前後の差分で表示",
       "制約違反はどの行が引っかかったかを表上で明示",
     ],
-    links: [],
+    links: [
+      { href: "/fe/sql/lessons", label: "SQL レッスン" },
+      { href: "/fe/sql/quiz", label: "SQL 練習問題を解く" },
+    ],
   },
 ] as const;
 

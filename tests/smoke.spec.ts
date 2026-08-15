@@ -43,6 +43,13 @@ const PAGES = [
   "/fe",
   "/fe/algorithm",
   "/fe/sql",
+  "/fe/sql/lessons",
+  "/fe/sql/lessons/select",
+  "/fe/sql/lessons/group-by",
+  "/fe/sql/lessons/grant",
+  "/fe/sql/quiz",
+  "/fe/sql/quiz/avg-with-null",
+  "/fe/sql/quiz/outer-join-count-column",
   "/fe/algorithm/transpile",
   "/fe/algorithm/lessons",
   "/fe/algorithm/lessons/variable",
@@ -558,11 +565,87 @@ test("FE SQL: UPDATE は実行前後の差分で表示され、リセットで�
   expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
 });
 
+test("FE SQL: 使う表を切り替えると SQL も既定値に入れ替わる", async ({ page }) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/fe/sql", { waitUntil: "networkidle" });
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+
+  await page.getByRole("button", { name: "従業員・部門" }).click();
+  await expect(page.locator(".cm-content")).toContainText("従業員");
+
+  await page.getByRole("button", { name: /^▶ 実行$/ }).click();
+  await expect(
+    page.getByRole("region", { name: "実行結果" }),
+  ).toContainText("D01");
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE SQL Quiz: 解答すると採点され、シミュレーターへ渡って戻れる", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await gotoQuiz(page, "/fe/sql/quiz/avg-with-null");
+
+  // 正解は イ (COUNT は 2、AVG は NULL を分母から除くので 300000)
+  await answerQuiz(page, /^イ/);
+  await expect(page.getByRole("status")).toHaveText("正解");
+  await expect(page.getByText(/NULL の行を集計対象から外します/)).toBeVisible();
+
+  await page.getByRole("link", { name: /実行シミュレーターで開く/ }).click();
+  await page.waitForURL(/\/fe\/sql\?sql=/);
+  await page.waitForSelector(".cm-content", { timeout: 10_000 });
+
+  // deep link は SQL と一緒に表も切り替える (従業員表を使う問題)
+  await expect(page.locator(".cm-content")).toContainText("従業員");
+
+  const back = page.getByRole("link", { name: /元のページに戻る/ });
+  await expect(back).toBeVisible();
+  await back.click();
+  await expect(page).toHaveURL(/\/fe\/sql\/quiz\/avg-with-null$/);
+
+  expect(errors, `Console errors:\n${errors.join("\n")}`).toEqual([]);
+  expect(warnings, `Console warnings:\n${warnings.join("\n")}`).toEqual([]);
+});
+
+test("FE SQL: レッスンから練習問題へ、練習問題からレッスンへ辿れる", async ({
+  page,
+}) => {
+  await page.goto("/fe/sql/lessons/aggregate", { waitUntil: "domcontentloaded" });
+  const toQuiz = page.locator('a[href^="/fe/sql/quiz/"]').first();
+  await expect(toQuiz).toBeVisible();
+  await toQuiz.click();
+
+  await expect(
+    page.locator('a[href^="/fe/sql/lessons/"]').first(),
+  ).toBeVisible();
+});
+
+test("FE SQL: 練習問題がすべてレッスンから内部リンクされている", async ({
+  page,
+}) => {
+  const lessons = ["select", "where", "join", "aggregate", "group-by", "subquery", "set-ops", "dml"];
+  const linked = new Set<string>();
+  for (const lesson of lessons) {
+    await page.goto(`/fe/sql/lessons/${lesson}`, {
+      waitUntil: "domcontentloaded",
+    });
+    for (const href of await page
+      .locator('a[href^="/fe/sql/quiz/"]')
+      .evaluateAll((els) => els.map((e) => e.getAttribute("href") ?? ""))) {
+      linked.add(href);
+    }
+  }
+  // 14 問すべてがどこかのレッスンから張られていること
+  expect(linked.size).toBe(14);
+});
+
 /**
  * 選択肢は押した時点で即採点される。ただしハイドレーション前のクリックは
  * React の state に届かないので、判定 (role=status) が出るまで押し直す。
  */
-async function answerQuiz(page: Page, choiceText: string) {
+async function answerQuiz(page: Page, choiceText: string | RegExp) {
   const verdict = page.getByRole("status");
   await expect(async () => {
     await page.getByRole("button", { name: choiceText }).click();

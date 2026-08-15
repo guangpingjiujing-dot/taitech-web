@@ -1,13 +1,12 @@
 import { ImageResponse } from "next/og";
-import { feLessons, findFeLesson } from "@/content/fe/lessons";
-import { ogSafePseudoCode } from "@/lib/og/pseudo-code";
+import { sqlQuizzes, findSqlQuiz } from "@/content/fe/sql/quiz";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "基本情報 擬似言語 構文別レッスン";
+export const alt = "基本情報 SQL 練習問題";
 
 export function generateStaticParams() {
-  return feLessons.map((l) => ({ slug: l.slug }));
+  return sqlQuizzes.map((q) => ({ slug: q.slug }));
 }
 
 export default async function OGImage({
@@ -16,12 +15,13 @@ export default async function OGImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const lesson = findFeLesson(slug);
-  const title = lesson?.shortTitle ?? "構文別レッスン";
-  const codePreview = ogSafePseudoCode(lesson?.sampleCode ?? "")
+  const quiz = findSqlQuiz(slug);
+  const title = quiz?.shortTitle ?? "SQL 練習問題";
+  // 答えが写り込まないよう、出題の SQL だけを載せる
+  const sqlLines = (quiz?.sql ?? "")
     .split("\n")
-    .slice(0, 6)
-    .filter((l) => l.length > 0);
+    .filter((l) => l.trim().length > 0)
+    .slice(0, 6);
 
   return new ImageResponse(
     (
@@ -34,14 +34,13 @@ export default async function OGImage({
           fontFamily: "sans-serif",
         }}
       >
-        {/* Left: title + label */}
         <div
           style={{
-            width: "52%",
+            width: "50%",
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            padding: "72px 40px 56px 72px",
+            padding: "72px 36px 56px 72px",
             justifyContent: "center",
           }}
         >
@@ -55,31 +54,30 @@ export default async function OGImage({
               textTransform: "uppercase",
             }}
           >
-            FE · 科目 B · Lesson {lesson?.order ?? ""}
+            FE · 科目 A · 第 {quiz?.order ?? ""} 問
           </div>
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
               marginTop: 24,
-              fontSize: 56,
+              fontSize: 50,
               fontWeight: 800,
               lineHeight: 1.15,
               color: "#0a0a0a",
             }}
           >
-            <div style={{ display: "flex" }}>{title}</div>
+            {title}
           </div>
           <div
             style={{
               display: "flex",
-              marginTop: 28,
+              marginTop: 26,
               fontSize: 22,
               lineHeight: 1.5,
               color: "#6b6b68",
             }}
           >
-            基本情報 擬似言語 構文別レッスン
+            この SQL の実行結果は？
           </div>
           <div
             style={{
@@ -91,17 +89,17 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            taitech.dev / fe / algorithm / lessons / {slug}
+            taitech.dev / fe / sql / quiz / {slug}
           </div>
         </div>
-        {/* Right: sample code */}
+
         <div
           style={{
-            width: "48%",
+            width: "50%",
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            padding: "56px 72px 56px 32px",
+            padding: "56px 72px 56px 36px",
             justifyContent: "center",
           }}
         >
@@ -126,20 +124,20 @@ export default async function OGImage({
                 fontWeight: 700,
               }}
             >
-              {slug}.pcode
+              {slug}.sql
             </div>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
                 fontFamily: "monospace",
-                fontSize: 18,
+                fontSize: 17,
                 lineHeight: 1.55,
                 color: "#0a0a0a",
-                padding: "18px 18px",
+                padding: "18px",
               }}
             >
-              {codePreview.map((line, i) => (
+              {sqlLines.map((line, i) => (
                 <div key={i} style={{ display: "flex" }}>
                   {line}
                 </div>

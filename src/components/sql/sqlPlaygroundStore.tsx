@@ -15,6 +15,11 @@ import {
   type Stage,
   type StatementResult,
 } from "@/lib/sql";
+import {
+  findDataset,
+  initialSql as datasetInitialSql,
+  type DatasetKey,
+} from "@/content/fe/sql/datasets";
 
 /**
  * SQL Playground のストア。
@@ -53,8 +58,10 @@ export interface SqlPlaygroundState {
   sql: string;
   setSql: (sql: string) => void;
 
+  /** 今見ているデータセット */
+  datasetKey: DatasetKey;
   /** データセットの初期状態。リセットで必ずここへ戻す */
-  readonly initialDatabase: Database;
+  initialDatabase: Database;
   /** 直近の実行後のデータベース。DML の結果が反映されている */
   database: Database;
 
@@ -78,6 +85,12 @@ export interface SqlPlaygroundState {
   prev: () => void;
   /** データセットを初期状態へ戻し、結果を消す */
   reset: () => void;
+  /**
+   * 使う表を切り替える。SQL も切り替え先の既定に差し替える
+   * (前のデータセット向けの SQL が残っていると必ず「表がありません」で落ちるため)。
+   * `keepSql` を渡すと SQL は差し替えない (deep link 用)。
+   */
+  selectDataset: (key: DatasetKey, options?: { keepSql?: boolean }) => void;
 
   editorInsertRef: { current: ((text: string) => void) | null };
   insertText: (text: string) => void;
@@ -145,10 +158,11 @@ function buildTimeline(results: StatementResult[]): TimelineEntry[] {
   return entries;
 }
 
-function createSqlPlaygroundStore(initialSql: string, initialDatabase: Database) {
+function createSqlPlaygroundStore(initialSql: string, datasetKey: DatasetKey) {
   const editorInsertRef: { current: ((text: string) => void) | null } = {
     current: null,
   };
+  const initialDatabase = findDataset(datasetKey).build();
 
   return createStore<SqlPlaygroundState>()((set, get) => {
     /** 実行して状態を組み立てる。成功したかどうかを返す */
@@ -184,6 +198,7 @@ function createSqlPlaygroundStore(initialSql: string, initialDatabase: Database)
       sql: initialSql,
       setSql: (sql) => set({ sql }),
 
+      datasetKey,
       initialDatabase,
       database: cloneDatabase(initialDatabase),
 
@@ -252,6 +267,23 @@ function createSqlPlaygroundStore(initialSql: string, initialDatabase: Database)
         }));
       },
 
+      selectDataset: (key, options) => {
+        const next = findDataset(key).build();
+        set((s) => ({
+          datasetKey: key,
+          initialDatabase: next,
+          database: cloneDatabase(next),
+          sql: options?.keepSql ? s.sql : (datasetInitialSql[key] ?? s.sql),
+          status: "idle",
+          error: null,
+          results: [],
+          timeline: [],
+          stageIndex: 0,
+          highlightRange: null,
+          highlightVersion: s.highlightVersion + 1,
+        }));
+      },
+
       insertText: (text) => editorInsertRef.current?.(text),
       editorInsertRef,
     };
@@ -265,17 +297,21 @@ const SqlPlaygroundContext = createContext<ReturnType<
 export function SqlPlaygroundProvider({
   children,
   initialSql,
-  database,
+  datasetKey,
 }: {
   children: ReactNode;
   initialSql: string;
-  database: Database;
+  /**
+   * 表の実体ではなくキーを受け取る。サーバから Database を丸ごと渡すと
+   * RSC のペイロードに載るうえ、データセットの切り替えができなくなる。
+   */
+  datasetKey: DatasetKey;
 }) {
   const storeRef = useRef<ReturnType<typeof createSqlPlaygroundStore> | null>(
     null,
   );
   if (!storeRef.current) {
-    storeRef.current = createSqlPlaygroundStore(initialSql, database);
+    storeRef.current = createSqlPlaygroundStore(initialSql, datasetKey);
   }
   return (
     <SqlPlaygroundContext.Provider value={storeRef.current}>

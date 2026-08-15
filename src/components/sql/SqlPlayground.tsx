@@ -7,6 +7,7 @@ import { lineNumbers } from "@codemirror/view";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { Database, Stage, StatementResult } from "@/lib/sql";
+import { datasets, type DatasetKey } from "@/content/fe/sql/datasets";
 import { sqlLanguage } from "./sqlLanguage";
 import {
   SqlPlaygroundProvider,
@@ -34,16 +35,20 @@ const CodeEditor = dynamic(
 
 export function SqlPlayground({
   initialSql,
-  database,
-  /** レッスンに埋め込むときの縮小版。表の一覧を初期状態で畳む */
+  datasetKey,
+  /** レッスンに埋め込むときの縮小版。表の一覧を初期状態で畳み、表の切り替えも出さない */
   compact = false,
+  /** ストアの中に差し込む要素。`?sql=` の適用など store を触るものを置く */
+  children,
 }: {
   initialSql: string;
-  database: Database;
+  datasetKey: DatasetKey;
   compact?: boolean;
+  children?: React.ReactNode;
 }) {
   return (
-    <SqlPlaygroundProvider initialSql={initialSql} database={database}>
+    <SqlPlaygroundProvider initialSql={initialSql} datasetKey={datasetKey}>
+      {children}
       <SqlPlaygroundInner compact={compact} />
     </SqlPlaygroundProvider>
   );
@@ -63,6 +68,8 @@ function SqlPlaygroundInner({ compact }: { compact: boolean }) {
 
   return (
     <div className="not-prose">
+      {!compact && <DatasetPicker />}
+
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="primary" size="sm" onClick={run}>
           ▶ 実行
@@ -98,6 +105,52 @@ function SqlPlaygroundInner({ compact }: { compact: boolean }) {
       {status === "result" && <FinalResults />}
 
       <SchemaPanel defaultOpen={!compact} />
+    </div>
+  );
+}
+
+/* ---------------- 使う表の切り替え ---------------- */
+
+function DatasetPicker() {
+  const datasetKey = useSqlPlayground((s) => s.datasetKey);
+  const selectDataset = useSqlPlayground((s) => s.selectDataset);
+  const active = datasets.find((d) => d.key === datasetKey);
+
+  return (
+    <div className="mb-3">
+      <div
+        role="group"
+        aria-label="使う表"
+        className="flex flex-wrap items-center gap-2"
+      >
+        <span className="text-xs font-bold text-[var(--muted-foreground)]">
+          使う表
+        </span>
+        {datasets.map((d) => (
+          <button
+            key={d.key}
+            type="button"
+            onClick={() => selectDataset(d.key)}
+            aria-pressed={d.key === datasetKey}
+            className={cn(
+              "cursor-pointer rounded border px-2.5 py-1 text-xs font-bold transition-colors",
+              d.key === datasetKey
+                ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
+                : "border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/60",
+            )}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+      {active && (
+        <p
+          className="mt-1.5 text-xs text-[var(--muted-foreground)]"
+          style={{ textWrap: "pretty" }}
+        >
+          {active.summary}
+        </p>
+      )}
     </div>
   );
 }

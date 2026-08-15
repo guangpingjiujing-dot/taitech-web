@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -7,6 +8,7 @@ import { FeSidebar } from "@/components/fe/FeSidebar";
 import { FAQ } from "@/components/layout/FAQ";
 import { FePlaygroundJsonLd } from "@/components/seo/JsonLd";
 import { SqlPlayground } from "@/components/sql/SqlPlayground";
+import { SqlPlaygroundDeepLink } from "@/components/sql/SqlPlaygroundDeepLink";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { findDataset, initialSql, defaultDatasetKey } from "@/content/fe/sql/datasets";
@@ -98,13 +100,20 @@ export default function FeSqlPage() {
               </div>
             </header>
 
+            {/* Playground 自体は SSR して prerender HTML に markup を残す。
+                ?sql= / ?dataset= の読み取りだけを Suspense 配下の client に閉じ込める
+                (server の searchParams で受けるとこのページが Dynamic になる) */}
             <SqlPlayground
               initialSql={initialSql[dataset.key]}
-              database={dataset.build()}
-            />
+              datasetKey={dataset.key}
+            >
+              <Suspense fallback={null}>
+                <SqlPlaygroundDeepLink />
+              </Suspense>
+            </SqlPlayground>
 
             <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-              使用している表: {dataset.source}
+              使用している表は過去問の構造をもとにした架空データです（{dataset.source}）。
             </p>
 
             <section className="mt-16 max-w-3xl">

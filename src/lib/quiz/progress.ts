@@ -8,7 +8,7 @@
  * (変えると既存ユーザーの記録が消える)。
  */
 
-export type QuizNamespace = "fe" | "joho1";
+export type QuizNamespace = "fe" | "fe-sql" | "joho1";
 
 export type QuizResult = "correct" | "incorrect";
 

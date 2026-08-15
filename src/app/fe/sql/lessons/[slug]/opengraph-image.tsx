@@ -1,13 +1,12 @@
 import { ImageResponse } from "next/og";
-import { feLessons, findFeLesson } from "@/content/fe/lessons";
-import { ogSafePseudoCode } from "@/lib/og/pseudo-code";
+import { sqlLessons, findSqlLesson } from "@/content/fe/sql/lessons";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "基本情報 擬似言語 構文別レッスン";
+export const alt = "基本情報 SQL レッスン";
 
 export function generateStaticParams() {
-  return feLessons.map((l) => ({ slug: l.slug }));
+  return sqlLessons.map((l) => ({ slug: l.slug }));
 }
 
 export default async function OGImage({
@@ -16,12 +15,14 @@ export default async function OGImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const lesson = findFeLesson(slug);
-  const title = lesson?.shortTitle ?? "構文別レッスン";
-  const codePreview = ogSafePseudoCode(lesson?.sampleCode ?? "")
+  const lesson = findSqlLesson(slug);
+  const title = lesson?.shortTitle ?? "SQL レッスン";
+
+  // 解説のみのレッスンは SQL が無いので、その旨を出す
+  const codeLines = (lesson?.sampleSql ?? "")
     .split("\n")
-    .slice(0, 6)
-    .filter((l) => l.length > 0);
+    .filter((l) => l.trim().length > 0 && !l.trim().startsWith("--"))
+    .slice(0, 6);
 
   return new ImageResponse(
     (
@@ -34,7 +35,7 @@ export default async function OGImage({
           fontFamily: "sans-serif",
         }}
       >
-        {/* Left: title + label */}
+        {/* Left: title */}
         <div
           style={{
             width: "52%",
@@ -55,14 +56,14 @@ export default async function OGImage({
               textTransform: "uppercase",
             }}
           >
-            FE · 科目 B · Lesson {lesson?.order ?? ""}
+            FE · 科目 A · Lesson {lesson?.order ?? ""}
           </div>
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               marginTop: 24,
-              fontSize: 56,
+              fontSize: 52,
               fontWeight: 800,
               lineHeight: 1.15,
               color: "#0a0a0a",
@@ -79,7 +80,7 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            基本情報 擬似言語 構文別レッスン
+            基本情報 SQL レッスン
           </div>
           <div
             style={{
@@ -91,10 +92,11 @@ export default async function OGImage({
               color: "#6b6b68",
             }}
           >
-            taitech.dev / fe / algorithm / lessons / {slug}
+            taitech.dev / fe / sql / lessons / {slug}
           </div>
         </div>
-        {/* Right: sample code */}
+
+        {/* Right: SQL preview */}
         <div
           style={{
             width: "48%",
@@ -126,7 +128,7 @@ export default async function OGImage({
                 fontWeight: 700,
               }}
             >
-              {slug}.pcode
+              {slug}.sql
             </div>
             <div
               style={{
@@ -139,11 +141,17 @@ export default async function OGImage({
                 padding: "18px 18px",
               }}
             >
-              {codePreview.map((line, i) => (
-                <div key={i} style={{ display: "flex" }}>
-                  {line}
+              {codeLines.length > 0 ? (
+                codeLines.map((line, i) => (
+                  <div key={i} style={{ display: "flex" }}>
+                    {line}
+                  </div>
+                ))
+              ) : (
+                <div style={{ display: "flex", color: "#6b6b68" }}>
+                  -- このレッスンは解説のみ
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

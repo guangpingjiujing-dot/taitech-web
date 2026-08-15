@@ -4,6 +4,8 @@ import { topics } from "@/content/topics";
 import { sections, dataModelingCategories } from "@/content/sections";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
+import { sqlLessons } from "@/content/fe/sql/lessons";
+import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { joho1Lessons } from "@/content/joho1/lessons";
 import { joho1Quizzes } from "@/content/joho1/quiz";
 
@@ -17,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // `/fe` 自体は sectionHubs 側に入っている。ツールのトップはここ
     "/fe/algorithm",
     "/fe/sql",
+    "/fe/sql/lessons",
+    ...sqlLessons.map((l) => `/fe/sql/lessons/${l.slug}`),
+    "/fe/sql/quiz",
+    ...sqlQuizzes.map((q) => `/fe/sql/quiz/${q.slug}`),
     "/fe/algorithm/transpile",
     "/fe/algorithm/lessons",
     ...feLessons.map((l) => `/fe/algorithm/lessons/${l.slug}`),

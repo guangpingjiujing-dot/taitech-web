@@ -2,6 +2,8 @@ import { site } from "@/lib/site";
 import { topicsInSection, type Topic } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
+import { sqlLessons } from "@/content/fe/sql/lessons";
+import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { joho1Lessons } from "@/content/joho1/lessons";
 import {
   sections,
@@ -90,6 +92,26 @@ function renderSectionBlock(section: Section): string[] {
       lines.push(`- **${l.shortTitle}**: ${l.definition}`);
     }
     lines.push(``);
+    lines.push(`### SQL レッスン (科目A データベース分野)`);
+    lines.push(``);
+    lines.push(`一覧: ${site.url}/fe/sql/lessons`);
+    lines.push(``);
+    lines.push(
+      `シラバス Ver.9.2 の中分類「データ操作」の範囲を扱う。GRANT とカーソルは試験範囲だが、利用者アカウントやホスト言語が必要なため実行はできず、解説のみ。`,
+    );
+    lines.push(``);
+    for (const l of sqlLessons) {
+      lines.push(
+        `- [${l.title}](${site.url}/fe/sql/lessons/${l.slug}): ${l.description}`,
+      );
+    }
+    lines.push(``);
+    lines.push(`### 引用可能な定義 (SQL)`);
+    lines.push(``);
+    for (const l of sqlLessons) {
+      lines.push(`- **${l.shortTitle}**: ${l.definition}`);
+    }
+    lines.push(``);
     lines.push(`### 練習問題 (オリジナル ${feQuizzes.length} 問)`);
     lines.push(``);
     lines.push(`一覧: ${site.url}/fe/algorithm/quiz`);
@@ -100,6 +122,20 @@ function renderSectionBlock(section: Section): string[] {
     lines.push(``);
     for (const q of feQuizzes) {
       lines.push(`- [${q.shortTitle}](${site.url}/fe/algorithm/quiz/${q.slug}): ${q.challenge}`);
+    }
+    lines.push(``);
+    lines.push(`### SQL 練習問題 (オリジナル ${sqlQuizzes.length} 問)`);
+    lines.push(``);
+    lines.push(`一覧: ${site.url}/fe/sql/quiz`);
+    lines.push(``);
+    lines.push(
+      `IPA 公式過去問の転載はしていない。過去問に出た構文パターンを踏まえたオリジナル問題で、解答キーは SQL エンジンに実行させて検証している。`,
+    );
+    lines.push(``);
+    for (const q of sqlQuizzes) {
+      lines.push(
+        `- [${q.shortTitle}](${site.url}/fe/sql/quiz/${q.slug}): ${q.challenge}`,
+      );
     }
     lines.push(``);
     return lines;

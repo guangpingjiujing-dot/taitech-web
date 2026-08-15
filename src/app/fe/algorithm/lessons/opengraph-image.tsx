@@ -76,7 +76,7 @@ export default function OGImage() {
             color: "#6b6b68",
           }}
         >
-          taitech.dev / fe / lessons
+          taitech.dev / fe / algorithm / lessons
         </div>
       </div>
     ),

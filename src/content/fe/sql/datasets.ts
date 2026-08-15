@@ -12,8 +12,10 @@ import type { Database } from "@/lib/sql";
  * 値は作り直している (§6 の非スコープ)。
  */
 
+export type DatasetKey = "shohin-zaiko" | "jugyoin";
+
 export interface Dataset {
-  key: string;
+  key: DatasetKey;
   label: string;
   /** データセット選択の説明。どんな SQL の練習に向くか */
   summary: string;
@@ -147,14 +149,18 @@ const jugyoin: Dataset = {
 
 export const datasets: Dataset[] = [shohinZaiko, jugyoin];
 
-export const defaultDatasetKey = shohinZaiko.key;
+export const defaultDatasetKey: DatasetKey = shohinZaiko.key;
 
 export function findDataset(key: string): Dataset {
   return datasets.find((d) => d.key === key) ?? shohinZaiko;
 }
 
+export function isDatasetKey(key: string): key is DatasetKey {
+  return datasets.some((d) => d.key === key);
+}
+
 /** データセットごとの初期 SQL。開いた直後に「動くもの」が入っている状態にする */
-export const initialSql: Record<string, string> = {
+export const initialSql: Record<DatasetKey, string> = {
   "shohin-zaiko": `-- 実行ボタンを押すか、「段階を追う」で評価順を 1 つずつ確認できます
 SELECT 分類, COUNT(*), AVG(単価)
 FROM 商品

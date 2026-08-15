@@ -1,9 +1,9 @@
 import { ImageResponse } from "next/og";
-import { feQuizzes } from "@/content/fe/quiz";
+import { sqlLessons } from "@/content/fe/sql/lessons";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "基本情報 擬似言語 練習問題";
+export const alt = "基本情報 SQL レッスン一覧";
 
 export default function OGImage() {
   return new ImageResponse(
@@ -16,7 +16,7 @@ export default function OGImage() {
           flexDirection: "column",
           background: "#fafafa",
           fontFamily: "sans-serif",
-          padding: "72px",
+          padding: "64px 72px",
           justifyContent: "center",
         }}
       >
@@ -30,54 +30,70 @@ export default function OGImage() {
             textTransform: "uppercase",
           }}
         >
-          FE · 科目 B · 擬似言語
+          FE · 科目 A · データベース
         </div>
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            marginTop: 24,
-            fontSize: 64,
+            marginTop: 20,
+            fontSize: 58,
             fontWeight: 800,
             lineHeight: 1.15,
             color: "#0a0a0a",
           }}
         >
-          <div style={{ display: "flex" }}>練習問題 {feQuizzes.length} 問</div>
+          SQL レッスン {sqlLessons.length} 本
         </div>
         <div
           style={{
             display: "flex",
-            marginTop: 28,
-            fontSize: 24,
-            lineHeight: 1.5,
-            color: "#6b6b68",
-          }}
-        >
-          コードを追って出力を答える 4 択・オリジナル問題
-        </div>
-        <div
-          style={{
-            display: "flex",
-            marginTop: 8,
+            marginTop: 24,
             fontSize: 22,
             lineHeight: 1.5,
             color: "#6b6b68",
           }}
         >
-          解説つき / 実行シミュレーターで答え合わせ
+          読みながらその場で実行できる、シラバス「データ操作」の全範囲
         </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            marginTop: 36,
+            gap: 10,
+            maxWidth: 980,
+          }}
+        >
+          {sqlLessons.map((l) => (
+            <div
+              key={l.slug}
+              style={{
+                display: "flex",
+                border: "2px solid #0a0a0a",
+                background: l.runnable ? "#ffffff" : "#f2f2f0",
+                color: l.runnable ? "#0a0a0a" : "#6b6b68",
+                padding: "8px 14px",
+                fontSize: 19,
+                fontWeight: 700,
+              }}
+            >
+              {l.shortTitle}
+            </div>
+          ))}
+        </div>
+
         <div
           style={{
             display: "flex",
             marginTop: "auto",
-            paddingTop: 32,
+            paddingTop: 28,
             borderTop: "1px solid #d9d9d5",
             fontSize: 18,
             color: "#6b6b68",
           }}
         >
-          taitech.dev / fe / algorithm / quiz
+          taitech.dev / fe / sql / lessons
         </div>
       </div>
     ),
