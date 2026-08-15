@@ -44,7 +44,7 @@ export const sqlLessons: readonly SqlLessonMeta[] = [
     cardSummary: "列の取り出し・* の展開・AS による別名・DISTINCT",
     definition:
       "SELECT 文は「どの表から (FROM)、どの行を (WHERE)、どの列を (SELECT) 取り出すか」を書く。列を選ぶ操作を関係代数では射影と呼ぶ。DISTINCT を付けると結果から重複行が取り除かれる。",
-    keywords: ["基本情報", "SQL", "SELECT", "射影", "DISTINCT", "相関名", "AS"],
+    keywords: ["基本情報", "SQL", "SELECT", "射影", "DISTINCT", "相関名", "AS", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 商品番号, 商品名, 単価
 FROM 商品`,
     datasetKey: "shohin-zaiko",
@@ -62,8 +62,7 @@ FROM 商品`,
       "WHERE 句は表の各行を 1 行ずつ評価し、条件が真になる行だけを残す。行を選ぶこの操作を関係代数では選択と呼ぶ。NULL との比較は真でも偽でもなく不定 (UNKNOWN) になり、行は残らない。",
     keywords: [
       "基本情報", "SQL", "WHERE", "選択", "BETWEEN", "IN", "LIKE",
-      "パターン文字列", "IS NULL", "NULL",
-    ],
+      "パターン文字列", "IS NULL", "NULL", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 商品名, 単価
 FROM 商品
 WHERE 単価 BETWEEN 100 AND 300`,
@@ -82,8 +81,7 @@ WHERE 単価 BETWEEN 100 AND 300`,
       "結合は複数の表を共通する列の値で組み合わせる操作。条件を書かないとすべての組み合わせ（直積）になる。内部結合は両方に対応する行がある組だけを返し、外部結合は片方にしか無い行も NULL を補って残す。",
     keywords: [
       "基本情報", "SQL", "結合", "JOIN", "内部結合", "外部結合", "直積",
-      "INNER JOIN", "LEFT OUTER JOIN",
-    ],
+      "INNER JOIN", "LEFT OUTER JOIN", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 商品.商品名, 在庫.倉庫, 在庫.在庫数
 FROM 商品, 在庫
 WHERE 商品.商品番号 = 在庫.商品番号`,
@@ -101,8 +99,7 @@ WHERE 商品.商品番号 = 在庫.商品番号`,
     definition:
       "集約関数は複数の行を 1 つの値にまとめる関数。COUNT は件数、SUM は合計、AVG は平均、MAX と MIN は最大・最小を返す。COUNT(*) 以外は NULL を無視して集計する。",
     keywords: [
-      "基本情報", "SQL", "集約関数", "COUNT", "SUM", "AVG", "MAX", "MIN", "NULL",
-    ],
+      "基本情報", "SQL", "集約関数", "COUNT", "SUM", "AVG", "MAX", "MIN", "NULL", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT COUNT(*), COUNT(給与), SUM(給与), AVG(給与)
 FROM 従業員`,
     datasetKey: "jugyoin",
@@ -119,8 +116,7 @@ FROM 従業員`,
     definition:
       "GROUP BY は指定した列の値が等しい行を 1 つのグループにまとめ、集約関数はグループごとに計算される。HAVING はグループに対する絞り込みで、行に対する絞り込みである WHERE より後に評価される。",
     keywords: [
-      "基本情報", "SQL", "GROUP BY", "HAVING", "WHERE", "グループ化", "集約",
-    ],
+      "基本情報", "SQL", "GROUP BY", "HAVING", "WHERE", "グループ化", "集約", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 部門コード, COUNT(*), AVG(給与)
 FROM 従業員
 GROUP BY 部門コード
@@ -140,8 +136,7 @@ HAVING COUNT(*) >= 2`,
       "副問合せは SQL の中に入れ子で書く SELECT 文。外側の行の値を参照するものを相関副問合せと呼び、行ごとに評価し直される。EXISTS は結果が 1 行以上あれば真を返す。",
     keywords: [
       "基本情報", "SQL", "副問合せ", "サブクエリ", "IN", "EXISTS",
-      "NOT EXISTS", "相関副問合せ",
-    ],
+      "NOT EXISTS", "相関副問合せ", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 商品番号, 商品名
 FROM 商品
 WHERE 商品番号 NOT IN (SELECT 商品番号 FROM 在庫)`,
@@ -159,8 +154,7 @@ WHERE 商品番号 NOT IN (SELECT 商品番号 FROM 在庫)`,
     definition:
       "集合演算は 2 つの問合せ結果を集合として組み合わせる。UNION は和、EXCEPT は差、INTERSECT は積を返す。列数と対応する列の型が揃っている必要があり、UNION ALL 以外は重複を取り除く。",
     keywords: [
-      "基本情報", "SQL", "集合演算", "UNION", "EXCEPT", "INTERSECT", "和", "差", "積",
-    ],
+      "基本情報", "SQL", "集合演算", "UNION", "EXCEPT", "INTERSECT", "和", "差", "積", "わかりやすく", "初心者", "解説"],
     sampleSql: `SELECT 商品番号 FROM 商品
 EXCEPT
 SELECT 商品番号 FROM 在庫`,
@@ -178,8 +172,7 @@ SELECT 商品番号 FROM 在庫`,
     definition:
       "INSERT は行の追加、UPDATE は既存行の値の変更、DELETE は行の削除を行う。UPDATE と DELETE で WHERE を省略すると、表のすべての行が対象になる。",
     keywords: [
-      "基本情報", "SQL", "INSERT", "UPDATE", "DELETE", "DML", "データ操作言語",
-    ],
+      "基本情報", "SQL", "INSERT", "UPDATE", "DELETE", "DML", "データ操作言語", "わかりやすく", "初心者", "解説"],
     sampleSql: `UPDATE 商品
 SET 単価 = 単価 * 2
 WHERE 分類 = 'B'`,
@@ -198,8 +191,7 @@ WHERE 分類 = 'B'`,
       "制約は表に入る値が満たすべき条件を宣言しておく仕組み。一意性制約は重複を、参照制約は存在しない親への参照を、検査制約は条件を満たさない値を、非NULL制約は NULL を、それぞれ拒否する。",
     keywords: [
       "基本情報", "SQL", "CREATE TABLE", "制約", "一意性制約", "参照制約",
-      "検査制約", "非NULL制約", "主キー", "外部キー",
-    ],
+      "検査制約", "非NULL制約", "主キー", "外部キー", "わかりやすく", "初心者", "解説"],
     sampleSql: `INSERT INTO 在庫 VALUES ('P99', 'W1', 5)`,
     datasetKey: "shohin-zaiko",
     runnable: true,
@@ -214,7 +206,7 @@ WHERE 分類 = 'B'`,
     cardSummary: "ビューはデータを持たない。元の表が変われば結果も変わる",
     definition:
       "ビューは問合せに名前を付けたもので、実際のデータは持たない仮想的な表。参照されるたびに定義された問合せが実行されるため、元の実表が変わるとビューの内容も変わる。",
-    keywords: ["基本情報", "SQL", "ビュー", "VIEW", "実表", "CREATE VIEW"],
+    keywords: ["基本情報", "SQL", "ビュー", "VIEW", "実表", "CREATE VIEW", "わかりやすく", "初心者", "解説"],
     sampleSql: `CREATE VIEW 高額商品 AS
   SELECT 商品番号, 商品名, 単価 FROM 商品 WHERE 単価 >= 200;
 
@@ -233,8 +225,7 @@ SELECT * FROM 高額商品`,
     definition:
       "GRANT は表やビューに対する操作の権限を利用者に与える命令。REVOKE はそれを取り消す。WITH GRANT OPTION を付けると、権限を与えられた利用者がさらに他の利用者へ同じ権限を与えられる。",
     keywords: [
-      "基本情報", "SQL", "GRANT", "REVOKE", "アクセス権", "権限", "WITH GRANT OPTION",
-    ],
+      "基本情報", "SQL", "GRANT", "REVOKE", "アクセス権", "権限", "WITH GRANT OPTION", "わかりやすく", "初心者", "解説"],
     sampleSql: null,
     datasetKey: "shohin-zaiko",
     runnable: false,
@@ -251,8 +242,7 @@ SELECT * FROM 高額商品`,
       "埋込みSQL は他のプログラム言語のソースに SQL を直接書く方式。カーソルは複数行の問合せ結果に位置を持たせ、FETCH で 1 行ずつ取り出して変数に受け取る仕組み。",
     keywords: [
       "基本情報", "SQL", "埋込みSQL", "カーソル", "CURSOR", "FETCH",
-      "親言語方式", "会話型SQL", "モジュール言語",
-    ],
+      "親言語方式", "会話型SQL", "モジュール言語", "わかりやすく", "初心者", "解説"],
     sampleSql: null,
     datasetKey: "shohin-zaiko",
     runnable: false,

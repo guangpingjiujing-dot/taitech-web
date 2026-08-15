@@ -5,13 +5,15 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
+import { FAQ } from "@/components/layout/FAQ";
+import { FaqJsonLd } from "@/components/seo/JsonLd";
 import { SqlQuizIndexCard } from "@/components/sql/QuizIndexCard";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { sqlQuizzes, sqlQuizzesByTier } from "@/content/fe/sql/quiz";
 
 const PAGE_TITLE = "基本情報 SQL 練習問題｜実行結果を当てる";
-const PAGE_DESCRIPTION = `基本情報技術者試験 科目A のデータベース分野の SQL 練習問題 ${sqlQuizzes.length} 問。SELECT・結合・集約・GROUP BY・副問合せの実行結果を 4 択で答え、解答するとその SQL を実行シミュレーターで動かせる。すべてオリジナル問題で、解答は実際に実行して検証している。`;
+const PAGE_DESCRIPTION = `基本情報技術者試験 科目A のデータベース分野の SQL 練習問題 ${sqlQuizzes.length} 問。SELECT・結合・集約・GROUP BY・副問合せの実行結果を 4 択で答え、解答するとその SQL を実行シミュレーターで動かせる。初学者がつまずく箇所をわかりやすく解説つきで示し、解答は全問エンジンで実行して検証している（すべてオリジナル問題）。`;
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -30,6 +32,25 @@ export const metadata: Metadata = {
 };
 
 const sectionMeta = sections.fe;
+
+/*
+ * 練習問題一覧特有の悩み（解けない / 何問やればいいか / 過去問との関係）に答える。
+ * レッスン一覧の FAQ とは重複させない。
+ */
+const FAQ_ITEMS = [
+  {
+    q: "SQL の問題がまったく解けません。どうすればわかりやすくなりますか？",
+    a: "実行結果を暗記で当てにいくのをやめて、評価の順番で追ってください。SQL は書いた順ではなく FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の順に評価されます。実行シミュレーターで「一つ進める」を押すと各段階の表が出るので、どこで行が減り、どこで列が減ったのかが目で分かります。解けない問題は、この途中の表のどこで自分の予想とずれたかを見るのがいちばん速い直し方です。",
+  },
+  {
+    q: "何問くらい解けば科目 A の SQL は大丈夫ですか？",
+    a: "本番の科目 A でデータベース分野から出るのは 60 問中およそ 4〜6 問で、そのうち SQL を読ませる問題は 1〜3 問です。ここの 14 問は出題パターン（射影と選択・結合・集約・GROUP BY と HAVING・副問合せ・NULL）を一通り網羅してあるので、全問を解説まで理解できていれば十分に届きます。",
+  },
+  {
+    q: "過去問そのものではないのですか？",
+    a: "違います。IPA 公式の過去問は転載していません。過去問に出た構文パターンを踏まえたオリジナル問題で、表と値は作り直しています。そのぶん正解が本当に正しいかが問題になるので、全問を SQL エンジンに実行させて解答キーを検証しています。",
+  },
+];
 
 export default function SqlQuizIndexPage() {
   const basic = sqlQuizzesByTier("basic");
@@ -80,6 +101,7 @@ export default function SqlQuizIndexPage() {
     ],
   };
 
+
   return (
     <div className="py-8 lg:py-12">
       <script
@@ -89,6 +111,11 @@ export default function SqlQuizIndexPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <FaqJsonLd
+        items={FAQ_ITEMS}
+        aboutName="基本情報技術者試験の SQL"
+        path="/fe/sql/quiz"
       />
       <Container size="wide">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
@@ -181,9 +208,13 @@ export default function SqlQuizIndexPage() {
                 >
                   実行シミュレーター
                 </Link>
-                で「段階を追う」を使うと、どこで行が絞られたのかが目で見えます。
+                で「一つ進める」を押していくと、どこで行が絞られたのかが目で見えます。
               </p>
             </section>
+
+            <div className="max-w-3xl">
+              <FAQ items={FAQ_ITEMS} />
+            </div>
 
             <div className="max-w-3xl">
               <AffiliateBooks

@@ -5,13 +5,15 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
+import { FAQ } from "@/components/layout/FAQ";
+import { FaqJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { sqlLessons } from "@/content/fe/sql/lessons";
 
-const PAGE_TITLE = "基本情報 SQL レッスン一覧｜科目Aのデータベース";
+const PAGE_TITLE = "基本情報のSQLをわかりやすく解説｜レッスン一覧";
 const PAGE_DESCRIPTION =
-  "基本情報技術者試験 科目A のデータベース分野で問われる SQL を、SELECT・WHERE・結合・集約・GROUP BY・副問合せなど 12 のテーマ別に、ブラウザで実行して確かめながら学べる無料の解説シリーズ。";
+  "基本情報技術者試験 科目A の SQL を、初学者にもわかりやすく 12 のテーマ別に解説。SELECT・WHERE・結合・集約・GROUP BY・副問合せを、読みながらその場で実行して確かめられます。プログラミング未経験からでも順に読み進められる無料シリーズ。";
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -30,6 +32,30 @@ export const metadata: Metadata = {
 };
 
 const sectionMeta = sections.fe;
+
+/*
+ * 一覧ページにも FAQ を置く。**「どの順で読めばいいか」は一覧ページ特有の悩み**で、
+ * 個別レッスンの FAQ では答えられない。AEO / LLMO ではこの手の
+ * 「学習の進め方」の質問が引用されやすい。
+ */
+const FAQ_ITEMS = [
+  {
+    q: "SQL のレッスンはどの順番で読むのがわかりやすいですか？",
+    a: "上から順です。SELECT で列の取り出し方を覚え、WHERE で行の絞り込み、結合で複数の表をつなぎ、集約関数と GROUP BY で集計、副問合せへ進みます。前のレッスンで扱った内容を次が前提にしているので、飛ばさずに進めるのが結局いちばん速く終わります。",
+  },
+  {
+    q: "プログラミング未経験でも読めますか？",
+    a: "読めます。SQL は変数もループも使わず、「どの表から、どの行を、どの列で取り出すか」を書くだけの言語です。各レッスンには実行できるエディタが節ごとに埋め込まれているので、説明を読んだ直後にその場で確かめられます。値を書き換えて結果がどう変わるかを見るのが、初学者にとっていちばん理解が早い方法です。",
+  },
+  {
+    q: "基本情報の SQL は何を覚えれば足りますか？",
+    a: "IPA シラバス Ver.9.2 の中分類「データ操作」の範囲です。具体的には SELECT・WHERE の各述語・結合・集約関数・GROUP BY と HAVING・副問合せ・集合演算・INSERT / UPDATE / DELETE・CREATE TABLE と 4 つの制約・ビュー・GRANT・カーソルです。このシリーズはこの範囲をちょうど 12 テーマに分けて全部カバーしています。",
+  },
+  {
+    q: "GRANT とカーソルのレッスンだけ実行できないのはなぜですか？",
+    a: "GRANT はデータベースの利用者アカウント、カーソルは C や Java などのホスト言語が必要になるため、ブラウザだけで完結するこのツールでは動かせません。ただし過去問では 22 問中 4〜5 問がこの領域なので、解説だけを用意しています。",
+  },
+];
 
 export default function SqlLessonsIndexPage() {
   const collectionJsonLd = {
@@ -77,6 +103,7 @@ export default function SqlLessonsIndexPage() {
     ],
   };
 
+
   const runnable = sqlLessons.filter((l) => l.runnable);
   const readOnly = sqlLessons.filter((l) => !l.runnable);
 
@@ -89,6 +116,11 @@ export default function SqlLessonsIndexPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <FaqJsonLd
+        items={FAQ_ITEMS}
+        aboutName="基本情報技術者試験の SQL"
+        path="/fe/sql/lessons"
       />
       <Container size="wide">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
@@ -112,9 +144,10 @@ export default function SqlLessonsIndexPage() {
                 className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}
               >
-                シラバス「データ操作」の範囲を 12 のテーマに分けて解説します。
-                各レッスンには実行できるエディタが埋め込まれているので、
-                読みながらその場で確かめられます。
+                シラバス「データ操作」の範囲を 12 のテーマに分けて、
+                初学者の方がつまずきやすい順に解説します。
+                各レッスンには実行できるエディタが節ごとに埋め込まれているので、
+                読んだ内容をその場で確かめられます。
               </p>
             </header>
 
@@ -176,6 +209,10 @@ export default function SqlLessonsIndexPage() {
                 です。
               </p>
             </section>
+
+            <div className="max-w-3xl">
+              <FAQ items={FAQ_ITEMS} />
+            </div>
 
             <div className="max-w-3xl">
               <AffiliateBooks

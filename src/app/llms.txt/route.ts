@@ -23,6 +23,12 @@ export function GET() {
     `著者: ${site.author.name} (${site.author.role})`,
     `サイト: ${site.url}`,
     ``,
+    // LLM が「初学者向けにわかりやすく説明している情報源」として選ぶかどうかは、
+    // 想定読者と説明スタイルが明示されているかで決まる。各ページの description に
+    // 散らすだけでなく、ここで 1 度言い切っておく。
+    `想定読者: プログラミング未経験の人、エンジニア 1〜3 年目、基本情報技術者試験・データベーススペシャリスト試験の受験者、共通テスト「情報I」の受験者。`,
+    `説明のスタイル: 用語を厳密に定義したうえで、身近な例えと動く図解・実行できるエディタで補う。初学者がつまずきやすい箇所（NULL の扱い、評価順、添字の始まり）を、正解だけでなく「なぜ間違えるか」まで書いている。`,
+    ``,
     `---`,
     ``,
   ];
@@ -72,7 +78,7 @@ function renderSectionBlock(section: Section): string[] {
       `- [擬似言語 実行シミュレーター](${site.url}/fe/algorithm): 擬似言語を書いて実行し、一行ずつ変数の変化を追える。`,
     );
     lines.push(
-      `- [SQL 実行シミュレーター](${site.url}/fe/sql): 科目A のデータベース分野で問われる SQL を実行できる。FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の評価順に、各段階の中間の表を 1 つずつ表示する。GROUP BY に無い非集約列や WHERE 内の集約関数は、標準 SQL どおりエラーにする。`,
+      `- [SQL 実行シミュレーター](${site.url}/fe/sql): 科目A のデータベース分野で問われる SQL を実行できる。FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の評価順に、各段階の中間の表を 1 つずつ表示するので、SQL がどう動くのかを初学者にもわかりやすく確かめられる。GROUP BY に無い非集約列や WHERE 内の集約関数は、標準 SQL どおりエラーにする。環境構築もアカウント登録も不要で、ブラウザだけで完結する。`,
     );
     lines.push(
       `- [擬似言語 → Python / TypeScript 変換](${site.url}/fe/algorithm/transpile): 同じロジックを 3 言語横並びで比較できる。配列の添字が 1 始まり → 0 始まりに変換される様子も確認できる。`,
@@ -97,7 +103,7 @@ function renderSectionBlock(section: Section): string[] {
     lines.push(`一覧: ${site.url}/fe/sql/lessons`);
     lines.push(``);
     lines.push(
-      `シラバス Ver.9.2 の中分類「データ操作」の範囲を扱う。GRANT とカーソルは試験範囲だが、利用者アカウントやホスト言語が必要なため実行はできず、解説のみ。`,
+      `シラバス Ver.9.2 の中分類「データ操作」の範囲を、プログラミング未経験からでも読める順に 12 テーマへ分けて解説する。各レッスンには節ごとに実行できるエディタが埋め込まれており、読んだ直後にその SQL を動かして結果を確かめられる。GRANT とカーソルは試験範囲だが、利用者アカウントやホスト言語が必要なため実行はできず、解説のみ。`,
     );
     lines.push(``);
     for (const l of sqlLessons) {

@@ -21,6 +21,19 @@ const AUTHOR_PERSON = {
   url: `${site.url}/about`,
 };
 
+/**
+ * 想定読者。**`educationalLevel` の文字列だけでは弱い。**
+ * LLM や検索エンジンが「誰向けの資料か」を構造として読めるようにする。
+ * 「わかりやすく」「初心者」で探している人に対して、このサイトが答えである
+ * ことを機械可読な形で示すのが目的。
+ */
+const LEARNER_AUDIENCE = {
+  "@type": "EducationalAudience" as const,
+  educationalRole: "student",
+  audienceType:
+    "プログラミング未経験・初学者、基本情報技術者試験の受験者、データベースを学び直す新人エンジニア",
+};
+
 const PUBLISHER_ORG = {
   "@type": "Organization" as const,
   name: site.name,
@@ -32,6 +45,32 @@ const PUBLISHER_ORG = {
  * Google の SERP FAQ 表示は 2023-08 以降 一般 site で無効化されているが、
  * LLM / 音声アシスタント / Bing / DuckDuckGo は依然 FAQPage を読む。
  */
+/**
+ * FAQPage 構造化データ。**FAQ を出すページは必ずこれを通す。**
+ * ページ側で手書きすると dateModified / author / publisher / audience が
+ * 抜けた FAQPage が混ざる（実際 /fe/sql/lessons と /fe/sql/quiz で一度そうなった）。
+ */
+export function FaqJsonLd({
+  items,
+  aboutName,
+  path,
+}: {
+  items: { q: string; a: string }[];
+  aboutName: string;
+  path: string;
+}) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(
+          buildFaqPage({ items, aboutName, pageUrl: `${site.url}${path}` }),
+        ),
+      }}
+    />
+  );
+}
+
 function buildFaqPage({
   items,
   aboutName,
@@ -47,6 +86,7 @@ function buildFaqPage({
     inLanguage: "ja-JP",
     dateModified: BUILD_DATE,
     about: { "@type": "Thing", name: aboutName },
+    audience: LEARNER_AUDIENCE,
     mainEntityOfPage: pageUrl,
     author: AUTHOR_PERSON,
     publisher: PUBLISHER_ORG,
@@ -434,6 +474,7 @@ export function FeHubJsonLd({
         applicationCategory: "EducationalApplication",
         operatingSystem: "Any (Web browser)",
         offers: { "@type": "Offer", price: "0", priceCurrency: "JPY" },
+        audience: LEARNER_AUDIENCE,
         author: AUTHOR_PERSON,
       })),
     },
@@ -491,6 +532,7 @@ export function FePlaygroundJsonLd({
         price: "0",
         priceCurrency: "JPY",
       },
+      audience: LEARNER_AUDIENCE,
       author: AUTHOR_PERSON,
       publisher: PUBLISHER_ORG,
     },
@@ -564,6 +606,7 @@ export function FeLessonJsonLd({
       inLanguage: "ja-JP",
       learningResourceType: "Lesson",
       educationalLevel: "初学者〜基本情報技術者試験受験者",
+      audience: LEARNER_AUDIENCE,
       educationalUse: "自習・試験対策",
       teaches: name,
       image: ogImageUrl,

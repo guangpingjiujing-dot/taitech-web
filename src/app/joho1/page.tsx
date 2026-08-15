@@ -5,13 +5,42 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Joho1Playground } from "@/components/joho1/Joho1Playground";
 import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
+import { FAQ } from "@/components/layout/FAQ";
 import { joho1Lessons } from "@/content/joho1/lessons";
 import { joho1Quizzes } from "@/content/joho1/quiz";
 import { sections } from "@/content/sections";
-import { Joho1PageJsonLd } from "@/components/seo/JsonLd";
+import { Joho1PageJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/lib/site";
 
 const sectionMeta = sections.joho1;
+
+/*
+ * 読者は高校生で、**このサイトで最も「わかりやすさ」を求めて検索してくる層**。
+ * 制度や仕様の質問より先に「プログラミングやったことないけど解けるのか」という
+ * 不安に答える。AEO / LLMO でも、この形の質問に正面から答えた FAQPage が引用される。
+ */
+const FAQ_ITEMS = [
+  {
+    q: "プログラミングをやったことがなくても、情報I のプログラム問題は解けるようになりますか？",
+    a: "なります。共通テストのプログラム問題で問われるのは、コードを書く力ではなく「書かれたプログラムを正しく追う力」です。必要なのは変数・条件分岐・繰り返し・配列の 4 つだけで、覚える文法もこの範囲に限られます。ここのシミュレーターは、その 4 つが実際にどう動くかを 1 行ずつ目で見て確かめるためのものです。",
+  },
+  {
+    q: "「プログラム表記」とは何ですか。Python や JavaScript とは違うのですか？",
+    a: "違います。共通テスト「情報I」のために定義された、試験専用の書き方です。実在の言語ではないので、Python や JavaScript を勉強しても記法はそのまま当てはまりません。逆に言えば覚える量はとても少なく、試作問題と本試験で使われた記法を押さえれば足ります。",
+  },
+  {
+    q: "何から手を付けるとわかりやすいですか？",
+    a: "まず手元の問題冊子のプログラムをそのまま貼り付けて、1 行ずつ実行してみてください。行番号や罫線は自動で取り除かれます。値の動きが追えなかった箇所が分かったら、その構文のレッスン（変数・表示・条件分岐・繰り返し・配列・関数）を読むのが最短です。最初から順に読む必要はありません。",
+  },
+  {
+    q: "配列の添字は 0 始まりですか、1 始まりですか？",
+    a: "問題によって違います。共通テストでは配列の添字の始まりが問題文で明示されるので、そこに従ってください。このシミュレーターは 0 始まりと 1 始まりを切り替えられるようにしてあります。ここを取り違えると答えが 1 つずれるので、実際に両方で動かして違いを見ておくと確実です。",
+  },
+  {
+    q: "情報I のプログラム表記は DNCL と同じものですか？",
+    a: "別物です。DNCL は大学入試センター「情報関係基礎」で使われてきた表記で、情報I のものとは代入の記号やブロックの閉じ方が違います。詳しくは用語ページにまとめています。参考書を選ぶときに混同しやすいので注意してください。",
+  },
+];
 
 export const metadata: Metadata = {
   title: sectionMeta.metaTitle,
@@ -49,6 +78,11 @@ export default function Joho1Page() {
           },
         ]}
       />
+      <FaqJsonLd
+        items={FAQ_ITEMS}
+        aboutName="共通テスト「情報I」のプログラム表記"
+        path={sectionMeta.path}
+      />
       <Container size="wide" className="py-10 md:py-14">
       <div className="grid gap-8 xl:gap-10 xl:grid-cols-[minmax(0,1fr)_15rem]">
       <div className="min-w-0">
@@ -59,6 +93,7 @@ export default function Joho1Page() {
       <p className="mt-4 max-w-2xl text-[var(--muted-foreground)] leading-relaxed">
         共通テスト「情報I」のプログラムを、ブラウザで 1 行ずつ動かせます。
         変数の値がどう変わるかを見ながら読むと、繰り返しと条件分岐の追い方が身につきます。
+        プログラミング未経験でも、動きを目で追えばわかりやすく読み解けます。
         <strong>問題冊子からそのまま貼り付けると、行番号と罫線は自動で取り除かれます。</strong>
       </p>
 
@@ -133,6 +168,10 @@ export default function Joho1Page() {
           </li>
         </ul>
       </section>
+
+      <div className="max-w-2xl">
+        <FAQ items={FAQ_ITEMS} />
+      </div>
 
       <AffiliateBooks
         topicSlug="joho1-playground"

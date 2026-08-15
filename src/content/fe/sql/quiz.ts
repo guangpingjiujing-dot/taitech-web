@@ -71,7 +71,7 @@ export const sqlQuizzes: readonly SqlQuizMeta[] = [
     shortTitle: "射影と選択",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。WHERE で行を絞り、SELECT で列を取り出す基本の形の実行結果を答える。",
-    keywords: ["基本情報", "SQL", "練習問題", "SELECT", "WHERE", "射影"],
+    keywords: ["基本情報", "SQL", "練習問題", "SELECT", "WHERE", "射影", "わかりやすく", "初心者"],
     challenge: "分類で絞って 2 列だけ取り出す",
     prompt: "「商品」表に対して次の SQL を実行したとき、得られる結果はどれか。",
     datasetKey: "shohin-zaiko",
@@ -101,7 +101,7 @@ export const sqlQuizzes: readonly SqlQuizMeta[] = [
     shortTitle: "BETWEEN の境界",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。BETWEEN が指定した両端の値を含むかどうかを、実行結果から確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "BETWEEN", "WHERE", "境界"],
+    keywords: ["基本情報", "SQL", "練習問題", "BETWEEN", "WHERE", "境界", "わかりやすく", "初心者"],
     challenge: "単価がちょうど境界の値の商品が含まれるか",
     prompt: "「商品」表に対して次の SQL を実行したとき、得られる結果はどれか。",
     datasetKey: "shohin-zaiko",
@@ -131,7 +131,7 @@ export const sqlQuizzes: readonly SqlQuizMeta[] = [
     shortTitle: "LIKE のワイルドカード",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。パターン文字列の _ が「ちょうど 1 文字」、% が「0 文字以上」であることを実行結果で確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "LIKE", "パターン文字列", "ワイルドカード"],
+    keywords: ["基本情報", "SQL", "練習問題", "LIKE", "パターン文字列", "ワイルドカード", "わかりやすく", "初心者"],
     challenge: "2 つの LIKE を AND でつないだときに残る行",
     prompt: "「商品」表に対して次の SQL を実行したとき、得られる結果はどれか。",
     datasetKey: "shohin-zaiko",
@@ -161,7 +161,7 @@ export const sqlQuizzes: readonly SqlQuizMeta[] = [
     shortTitle: "結合で残る行",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。FROM に 2 つの表を並べる旧式の結合で、結合条件と絞り込み条件の両方を満たす行を答える。",
-    keywords: ["基本情報", "SQL", "練習問題", "結合", "内部結合", "JOIN"],
+    keywords: ["基本情報", "SQL", "練習問題", "結合", "内部結合", "JOIN", "わかりやすく", "初心者"],
     challenge: "2 表を結合し、さらに在庫数で絞る",
     prompt:
       "「商品」表と「在庫」表に対して次の SQL を実行したとき、得られる結果は何行か。",
@@ -196,7 +196,7 @@ WHERE 商品.商品番号 = 在庫.商品番号
     shortTitle: "直積の行数",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。FROM に表を並べただけで結合条件を書かないと直積になり、行数が積になることを確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "直積", "結合", "集合演算"],
+    keywords: ["基本情報", "SQL", "練習問題", "直積", "結合", "集合演算", "わかりやすく", "初心者"],
     challenge: "結合条件の無い 2 表の問合せ",
     prompt:
       "「商品」表 (5 行) と「在庫」表 (4 行) に対して次の SQL を実行したとき、得られる結果はどれか。",
@@ -227,7 +227,7 @@ WHERE 商品.商品番号 = 在庫.商品番号
     shortTitle: "外部結合と NULL",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。LEFT OUTER JOIN で対応する行が無い場合に、どちら側の列が NULL になるかを実行結果で確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "外部結合", "LEFT OUTER JOIN", "NULL"],
+    keywords: ["基本情報", "SQL", "練習問題", "外部結合", "LEFT OUTER JOIN", "NULL", "わかりやすく", "初心者"],
     challenge: "在庫が登録されていない商品はどう出るか",
     prompt: "次の SQL を実行したとき、得られる結果は何行か。",
     datasetKey: "shohin-zaiko",
@@ -260,7 +260,7 @@ FROM 商品 LEFT OUTER JOIN 在庫
     shortTitle: "COUNT(*) と COUNT(列)",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。COUNT(*) は NULL を含む行数、COUNT(列) はその列が NULL でない行数であることを確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "COUNT", "集約関数", "NULL"],
+    keywords: ["基本情報", "SQL", "練習問題", "COUNT", "集約関数", "NULL", "わかりやすく", "初心者"],
     challenge: "給与が未設定の社員が 1 人いる表での件数",
     prompt:
       "「従業員」表 (7 行、うち 1 行は給与が NULL) に対して次の SQL を実行したとき、得られる結果はどれか。",
@@ -291,7 +291,7 @@ FROM 商品 LEFT OUTER JOIN 在庫
     shortTitle: "AVG と NULL",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。AVG が NULL の行を分母からも除くことを、COUNT(*) と並べた実行結果で確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "AVG", "集約関数", "NULL", "平均"],
+    keywords: ["基本情報", "SQL", "練習問題", "AVG", "集約関数", "NULL", "平均", "わかりやすく", "初心者"],
     challenge: "2 人の部門で 1 人の給与が NULL のときの平均",
     prompt:
       "「従業員」表の D03 部門には 2 人が所属し、うち 1 人は給与が NULL、もう 1 人の給与は 300000 である。次の SQL を実行したとき、得られる結果はどれか。",
@@ -326,7 +326,7 @@ GROUP BY 部門コード`,
     shortTitle: "HAVING で絞る",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。GROUP BY でできたグループを HAVING が絞り込むことを、実行結果の行数で確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "GROUP BY", "HAVING", "グループ化"],
+    keywords: ["基本情報", "SQL", "練習問題", "GROUP BY", "HAVING", "グループ化", "わかりやすく", "初心者"],
     challenge: "2 人以上いる部門はいくつか",
     prompt:
       "「従業員」表 (7 行) に対して次の SQL を実行したとき、得られる結果は何行か。所属は D01 が 3 人、D02 が 2 人、D03 が 2 人である。",
@@ -360,7 +360,7 @@ HAVING COUNT(*) >= 2`,
     shortTitle: "外部結合と COUNT",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。外部結合で NULL が補われた行を COUNT(列) が数えないため、所属者ゼロの部門が 0 と出ることを確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "外部結合", "COUNT", "GROUP BY", "NULL"],
+    keywords: ["基本情報", "SQL", "練習問題", "外部結合", "COUNT", "GROUP BY", "NULL", "わかりやすく", "初心者"],
     challenge: "従業員が 1 人もいない部門はどう集計されるか",
     prompt:
       "「部門」表 (4 部門) と「従業員」表に対して次の SQL を実行したとき、監査室の行の値はどれか。監査室に所属する従業員はいない。",
@@ -396,7 +396,7 @@ GROUP BY 部門.部門名`,
     shortTitle: "NOT IN の副問合せ",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。副問合せと NOT IN を使って、他方の表に存在しない行を取り出す形の実行結果を答える。",
-    keywords: ["基本情報", "SQL", "練習問題", "副問合せ", "NOT IN", "NOT EXISTS"],
+    keywords: ["基本情報", "SQL", "練習問題", "副問合せ", "NOT IN", "NOT EXISTS", "わかりやすく", "初心者"],
     challenge: "在庫が 1 件も無い商品を探す",
     prompt: "次の SQL を実行したとき、得られる結果はどれか。",
     datasetKey: "shohin-zaiko",
@@ -427,7 +427,7 @@ WHERE 商品番号 NOT IN (SELECT 商品番号 FROM 在庫)`,
     shortTitle: "集合演算の差",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。集合演算の EXCEPT（差）が左から右を引いた結果になることを確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "集合演算", "EXCEPT", "差", "UNION"],
+    keywords: ["基本情報", "SQL", "練習問題", "集合演算", "EXCEPT", "差", "UNION", "わかりやすく", "初心者"],
     challenge: "2 つの問合せ結果の差をとる",
     prompt: "次の SQL を実行したとき、得られる結果はどれか。",
     datasetKey: "shohin-zaiko",
@@ -459,7 +459,7 @@ SELECT 商品番号 FROM 在庫`,
     shortTitle: "UPDATE の適用範囲",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。UPDATE の WHERE が対象行を限定すること、右辺が更新前の値で評価されることを確認する。",
-    keywords: ["基本情報", "SQL", "練習問題", "UPDATE", "DML", "WHERE"],
+    keywords: ["基本情報", "SQL", "練習問題", "UPDATE", "DML", "WHERE", "わかりやすく", "初心者"],
     challenge: "分類 B の単価を 2 倍にした後の表",
     prompt:
       "「商品」表に対して次の SQL を順に実行したとき、最後の SELECT で得られる結果はどれか。",
@@ -506,7 +506,7 @@ SELECT 商品番号, 単価 FROM 商品`,
     shortTitle: "スカラ副問合せ",
     description:
       "基本情報技術者試験 科目A の SQL 練習問題。集約関数の結果を 1 つの値として比較に使うスカラ副問合せの実行結果を答える。",
-    keywords: ["基本情報", "SQL", "練習問題", "副問合せ", "スカラ副問合せ", "AVG"],
+    keywords: ["基本情報", "SQL", "練習問題", "副問合せ", "スカラ副問合せ", "AVG", "わかりやすく", "初心者"],
     challenge: "全体の平均単価を上回る商品",
     prompt:
       "「商品」表の単価は 120, 200, 80, 150, 500 である。次の SQL を実行したとき、得られる結果はどれか。",

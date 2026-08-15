@@ -4,7 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { LevelBadge } from "@/components/ui/Badge";
-import { SectionHubJsonLd } from "@/components/seo/JsonLd";
+import { SectionHubJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
+import { FAQ } from "@/components/layout/FAQ";
 import { rdbTopicsBy, type RdbTopic } from "@/content/topics";
 import { sections } from "@/content/sections";
 
@@ -24,14 +25,44 @@ export const metadata: Metadata = {
   },
 };
 
+/*
+ * **このセクションの読者は未経験者ではなく実務エンジニア**なので、他セクションのような
+ * 「未経験でも大丈夫」型の FAQ は置かない（読者とミスマッチで権威性を落とす）。
+ * ここで効くのは「どれから読むか」「どこまでが実務で要るか」という順序と範囲の質問。
+ */
+const FAQ_ITEMS = [
+  {
+    q: "インデックスはどれから読むとわかりやすいですか？",
+    a: "「なぜインデックスが必要か」から順に読んでください。フルスキャンがなぜ遅いのかを I/O の単位で押さえないと、B-tree の説明が「木の絵の暗記」になります。そのあと B-tree、クラスタ化、複合の 3 本を読めば、実務で貼るインデックスの判断はほぼ付きます。ハッシュ・部分・カバリングは必要になったときで構いません。",
+  },
+  {
+    q: "実務で最低限おさえるべきインデックスはどれですか？",
+    a: "B-tree と複合インデックスの 2 つです。実際に業務で作るインデックスのほとんどは B-tree で、遅いクエリの原因の多くは「複合インデックスの列順が検索条件と合っていない」ことに帰着します。次に実行計画 (EXPLAIN) の読み方、その次に更新コスト（貼りすぎのデメリット）の順で広げるのが効率的です。",
+  },
+  {
+    q: "特定のデータベース製品の話ですか？",
+    a: "いいえ。B-tree・ハッシュ・クラスタ化といった仕組みそのものを扱うので、MySQL・PostgreSQL・Oracle のどれを使っていても通用します。製品ごとに挙動が分かれる箇所（クラスタ化インデックスの有無、ハッシュインデックスの制約など）は、その都度どの製品の話かを明記しています。",
+  },
+  {
+    q: "データベーススペシャリスト試験の対策になりますか？",
+    a: "なります。実行計画・統計情報とオプティマイザ・カバリングインデックス・部分インデックスは、午後問題で問われる範囲です。ただし本セクションは試験の解法ではなく仕組みの理解を目的にしているので、過去問演習と併用してください。",
+  },
+];
+
 export default function RdbIndexHome() {
   return (
     <>
       <SectionHubJsonLd section="rdb-index" />
+      <FaqJsonLd
+        items={FAQ_ITEMS}
+        aboutName="RDB のインデックス"
+        path={sectionMeta.path}
+      />
       <Hero />
       <TopicIndex />
       <MentorSection />
       <WhyThisSite />
+      <FaqSection />
     </>
   );
 }
@@ -212,6 +243,16 @@ function WhyThisSite() {
         </div>
       </Container>
     </section>
+  );
+}
+
+function FaqSection() {
+  return (
+    <Container size="wide" className="pb-16">
+      <div className="max-w-3xl">
+        <FAQ items={FAQ_ITEMS} />
+      </div>
+    </Container>
   );
 }
 

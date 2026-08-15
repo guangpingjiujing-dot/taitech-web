@@ -12,13 +12,15 @@ import { SqlPlaygroundDeepLink } from "@/components/sql/SqlPlaygroundDeepLink";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { findDataset, initialSql, defaultDatasetKey } from "@/content/fe/sql/datasets";
+import { sqlLessons } from "@/content/fe/sql/lessons";
+import { sqlQuizzes } from "@/content/fe/sql/quiz";
 
 const sectionMeta = sections.fe;
 
 const PAGE_PATH = "/fe/sql";
-const PAGE_TITLE = "基本情報のSQLを実行｜評価順を1つずつ確認";
+const PAGE_TITLE = "基本情報のSQLをわかりやすく｜動かして学ぶ";
 const PAGE_DESCRIPTION =
-  "基本情報技術者試験 科目A のデータベース分野で問われる SQL を、ブラウザ上で実際に実行して確かめられる無料の学習ツール。FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の評価順を 1 段階ずつ、中間の表を見ながら追える。";
+  "基本情報技術者試験 科目A の SQL を、初学者にもわかりやすく。ブラウザで実際に実行しながら、FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY の評価順を 1 段階ずつ、途中の表を見て確かめられる無料の学習ツール。プログラミング未経験でも読める解説つき。";
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -36,10 +38,29 @@ export const metadata: Metadata = {
   },
 };
 
+/*
+ * FAQ は「ツールの使い方」だけにしない。
+ *
+ * **検索して来る人が実際に打つのは「SQL わからない」「どこから勉強」といった悩み**で、
+ * 使い方の質問ではない。AEO / LLMO では、この種の質問に正面から答えている
+ * FAQPage が引用されるので、悩みの質問を先頭に置く。
+ */
 const FAQ_ITEMS = [
   {
+    q: "SQL がまったくわからないのですが、どこから始めればよいですか？",
+    a: "このページのエディタで「一つ進める」を押すところから始めてください。SQL が FROM → WHERE → GROUP BY → HAVING → SELECT の順に評価される様子が、途中の表つきで 1 段階ずつ見られます。SQL が難しく感じる最大の理由は「書いた順と実行される順が違う」ことなので、そこが目で見えると一気にわかりやすくなります。そのあと SQL レッスンを 1 本目の SELECT から順に読むのが最短です。",
+  },
+  {
+    q: "プログラミング未経験でも基本情報の SQL は解けるようになりますか？",
+    a: "なります。SQL はプログラミング言語というより「表から必要な行と列を取り出す指示の書き方」で、変数もループも使いません。基本情報で問われるのは SELECT・結合・集約・GROUP BY・副問合せといった決まった型なので、型ごとに一度動かして確かめれば解けるようになります。このサイトのレッスンは、その型を 12 テーマに分けて初学者向けに順番に並べています。",
+  },
+  {
+    q: "参考書を読んでも SQL が頭に入りません。何が違いますか？",
+    a: "紙の上では「この SQL を実行すると表がどう変わるか」が見えないためです。とくに GROUP BY は複数の行が 1 つのグループにまとまる操作なので、途中の状態を想像できないと HAVING との違いが理解できません。このツールでは GROUP BY の段階でグループそのものが表示されるので、想像する必要がなくなります。",
+  },
+  {
     q: "このツールは何ができますか？",
-    a: "基本情報技術者試験で問われる SQL を、その場で書いて実行できます。特徴は「段階を追う」で、FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY という評価の順に、それぞれの時点の表を 1 つずつ見られることです。SELECT が最後に評価されることや、WHERE と HAVING の違いが目で確認できます。",
+    a: "基本情報技術者試験で問われる SQL を、その場で書いて実行できます。特徴は「一つ進める」で 1 段階ずつ追えることで、FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY という評価の順に、それぞれの時点の表を 1 つずつ見られることです。SELECT が最後に評価されることや、WHERE と HAVING の違いが目で確認できます。",
   },
   {
     q: "SQL はどこまで対応していますか？",
@@ -81,17 +102,18 @@ export default function FeSqlPage() {
             <header className="mb-6">
               <Eyebrow>基本情報技術者試験 科目 A</Eyebrow>
               <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
-                SQL をブラウザで実行して、評価順を目で追う
+SQL をブラウザで動かして、わかりやすく理解する
               </h1>
               <div
                 className="mt-3 max-w-3xl text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed space-y-2"
                 style={{ textWrap: "pretty" }}
               >
                 <p>
-                  データベース分野の SQL をその場で書いて実行できます。
+                  プログラミング未経験でもつまずかないように、
+                  データベース分野の SQL をその場で書いて実行できるようにしました。
                 </p>
                 <p>
-                  「段階を追う」を押すと、<strong>SQL が実際に評価される順番</strong>で、
+                  「一つ進める」を押していくと、<strong>SQL が実際に評価される順番</strong>で、
                   それぞれの時点の表が 1 つずつ表示されます。
                 </p>
                 <p className="text-xs">
@@ -227,6 +249,90 @@ export default function FeSqlPage() {
               >
                 GRANT とカーソルは、利用者の概念やホスト言語が必要になるため実行できません。
                 エディタに書くと、実行できない理由と解説へのリンクが表示されます。
+              </p>
+            </section>
+
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                SQL をわかりやすく学ぶ — レッスン {sqlLessons.length} 本
+              </h2>
+              <p
+                className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
+              >
+                シラバス「データ操作」の範囲をテーマ別に解説しています。
+                各レッスンには実行できるエディタが埋め込まれています。
+              </p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {sqlLessons.slice(0, 6).map((l) => (
+                  <li key={l.slug}>
+                    <Link
+                      href={`/fe/sql/lessons/${l.slug}`}
+                      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                    >
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        レッスン {l.order}
+                      </div>
+                      <div className="mt-1 font-semibold">{l.shortTitle}</div>
+                      <p
+                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                        style={{ textWrap: "pretty" }}
+                      >
+                        {l.cardSummary}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
+                <Link
+                  href="/fe/sql/lessons"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  基本情報の SQL をわかりやすく解説したレッスン一覧（全 {sqlLessons.length} 本）→
+                </Link>
+              </p>
+            </section>
+
+            <section className="mt-16 max-w-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                読めるようになったら — 練習問題 {sqlQuizzes.length} 問
+              </h2>
+              <p
+                className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
+                style={{ textWrap: "pretty" }}
+              >
+                SQL を読んで実行結果を当てる 4 択問題です。解答すると解説と、
+                その SQL をこのシミュレーターで開くリンクが出ます。
+              </p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {sqlQuizzes.slice(0, 4).map((q) => (
+                  <li key={q.slug}>
+                    <Link
+                      href={`/fe/sql/quiz/${q.slug}`}
+                      className="block h-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--border-strong)] hover:bg-[var(--muted)]/40 transition-colors"
+                    >
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        第 {q.order} 問
+                      </div>
+                      <div className="mt-1 font-semibold">{q.shortTitle}</div>
+                      <p
+                        className="mt-2 text-xs text-[var(--muted-foreground)] leading-relaxed"
+                        style={{ textWrap: "pretty" }}
+                      >
+                        {q.challenge}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6 text-sm text-[var(--muted-foreground)]">
+                <Link
+                  href="/fe/sql/quiz"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  基本情報 SQL の練習問題一覧（全 {sqlQuizzes.length} 問）→
+                </Link>
               </p>
             </section>
 

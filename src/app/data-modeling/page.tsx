@@ -4,31 +4,65 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
-import { SectionHubJsonLd } from "@/components/seo/JsonLd";
+import { SectionHubJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
+import { FAQ } from "@/components/layout/FAQ";
 import { sections, dataModelingCategories } from "@/content/sections";
 import { dataModelingTopicsIn, type DataModelingTopic } from "@/content/topics";
 
 const sectionMeta = sections["data-modeling"];
 
+const metaTitle = sectionMeta.metaTitle ?? sectionMeta.label;
+const metaDescription = sectionMeta.metaDescription ?? sectionMeta.description;
+
 export const metadata: Metadata = {
-  title: sectionMeta.label,
-  description: sectionMeta.description,
+  title: metaTitle,
+  description: metaDescription,
   alternates: { canonical: sectionMeta.path },
   openGraph: {
-    title: sectionMeta.label,
-    description: sectionMeta.description,
+    title: metaTitle,
+    description: metaDescription,
     url: sectionMeta.path,
   },
 };
+
+/*
+ * 正規化・ER 図は「用語の意味」より「どこから読むか」「何のためにやるか」で
+ * つまずく人が多く、検索や AI への質問もその形で来る。用語解説は各トピックが
+ * 持っているので、ここでは順序・目的・実務との距離だけを扱う。
+ */
+const FAQ_ITEMS = [
+  {
+    q: "正規化はどこから読むとわかりやすいですか？",
+    a: "「なぜ正規化が必要か」から読んでください。第1〜第3正規形の手順だけを先に覚えると、何のために表を分けているのかが分からないまま作業になります。更新時異常（同じ事実が複数行に散っているせいで起きる矛盾）を先に見ておくと、そのあとの関数従属性とキーの話が一本につながります。",
+  },
+  {
+    q: "関数従属性が理解できません。何がわかりやすくする鍵ですか？",
+    a: "「A が決まれば B が 1 つに決まる」という向きのある関係だ、という点だけです。数学の関数と同じで、逆向きは成り立たなくて構いません。社員番号が決まれば氏名は 1 つに決まるが、氏名が決まっても社員番号は 1 つに決まらない、という非対称が本質です。ここを掴むと、部分関数従属（第2正規形）と推移関数従属（第3正規形）は同じ道具の言い換えとして読めます。",
+  },
+  {
+    q: "実務では第3正規形まで必ずやるべきですか？",
+    a: "既定は第3正規形までで、そこから意図をもって崩すのが実務です。正規化は更新時異常を消す代わりに結合を増やすので、参照が極端に多い箇所では非正規化が正解になることもあります。重要なのは「知らずに崩れている」のと「理由があって崩している」の区別で、そのために正規形を先に理解しておく必要があります。",
+  },
+  {
+    q: "ER 図と正規化はどういう関係ですか？",
+    a: "ER 図は「何をどう捉えたか」を表す設計の絵、正規化は「その捉え方が矛盾を生まないか」を検算する手続きです。多対多を連関実体に分解する、弱エンティティを識別関係で表す、といった ER 図側の操作は、正規化の結果とほぼ対応します。両方を行き来できるようになると、設計レビューで指摘できる粒度が変わります。",
+  },
+];
 
 export default function DataModelingHome() {
   return (
     <>
       <SectionHubJsonLd section="data-modeling" />
+      <FaqJsonLd
+        items={FAQ_ITEMS}
+        aboutName="正規化と ER 図によるデータモデリング"
+        path={sectionMeta.path}
+      />
       <Hero />
       <TopicIndex />
       <MentorSection />
       <WhyThisSection />
+      <FaqSection />
     </>
   );
 }
@@ -210,6 +244,16 @@ function CategoryGroup({
         ))}
       </ul>
     </div>
+  );
+}
+
+function FaqSection() {
+  return (
+    <Container size="wide" className="pb-16">
+      <div className="max-w-3xl">
+        <FAQ items={FAQ_ITEMS} />
+      </div>
+    </Container>
   );
 }
 
