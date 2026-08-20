@@ -171,6 +171,7 @@ export const books: Book[] = [
       "atomicity",
       "durability",
       "concurrency",
+      "isolation-levels",
     ],
   },
   {
@@ -201,6 +202,7 @@ export const books: Book[] = [
       "notation",
       "atomicity",
       "concurrency",
+      "isolation-levels",
       "uniqueness",
       "referential-integrity",
       "durability",
@@ -230,6 +232,7 @@ export const books: Book[] = [
       "weak-entity",
       "atomicity",
       "concurrency",
+      "isolation-levels",
       "recap",
     ],
   },
