@@ -76,6 +76,7 @@ export const books: Book[] = [
         "SQL の書き方そのものは扱わない。SELECT や JOIN が書けない段階で開くと前提知識が足りず、読み進められずに止まる。",
     },
     topics: [
+      "why-index",
       "btree",
       "clustered",
       "composite",
@@ -163,6 +164,8 @@ export const books: Book[] = [
     description:
       "PostgreSQLの内部構造・ストレージ・インデックス機構を丁寧に解説。設計と運用計画の鉄則が学べる。",
     topics: [
+      "why-index",
+      "data-structure",
       "btree",
       "hash",
       "clustered",
@@ -183,6 +186,7 @@ export const books: Book[] = [
     description:
       "IPAデータベーススペシャリスト試験の総合対策書。インデックス関連は本サイトと合わせて学ぶと理解が深まる。",
     topics: [
+      "data-structure",
       "explain",
       "statistics",
       "cost",
@@ -272,7 +276,15 @@ export const books: Book[] = [
     amazonUrl: "https://www.amazon.co.jp/dp/4774173010?tag=taitech-22",
     description:
       "「なぜこの書き方が速いのか」を実行計画から説明する一冊。条件分岐・集約・結合・更新のそれぞれで、良い書き方と悪い書き方を対比しながら読める。",
-    topics: ["explain", "cost", "statistics", "btree", "composite", "covering"],
+    topics: [
+      "why-index",
+      "explain",
+      "cost",
+      "statistics",
+      "btree",
+      "composite",
+      "covering",
+    ],
   },
 
   // --- 基本情報技術者試験 (FE) ---

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { books, booksForTopic } from "@/content/books";
 import { bookShelves, booksInShelf } from "@/content/book-shelves";
+import { topics } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
 import { joho1Lessons } from "@/content/joho1/lessons";
 
@@ -38,6 +39,39 @@ describe("booksForTopic", () => {
 
   it("limit で件数を絞れる", () => {
     expect(booksForTopic("fe-playground", { domain: "fe", limit: 3 })).toHaveLength(3);
+  });
+
+  it("RDB 系の全トピックに紐づく書籍が 1 冊以上ある", () => {
+    /*
+     * **`topics` を足したとき books.ts への追記を忘れる事故を止めるためのテスト。**
+     *
+     * FE / 情報I には同種のテストがあったのに、rdb domain (rdb-index /
+     * data-modeling / why-need-rdb の 3 セクションが共有) だけ無かった。
+     *
+     * この失敗モードは**画面が壊れないので気づけない**のが厄介なところ。
+     * `booksForTopic` は「マッチした本 → それ以外」の順で domain 内の全書籍を返すので、
+     * 紐づけ忘れても書籍カードは今までどおり並ぶ。**順番だけが壊れる**。
+     * 実際 isolation-levels で踏んでいて、受験者に最も関連が高い
+     * 『データベーススペシャリスト』が後ろに沈んだまま本番に出ていた (2026-08-21 に是正)。
+     *
+     * `topic-coverage.test.ts` (PrevNext / ハブの列挙漏れ) と同じ発想で、
+     * 「黙って劣化する列挙」をテストで固定する。
+     */
+    const pool = books.filter((b) => b.domain === "rdb");
+    const missing = topics
+      .filter((t) => !pool.some((b) => b.topics.includes(t.slug)))
+      .map((t) => `${t.section}/${t.slug}`);
+    expect(missing).toEqual([]);
+  });
+
+  it("書籍の topics に実在しないトピック slug が混ざっていない", () => {
+    // 逆方向。タイポや、トピックを消したあとの残骸を検知する。
+    // マッチしない slug は黙って無視されるだけなので、これも画面には出ない
+    const known = new Set(topics.map((t) => t.slug));
+    const unknown = books
+      .filter((b) => b.domain === "rdb")
+      .flatMap((b) => b.topics.filter((s) => !known.has(s)).map((s) => `${b.id}: ${s}`));
+    expect(unknown).toEqual([]);
   });
 
   it("FE の各レッスン / ツールページに紐づく書籍が 1 冊以上ある", () => {
