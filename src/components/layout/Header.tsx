@@ -51,6 +51,18 @@ export function Header({ section = "rdb-index" }: { section?: HeaderSection } = 
             )}
           </div>
           <nav className="flex items-center gap-1 text-sm">
+            {/*
+              `md:` で出す (著者について の `sm:` より 1 段階遅らせている)。
+              左側はセクション名を `truncate` で縮めるので横溢れはしないが、
+              sm (640px) で 3 つ並べるとセクション名がほぼ潰れて、
+              **いま自分がどのセクションにいるかが読めなくなる**。
+            */}
+            <Link
+              href="/books"
+              className="hidden md:inline-block px-3 py-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            >
+              おすすめ参考書
+            </Link>
             <Link
               href="/about"
               className="hidden sm:inline-block px-3 py-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"

@@ -11,7 +11,7 @@ import { joho1Quizzes } from "@/content/joho1/quiz";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const staticPaths = ["/", "/about", "/privacy", "/terms", "/contact"];
+  const staticPaths = ["/", "/about", "/books", "/privacy", "/terms", "/contact"];
   const sectionHubs = Object.values(sections).map((s) => s.path);
   const categoryHubs = Object.values(dataModelingCategories).map((c) => c.path);
   const topicPaths = topics.map((t) => t.path);
@@ -45,6 +45,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // 主戦場ページなのでセクションハブと同格に上げる
     if (p === "/data-modeling/er-diagram") return 0.9;
     if (sectionHubs.includes(p)) return 0.9;
+    // 分野横断の書籍まとめ。セクションハブではないがカテゴリハブと同格に扱う
+    if (p === "/books") return 0.8;
     if (categoryHubs.includes(p)) return 0.8;
     return 0.7;
   };

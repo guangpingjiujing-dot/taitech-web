@@ -7,6 +7,7 @@ import { HubHomeJsonLd } from "@/components/seo/JsonLd";
 import { HubTopicNav } from "@/components/layout/HubTopicNav";
 import { site } from "@/lib/site";
 import { sections } from "@/content/sections";
+import { bookShelves } from "@/content/book-shelves";
 import { feQuizzes } from "@/content/fe/quiz";
 import { sqlLessons } from "@/content/fe/sql/lessons";
 import { sqlQuizzes } from "@/content/fe/sql/quiz";
@@ -37,6 +38,12 @@ export default function Home() {
         <div className="min-w-0">
           <Hero />
           <SeriesGroups />
+          {/*
+            セクションを一通り見せた直後、menta CTA より **前**。
+            収益の本命はサイト直接収益 (Amazon) で menta は補助という優先順位
+            (AGENTS.md) を、そのまま並び順に落としている。
+          */}
+          <BooksSection />
           <MentorSection />
           <WhyThisSite />
         </div>
@@ -374,6 +381,49 @@ function WhyThisSite() {
               </p>
             </div>
           ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/**
+ * `/books` への導線。**分野チップを出すのは「何の本があるか」を見せるため。**
+ * 「おすすめ参考書はこちら」だけのリンクだと、書籍紹介ページによくある
+ * 中身の見えない誘導と区別が付かず踏まれない。
+ *
+ * 分野は `bookShelves` から引く。トップに手で書き写すと棚を足したときに必ずずれる。
+ */
+function BooksSection() {
+  return (
+    <section className="border-b border-[var(--border)]">
+      <Container size="wide" className="py-16 md:py-20">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+          おすすめ参考書
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-[var(--muted-foreground)] leading-relaxed">
+          個別指導で生徒さんによく聞かれる「どの参考書を買えばいいか」への回答です。
+          分野ごとに 2 冊だけ挙げて、こんな人向け・中身・使い方・注意まで書いています。
+        </p>
+        <div className="mt-8 flex flex-wrap gap-2">
+          {bookShelves.map((shelf) => (
+            <Link
+              key={shelf.key}
+              href={`/books#${shelf.key}`}
+              className="inline-flex min-w-0 items-center rounded-full border border-[var(--border)] px-4 py-2 text-sm [overflow-wrap:anywhere] hover:border-[var(--foreground)] transition-colors"
+            >
+              {shelf.label}
+            </Link>
+          ))}
+        </div>
+        <div className="mt-6 text-sm">
+          <Link
+            href="/books"
+            className="underline underline-offset-4 hover:no-underline"
+          >
+            {bookShelves.length} 分野{" "}
+            {bookShelves.reduce((n, s) => n + s.order.length, 0)} 冊をまとめて見る →
+          </Link>
         </div>
       </Container>
     </section>

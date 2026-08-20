@@ -80,6 +80,7 @@ const PAGES = [
   "/fe/algorithm/quiz/fib-recursion",
   "/fe/algorithm/quiz/leap-year",
   "/fe/algorithm/quiz/indirect-index",
+  "/books",
   "/privacy",
   "/terms",
   "/contact",
@@ -956,6 +957,76 @@ test("FE pages show FE affiliate books with the required disclosure", async ({
   }
 });
 
+test("/books への導線がヘッダーとトップページから辿れる", async ({ page }) => {
+  const header = page.locator("header");
+
+  // md 以上ではヘッダーに出る。全ページ共通の恒常導線なのでセクションページで見る
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/joho1", { waitUntil: "domcontentloaded" });
+  await expect(header.getByRole("link", { name: "おすすめ参考書" })).toBeVisible();
+
+  // 768px でも、セクション名が読める幅を保ったまま 3 つ並ぶこと。
+  // ここが潰れるなら Header の breakpoint (md) を上げる
+  await page.setViewportSize({ width: 768, height: 900 });
+  await expect(header.getByRole("link", { name: "おすすめ参考書" })).toBeVisible();
+  const label = header.getByRole("link", { name: sectionShortLabelJoho1 });
+  const box = await label.boundingBox();
+  expect(box?.width ?? 0).toBeGreaterThan(60);
+
+  // sm 未満では隠す (無料相談ボタンだけ残る)
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(header.getByRole("link", { name: "おすすめ参考書" })).toBeHidden();
+
+  // トップページからも分野別に直接入れる
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("link", { name: "Python", exact: true }).click();
+  // playwright.config.ts は reuseExistingServer なので、`npm run dev` を上げたまま
+  // 流すと dev のオンデマンドコンパイルを踏む。既定の 5s では並列実行時に落ちる
+  await expect(page).toHaveURL(/\/books#python$/, { timeout: 15_000 });
+});
+
+const sectionShortLabelJoho1 = "情報I プログラム表記";
+
+test("/books: 4 分野すべてが並び、アンカーで直接開ける", async ({ page }) => {
+  await page.goto("/books", { waitUntil: "domcontentloaded" });
+
+  for (const [anchor, heading] of [
+    ["itpassport", "ITパスポート試験"],
+    ["fe", "基本情報技術者試験"],
+    ["sql", "SQL・データベース"],
+    ["python", "Python"],
+  ] as const) {
+    // 見出しがあること (棚を足したら列挙に追加する)
+    await expect(
+      page.getByRole("heading", { level: 2, name: heading, exact: true }),
+    ).toBeVisible();
+    // チャット等で `/books#python` を直接送れるように、id が生きていること
+    await expect(page.locator(`#${anchor}`)).toHaveCount(1);
+  }
+
+  // 1 分野 2 冊。冊数を絞る代わりに 1 冊あたりを厚くする設計 (book-shelves.ts)
+  await expect(page.locator("section[id] article")).toHaveCount(8);
+
+  // 各冊が 4 項目の詳細を持つ (8 冊 × 4)
+  for (const label of ["こんな人向け", "中身", "使い方", "注意"]) {
+    await expect(page.getByRole("term").filter({ hasText: label })).toHaveCount(8);
+  }
+
+  const links = page.locator('a[href*="amazon.co.jp"]');
+  const count = await links.count();
+  expect(count).toBe(16); // 8 冊 × (書名 + ボタン)
+  for (let i = 0; i < count; i++) {
+    // Amazon アソシエイト ID が落ちていないこと (AGENTS.md ガードレール)
+    expect(await links.nth(i).getAttribute("href")).toContain("tag=taitech-22");
+  }
+
+  // 景表法 / Amazon 運営規約で必須の明示。ページ全体が対象なので冒頭に 1 度
+  await expect(
+    page.getByText("本ページはAmazonアソシエイトのリンクを含みます。"),
+  ).toBeVisible();
+});
+
 // ---------------------------------------------------------------------------
 // /joho1 — 共通テスト「情報I」プログラム表記 実行シミュレーター
 // 設計は docs/wip/20260807-joho1/
@@ -1169,6 +1240,8 @@ test("モバイルで body が横スクロールしない", async ({ page }) => 
     // 表 2 枚 + T1/T2 レーン + 4×3 マトリクスで、溢れる要素が 1 ページに 3 種類ある
     "/why-need-rdb/isolation-levels",
     "/data-modeling/er-diagram",
+    // 長い書名のカードが 20 枚並ぶ。溢れるならここが最初に出る
+    "/books",
   ]) {
     await page.goto(path, { waitUntil: "networkidle" });
     const overflow = await page.evaluate(() => ({

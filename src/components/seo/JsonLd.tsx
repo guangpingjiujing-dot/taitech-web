@@ -1,4 +1,5 @@
 import { site } from "@/lib/site";
+import type { Book } from "@/content/books";
 import {
   findTopic,
   topicsInSection,
@@ -912,6 +913,94 @@ export function TopicJsonLd({
         pageUrl: `${site.url}${topic.path}`,
       }),
     );
+  }
+  return (
+    <>
+      {data.map((d, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
+        />
+      ))}
+    </>
+  );
+}
+
+/**
+ * `/books` (分野別のおすすめ書籍まとめ) の構造化データ。
+ *
+ * 棚ごとに `ItemList` を出し、各要素を `Book` にする。
+ * **`offers` は付けない。** 価格は Amazon 側で変動するのに対してこのページは
+ * 静的生成なので、書けば必ず古くなる。PA-API を有効化するまで価格には触れない。
+ */
+export function BooksPageJsonLd({
+  path,
+  name,
+  description,
+  shelves,
+  faq,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  shelves: { label: string; books: Book[] }[];
+  faq?: { q: string; a: string }[];
+}) {
+  const pageUrl = `${site.url}${path}`;
+  const data: object[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name,
+      url: pageUrl,
+      description,
+      inLanguage: "ja-JP",
+      dateModified: BUILD_DATE,
+      audience: LEARNER_AUDIENCE,
+      author: AUTHOR_PERSON,
+      publisher: PUBLISHER_ORG,
+      isPartOf: { "@type": "WebSite", name: site.name, url: site.url },
+      hasPart: shelves.map((shelf) => ({
+        "@type": "ItemList",
+        name: `${shelf.label}のおすすめ参考書`,
+        numberOfItems: shelf.books.length,
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
+        itemListElement: shelf.books.map((b, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "Book",
+            name: b.title,
+            author: { "@type": "Person", name: b.author },
+            url: b.amazonUrl,
+            description: b.description,
+            inLanguage: "ja",
+            bookFormat: "https://schema.org/Paperback",
+            ...(b.asin ? { isbn: b.asin } : {}),
+            ...(b.detail
+              ? {
+                  publisher: { "@type": "Organization", name: b.detail.publisher },
+                  numberOfPages: b.detail.pages,
+                  datePublished: b.detail.published,
+                  abstract: b.detail.forWho,
+                }
+              : {}),
+          },
+        })),
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "ホーム", item: site.url },
+        { "@type": "ListItem", position: 2, name: "おすすめ参考書", item: pageUrl },
+      ],
+    },
+  ];
+  if (faq && faq.length > 0) {
+    data.push(buildFaqPage({ items: faq, aboutName: name, pageUrl }));
   }
   return (
     <>

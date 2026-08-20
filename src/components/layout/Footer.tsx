@@ -103,6 +103,9 @@ export function Footer() {
             <Link href="/about" className="hover:text-[var(--foreground)]">
               著者について
             </Link>
+            <Link href="/books" className="hover:text-[var(--foreground)]">
+              おすすめ参考書
+            </Link>
             <Link href="/privacy" className="hover:text-[var(--foreground)]">
               プライバシーポリシー
             </Link>

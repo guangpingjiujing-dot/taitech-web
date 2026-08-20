@@ -11,7 +11,11 @@ type GtagFn = (
 type AmazonLinkProps = {
   href: string;
   bookId?: string;
-  location: "card" | "inline" | "sidebar";
+  /**
+   * GA4 のカスタムディメンション。`detail` は /books の詳細紹介ブロック
+   * (書名リンク / 末尾のボタンの両方) を指す
+   */
+  location: "card" | "inline" | "sidebar" | "detail";
   topic?: string;
   className?: string;
   children: ReactNode;
