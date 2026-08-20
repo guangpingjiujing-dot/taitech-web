@@ -957,6 +957,37 @@ test("FE pages show FE affiliate books with the required disclosure", async ({
   }
 });
 
+test("/books の共有カードがページ固有の内容になっている", async ({ page }) => {
+  // チャットや SNS で URL を直接渡す前提のページ。カードが崩れると効き目が大きい
+  await page.goto("/books", { waitUntil: "domcontentloaded" });
+
+  const meta = async (sel: string) =>
+    await page.locator(sel).first().getAttribute("content");
+
+  // og:image が実在すること。ページで openGraph を宣言すると (hub) から
+  // 継いでいた画像が外れるので、専用の opengraph-image.tsx が要る
+  const ogImage = await meta('meta[property="og:image"]');
+  expect(ogImage, "/books に og:image が無い").toBeTruthy();
+  const imgRes = await page.request.get(new URL(ogImage as string).pathname);
+  expect(imgRes.status()).toBe(200);
+
+  // root layout のサイト共通値のままになっていないこと
+  expect(await meta('meta[name="twitter:card"]')).toBe("summary_large_image");
+  for (const sel of [
+    'meta[property="og:title"]',
+    'meta[name="twitter:title"]',
+  ]) {
+    expect(await meta(sel), sel).toContain("おすすめ参考書");
+  }
+  for (const sel of [
+    'meta[name="description"]',
+    'meta[property="og:description"]',
+    'meta[name="twitter:description"]',
+  ]) {
+    expect(await meta(sel), sel).toContain("参考書");
+  }
+});
+
 test("/books への導線がヘッダーとトップページから辿れる", async ({ page }) => {
   const header = page.locator("header");
 

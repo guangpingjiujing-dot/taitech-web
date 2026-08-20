@@ -22,6 +22,17 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
     url: "/books",
   },
+  /*
+    root layout の `twitter` はサイト共通値。**ここで上書きしないと、
+    X / Slack のカードにサイト全体の紹介文が出る。** `card` を書き直さないと
+    `summary_large_image` が消えて画像なしの小カードに落ちるのも同じ理由
+    (src/lib/metadata.ts の buildTopicMetadata と揃えている)。
+  */
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+  },
 };
 
 const faq = [
