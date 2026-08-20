@@ -23,6 +23,53 @@ export type RaceDiagramProps = {
 };
 
 /**
+ * レーン部分だけの presentation。VizFrame も「結末」も持たない。
+ *
+ * **なぜ切り出してあるか**: 静的な `RaceDiagram` と、ステップ実行する
+ * `IsolationLevelViz` の両方が「縦軸=時間 / 横軸=アクター」の同じ見た目を要る。
+ * `RaceDiagram` は VizFrame ごと巻き取る作りなので、そのままでは
+ * 枠の中に枠が入れ子になって使い回せない。見た目を 1 箇所に保つための分離。
+ */
+export function RaceLanes({
+  actors,
+  steps,
+}: {
+  actors: string[];
+  steps: RaceStep[];
+}) {
+  const sorted = [...steps].sort((a, b) => a.time - b.time);
+
+  return (
+    <div className="overflow-x-auto">
+      <div
+        className="grid gap-2"
+        style={{
+          gridTemplateColumns: `4rem repeat(${actors.length}, minmax(10rem, 1fr))`,
+        }}
+      >
+        {/* Header row */}
+        <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+          時間
+        </div>
+        {actors.map((a, i) => (
+          <div
+            key={i}
+            className="border-b-2 border-[var(--foreground)] pb-1 text-center text-xs font-bold text-[var(--foreground)]"
+          >
+            {a}
+          </div>
+        ))}
+
+        {/* Rows */}
+        {sorted.map((s, i) => (
+          <StepRow key={i} step={s} actorCount={actors.length} index={i + 1} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
  * 「2 人 (or N 人) が同時に操作した結果」の時系列を可視化する。
  * 縦軸が時間、横軸がアクター (レーン)。各ステップは対応するレーンにボックスとして描画。
  * atomicity / concurrency ページで使う。
@@ -34,41 +81,9 @@ export function RaceDiagram({
   outcome,
   legend,
 }: RaceDiagramProps) {
-  const sorted = [...steps].sort((a, b) => a.time - b.time);
-
   return (
     <VizFrame title={title} legend={legend}>
-      <div className="overflow-x-auto">
-        <div
-          className="grid gap-2"
-          style={{
-            gridTemplateColumns: `4rem repeat(${actors.length}, minmax(10rem, 1fr))`,
-          }}
-        >
-          {/* Header row */}
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
-            時間
-          </div>
-          {actors.map((a, i) => (
-            <div
-              key={i}
-              className="border-b-2 border-[var(--foreground)] pb-1 text-center text-xs font-bold text-[var(--foreground)]"
-            >
-              {a}
-            </div>
-          ))}
-
-          {/* Rows */}
-          {sorted.map((s, i) => (
-            <StepRow
-              key={i}
-              step={s}
-              actorCount={actors.length}
-              index={i + 1}
-            />
-          ))}
-        </div>
-      </div>
+      <RaceLanes actors={actors} steps={steps} />
 
       <div className="mt-4 border-t border-[var(--border)] pt-3">
         <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">

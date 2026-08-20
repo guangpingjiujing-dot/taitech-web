@@ -1,4 +1,5 @@
 import { buildTopicMetadata } from "@/lib/metadata";
+import Link from "next/link";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
 import { FAQ } from "@/components/layout/FAQ";
@@ -127,8 +128,16 @@ COMMIT;`}</code>
 
       <h3>3. 分離レベル (Isolation Level) — DBMS の既定挙動</h3>
       <p>
-        SQL 標準で 4 段階 (<code>READ UNCOMMITTED</code> / <code>READ COMMITTED</code> / <code>REPEATABLE READ</code> / <code>SERIALIZABLE</code>) が定義されている。
-        PostgreSQL の既定は <code>READ COMMITTED</code>。厳密な整合性が必要な処理では <code>SERIALIZABLE</code> を局所的に使う。
+        「他人の途中経過がどこまで見えるか」を決める設定。SQL 標準で 4 段階が定義されており、
+        <strong>どの読み取り異常を許すか</strong>で段階が分かれる。
+      </p>
+      <p>
+        4 段階の違いと、ダーティリード / ノンリピータブルリード / ファントムリードの 3 異常は、
+        2 つのトランザクションをステップ実行しながら見るのがいちばん早い。
+        <Link href="/why-need-rdb/isolation-levels">
+          トランザクション分離レベルと 3 つの読み取り異常
+        </Link>
+        で、同じ操作列のまま分離レベルを切り替えて確かめられる。
       </p>
 
       <h3>4. MVCC (多版同時実行制御)</h3>

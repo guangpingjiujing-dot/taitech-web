@@ -36,6 +36,7 @@ const PAGES = [
   "/why-need-rdb",
   "/why-need-rdb/atomicity",
   "/why-need-rdb/concurrency",
+  "/why-need-rdb/isolation-levels",
   "/why-need-rdb/uniqueness",
   "/why-need-rdb/referential-integrity",
   "/why-need-rdb/durability",
@@ -306,6 +307,56 @@ test("Hash viz: step-by-step equal search and pipeline stages", async ({
     await stepBtn.click();
     await page.waitForTimeout(120);
   }
+
+  expect(errors).toEqual([]);
+  expect(warnings).toEqual([]);
+});
+
+/*
+ * このページの主張そのもの (「同じ操作列のまま分離レベルだけ変えると T1 の見え方が変わる」)
+ * を検証する。判定は文言ではなく、異常が起きた / 起きない のどちらのブロックが出るかで見る。
+ */
+test("Isolation viz: 同じ操作列で分離レベルを変えると結果が変わる", async ({
+  page,
+}) => {
+  const { errors, warnings } = watchConsole(page);
+  await page.goto("/why-need-rdb/isolation-levels", {
+    waitUntil: "networkidle",
+  });
+
+  const stepBtn = page.getByRole("button", { name: "次のステップ" });
+  const advanceToEnd = async () => {
+    for (let i = 0; i < 8; i++) {
+      if (await stepBtn.isDisabled()) break;
+      await stepBtn.click();
+      await page.waitForTimeout(60);
+    }
+  };
+
+  // 既定は ダーティリード × READ UNCOMMITTED → 異常が起きる
+  await advanceToEnd();
+  await expect(page.getByText("ダーティリード (dirty read) が起きた")).toBeVisible();
+
+  // 分離レベルだけ上げると、同じ操作列でも異常が消える
+  await page.getByRole("button", { name: "READ COMMITTED" }).click();
+  await advanceToEnd();
+  await expect(
+    page.getByText("ダーティリード (dirty read) は起きない"),
+  ).toBeVisible();
+
+  // ファントムリードは REPEATABLE READ でも (SQL 標準では) 起きる
+  await page.getByRole("button", { name: "ファントムリード" }).click();
+  await page.getByRole("button", { name: "REPEATABLE READ" }).click();
+  await advanceToEnd();
+  await expect(
+    page.getByText("ファントムリード (phantom read) が起きた"),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "SERIALIZABLE" }).click();
+  await advanceToEnd();
+  await expect(
+    page.getByText("ファントムリード (phantom read) は起きない"),
+  ).toBeVisible();
 
   expect(errors).toEqual([]);
   expect(warnings).toEqual([]);
@@ -1115,6 +1166,8 @@ test("モバイルで body が横スクロールしない", async ({ page }) => 
     "/joho1/transpile",
     "/rdb-index",
     "/why-need-rdb",
+    // 表 2 枚 + T1/T2 レーン + 4×3 マトリクスで、溢れる要素が 1 ページに 3 種類ある
+    "/why-need-rdb/isolation-levels",
     "/data-modeling/er-diagram",
   ]) {
     await page.goto(path, { waitUntil: "networkidle" });

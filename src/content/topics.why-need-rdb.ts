@@ -52,13 +52,18 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
       "経理担当 A と担当 B が同じ売上シートを開いて別々の修正を保存した結果、後に保存した側が先の修正を上書きして消してしまった (Lost Update)。RDB のロックと分離レベルによる同時実行制御を、この事故から学ぶ。",
     definition:
       "同時実行制御 (concurrency control) とは、複数のトランザクションが同時に実行される場合に、それらが直列に実行された時と同等の結果を保証するため、ロック・タイムスタンプ・多版同時実行制御 (MVCC) などの手法によって競合を調停する仕組みである。",
+    /*
+     * `分離レベル` / `isolation level` は **意図的に外してある**。
+     * `/why-need-rdb/isolation-levels` を新設した際に、狙うクエリが混ざって
+     * 自サイト内でカニバるのを防ぐため (判断は docs/wip/20260818-isolation-levels §2)。
+     * このページは「事故ストーリー (Lost Update)」担当で、分離レベルの本体は向こうが持つ。
+     * MVCC は同時実行制御の手段の話なのでここに残す。
+     */
     keywords: [
       "同時実行制御",
       "排他制御",
       "concurrency control",
       "ロック",
-      "分離レベル",
-      "isolation level",
       "MVCC",
       "Lost Update",
       "デッドロック",
@@ -66,6 +71,33 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     metaTitle: "同時実行制御とは｜Excel で修正が消えた事故で理解",
     metaDescription:
       "同じシートを 2 人が同時に編集した結果、後保存が先を上書きした事故 (Lost Update) を起点に、RDB のロック / 分離レベル / MVCC による同時実行制御を図解で解説。",
+  },
+  {
+    section: "why-need-rdb",
+    slug: "isolation-levels",
+    path: "/why-need-rdb/isolation-levels",
+    title: "トランザクション分離レベルと 3 つの読み取り異常",
+    shortTitle: "分離レベル",
+    level: "advanced",
+    summary:
+      "READ UNCOMMITTED / READ COMMITTED / REPEATABLE READ / SERIALIZABLE の 4 段階が、ダーティリード・ノンリピータブルリード・ファントムリードのどれを防ぐのか。2 つのトランザクションをステップ実行し、分離レベルを切り替えると同じ操作列で見え方が変わる様子を確かめながら理解する。",
+    definition:
+      "トランザクション分離レベル (isolation level) とは、並行実行されるトランザクションが互いの未確定・確定済みの変更をどこまで観測しうるかを規定する設定であり、SQL 標準では許容する読み取り異常の種類によって READ UNCOMMITTED / READ COMMITTED / REPEATABLE READ / SERIALIZABLE の 4 段階が定義されている。",
+    keywords: [
+      "トランザクション分離レベル",
+      "分離レベル",
+      "isolation level",
+      "ダーティリード",
+      "ノンリピータブルリード",
+      "ファントムリード",
+      "phantom read",
+      "READ COMMITTED",
+      "REPEATABLE READ",
+      "SERIALIZABLE",
+    ],
+    metaTitle: "トランザクション分離レベルとは｜4 段階を図解",
+    metaDescription:
+      "分離レベルの 4 段階が、ダーティリード / ノンリピータブルリード / ファントムリードのどれを防ぐのかを、2 つのトランザクションのステップ実行で確かめられる。SQL 標準の定義と PostgreSQL・MySQL の実挙動の違いまで解説。",
   },
   {
     section: "why-need-rdb",

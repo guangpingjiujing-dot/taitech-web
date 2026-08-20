@@ -37,10 +37,18 @@ const ER_DIAGRAM_ORDER = [
   "notation",
 ] as const;
 
-// 事故インパクト順 (atomicity から始めて衝撃度の高いものを先に、recap で総括)
+/*
+ * 事故インパクト順 (atomicity から始めて衝撃度の高いものを先に、recap で総括)。
+ *
+ * **明示列挙なので、トピックを足したらここにも足すこと。** 未記載のトピックは
+ * 下の `.filter(Boolean)` で黙って落ち、そのページだけ PrevNext が消える
+ * (isolation-levels 追加時に実際に踏んだ)。`TopicNav.tsx` の section 分岐と同じ罠。
+ */
 const WHY_NEED_RDB_ORDER = [
   "atomicity",
   "concurrency",
+  // 同時実行制御の深掘りなので concurrency の直後に置く
+  "isolation-levels",
   "uniqueness",
   "referential-integrity",
   "durability",

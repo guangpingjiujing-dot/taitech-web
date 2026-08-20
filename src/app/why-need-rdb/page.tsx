@@ -40,6 +40,11 @@ export const metadata: Metadata = {
   },
 };
 
+/*
+ * 番号付きで並べる連作の順序。**明示列挙なのでトピックを足したらここも見ること。**
+ * ただし「5 つの根本価値 + 総括」で意味が閉じているので、
+ * それに当たらない深掘りトピックは下の DEEP_DIVES へ入れる (連作の番号を崩さないため)。
+ */
 const LEARNING_ORDER = [
   "atomicity",
   "concurrency",
@@ -48,6 +53,9 @@ const LEARNING_ORDER = [
   "durability",
   "recap",
 ] as const;
+
+/** 連作の外側に置く深掘り。ハブから内部リンクを通すために必ずどちらかに載せる */
+const DEEP_DIVES = ["isolation-levels"] as const;
 
 const faq = [
   {
@@ -74,6 +82,9 @@ const faq = [
 
 export default function WhyNeedRdbHub() {
   const ordered = LEARNING_ORDER.map(
+    (slug) => whyNeedRdbTopics.find((t) => t.slug === slug)!,
+  );
+  const deepDives = DEEP_DIVES.map(
     (slug) => whyNeedRdbTopics.find((t) => t.slug === slug)!,
   );
 
@@ -152,6 +163,38 @@ export default function WhyNeedRdbHub() {
                       <span className="text-sm text-[var(--muted-foreground)]">
                         {t.title}
                       </span>
+                    </div>
+                    <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
+                      {t.summary}
+                    </p>
+                  </div>
+                  <LevelBadge level={t.level} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/*
+           * 深掘りは番号付きの連作とは別枠にする。
+           * 上のリストは「5 つの根本価値 + 総括」で意味が閉じており、
+           * ここに混ぜると番号と「5 つ」の見出しが合わなくなる (isolation-levels 追加時の判断)。
+           */}
+          <h3 className="mt-12 mb-2 text-lg font-bold tracking-tight">
+            さらに深く
+          </h3>
+          <p className="mb-4 text-sm text-[var(--muted-foreground)] leading-relaxed">
+            上の 6 本を読んだあと、同時実行制御をもう一段掘るならここから。
+          </p>
+          <ul className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+            {deepDives.map((t) => (
+              <li key={t.slug}>
+                <Link
+                  href={t.path}
+                  className="group flex items-start justify-between gap-4 py-5 px-2 -mx-2 hover:bg-[var(--muted)]/60 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-lg font-bold group-hover:underline underline-offset-4">
+                      {t.shortTitle}
                     </div>
                     <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
                       {t.summary}
