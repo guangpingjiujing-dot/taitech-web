@@ -78,6 +78,15 @@ export default function Page() {
         両方の検索がバランス良く発生するなら、逆順の複合インデックスを追加で貼るのが実務での判断。
       </p>
 
+      <p>
+        <strong>複合にすると実行計画の見え方が変わります。</strong>
+        単一インデックスでは片方の条件が <code>Filter</code> に残って
+        読んだ 1 万行のうち 6,667 行を捨てていたものが、複合にすると
+        <code>Filter</code> ごと消えて読むページが 4,167 → 3,333 に減ります。
+        実出力つきで
+        <Link href="/query-plan/index-cond-vs-filter">Index Cond と Filter の違い</Link>に。
+      </p>
+
       <FAQ items={faq} />
     </TopicLayout>
   );

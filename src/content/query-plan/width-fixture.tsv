@@ -1,0 +1,28 @@
+# 統計が無いテーブルの見積り — カリキュレーター（00-overview.md §6 の C）の正解データ
+# 採取: postgres:18 (PostgreSQL 18.6) / 既定設定 / server_encoding=UTF8 / 2026-08-21
+# formula: rows = floor((8192-24)/(width+24+4)) * 10 ; cost = 10*1.0 + rows*0.01
+# 全 23 行が formula と一致することを検証済み（下の ok 列）
+columns	width	rows	cost	formula_rows	ok
+a INT	4	2550	35.50	2550	ok
+a BIGINT	8	2260	32.60	2260	ok
+a TEXT	32	1360	23.60	1360	ok
+a BOOLEAN	1	2810	38.10	2810	ok
+a DATE	4	2550	35.50	2550	ok
+a TIMESTAMP	8	2260	32.60	2260	ok
+a NUMERIC	32	1360	23.60	1360	ok
+a UUID	16	1850	28.50	1850	ok
+a INT, b INT	8	2260	32.60	2260	ok
+a TEXT, b INT	36	1270	22.70	1270	ok
+a TEXT, b TEXT, c INT	68	850	18.50	850	ok
+a TEXT, b TEXT, c TEXT	96	650	16.50	650	ok
+a INT, b INT, c INT, d INT	16	1850	28.50	1850	ok
+a VARCHAR(1)	8	2260	32.60	2260	ok
+a VARCHAR(10)	38	1230	22.30	1230	ok
+a VARCHAR(50)	118	550	15.50	550	ok
+a VARCHAR(100)	218	330	13.30	330	ok
+a VARCHAR(1000)	516	150	11.50	150	ok
+a CHAR(1)	8	2260	32.60	2260	ok
+a CHAR(10)	44	1130	21.30	1130	ok
+a CHAR(50)	204	350	13.50	350	ok
+a TEXT, b BIGINT, c DATE	44	1130	21.30	1130	ok
+a SMALLINT, b REAL	6	2400	34.00	2400	ok

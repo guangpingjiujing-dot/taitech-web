@@ -9,6 +9,7 @@ type HeaderSection = "hub" | SectionKey;
 const HEADER_META: Record<HeaderSection, { label: string }> = {
   hub: { label: site.name },
   "rdb-index": { label: sections["rdb-index"].label },
+  "query-plan": { label: sections["query-plan"].shortLabel },
   "data-modeling": { label: sections["data-modeling"].label },
   "why-need-rdb": { label: sections["why-need-rdb"].shortLabel },
   fe: { label: sections.fe.shortLabel },

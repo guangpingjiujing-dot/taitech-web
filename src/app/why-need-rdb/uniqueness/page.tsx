@@ -166,7 +166,9 @@ INSERT INTO customers (email, name)
         </li>
       </ul>
 
-      <h2>関連トピック</h2>
+      {/* ★ 見出しを「関連トピック」にしない。TopicLayout が同名の見出しで
+          同一セクションの関連トピックを出すので、同じ見出しが 2 つ並ぶ */}
+      <h2>他セクションの関連ページ</h2>
       <p>
         主キー / UNIQUE の物理的な実装は
         <Link href="/rdb-index/unique"> UNIQUE インデックス </Link>

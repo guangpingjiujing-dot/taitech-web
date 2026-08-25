@@ -1,0 +1,16 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "big_noanalyze",
+      "Alias": "big_noanalyze",
+      "Startup Cost": 0.00,
+      "Total Cost": 783.15,
+      "Plan Rows": 43815,
+      "Plan Width": 36,
+      "Disabled": false
+    }
+  }
+]

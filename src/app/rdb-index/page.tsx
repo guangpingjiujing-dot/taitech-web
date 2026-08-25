@@ -163,6 +163,17 @@ function TopicIndex() {
         <TopicGroup title="前提知識" items={prereq} />
         <TopicGroup title="インデックスの種類" items={idx} />
         <TopicGroup title="関連トピック" items={rel} />
+
+        <div className="mt-12 border-l-2 border-[var(--foreground)] pl-5">
+          <p className="text-[15px] leading-relaxed">
+            <strong>貼ったインデックスが実際に使われているか</strong>は、実行計画を読むと分かります。
+            読み方は<Link href="/query-plan" className="underline underline-offset-4">
+              実行計画（EXPLAIN）の読み方
+            </Link>
+            にまとめてあります。2.16 秒かかる本物の計画を題材に、
+            遅い原因のノードを指せるところまで扱っています。
+          </p>
+        </div>
       </Container>
     </section>
   );

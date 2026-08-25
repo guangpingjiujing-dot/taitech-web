@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 type SeriesKey =
   | "why-need-rdb"
   | "rdb-index"
+  | "query-plan"
   | "normalization"
   | "er-diagram"
   | "fe"
@@ -25,6 +26,11 @@ const SERIES: Series[] = [
     key: "rdb-index",
     label: "RDBインデックス図解",
     href: "/rdb-index",
+  },
+  {
+    key: "query-plan",
+    label: "実行計画の読み方",
+    href: "/query-plan",
   },
   {
     key: "normalization",

@@ -205,6 +205,21 @@ function SeriesGroups() {
           ],
         },
         {
+          key: "query-plan",
+          actions: [{ href: sections["query-plan"].path, label: "このシリーズを見る" }],
+          title: sections["query-plan"].label,
+          lead: "読み方を知らないと 1 行も読めない実行計画を最初に出す。読み終わったとき、それが読める。",
+          bullets: [
+            "木構造の読み順と cost / rows の意味",
+            "loops を掛け忘れると犯人を見誤る",
+            "4 つのサインで遅いノードを指す",
+          ],
+          links: [
+            { href: "/query-plan/find-bottleneck", label: "遅いノードの見つけ方" },
+            { href: "/query-plan/read-tree", label: "実行計画を読む順番" },
+          ],
+        },
+        {
           key: "data-modeling",
           actions: [{ href: sections["data-modeling"].path, label: "このシリーズを見る" }],
           title: sections["data-modeling"].label,

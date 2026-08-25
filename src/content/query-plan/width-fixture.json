@@ -1,0 +1,143 @@
+{
+  "note": "capture の width-fixture.tsv から生成。手で書き換えない",
+  "rows": [
+    {
+      "columns": "a INT",
+      "width": 4,
+      "rows": 2550,
+      "cost": "35.50"
+    },
+    {
+      "columns": "a BIGINT",
+      "width": 8,
+      "rows": 2260,
+      "cost": "32.60"
+    },
+    {
+      "columns": "a TEXT",
+      "width": 32,
+      "rows": 1360,
+      "cost": "23.60"
+    },
+    {
+      "columns": "a BOOLEAN",
+      "width": 1,
+      "rows": 2810,
+      "cost": "38.10"
+    },
+    {
+      "columns": "a DATE",
+      "width": 4,
+      "rows": 2550,
+      "cost": "35.50"
+    },
+    {
+      "columns": "a TIMESTAMP",
+      "width": 8,
+      "rows": 2260,
+      "cost": "32.60"
+    },
+    {
+      "columns": "a NUMERIC",
+      "width": 32,
+      "rows": 1360,
+      "cost": "23.60"
+    },
+    {
+      "columns": "a UUID",
+      "width": 16,
+      "rows": 1850,
+      "cost": "28.50"
+    },
+    {
+      "columns": "a INT, b INT",
+      "width": 8,
+      "rows": 2260,
+      "cost": "32.60"
+    },
+    {
+      "columns": "a TEXT, b INT",
+      "width": 36,
+      "rows": 1270,
+      "cost": "22.70"
+    },
+    {
+      "columns": "a TEXT, b TEXT, c INT",
+      "width": 68,
+      "rows": 850,
+      "cost": "18.50"
+    },
+    {
+      "columns": "a TEXT, b TEXT, c TEXT",
+      "width": 96,
+      "rows": 650,
+      "cost": "16.50"
+    },
+    {
+      "columns": "a INT, b INT, c INT, d INT",
+      "width": 16,
+      "rows": 1850,
+      "cost": "28.50"
+    },
+    {
+      "columns": "a VARCHAR(1)",
+      "width": 8,
+      "rows": 2260,
+      "cost": "32.60"
+    },
+    {
+      "columns": "a VARCHAR(10)",
+      "width": 38,
+      "rows": 1230,
+      "cost": "22.30"
+    },
+    {
+      "columns": "a VARCHAR(50)",
+      "width": 118,
+      "rows": 550,
+      "cost": "15.50"
+    },
+    {
+      "columns": "a VARCHAR(100)",
+      "width": 218,
+      "rows": 330,
+      "cost": "13.30"
+    },
+    {
+      "columns": "a VARCHAR(1000)",
+      "width": 516,
+      "rows": 150,
+      "cost": "11.50"
+    },
+    {
+      "columns": "a CHAR(1)",
+      "width": 8,
+      "rows": 2260,
+      "cost": "32.60"
+    },
+    {
+      "columns": "a CHAR(10)",
+      "width": 44,
+      "rows": 1130,
+      "cost": "21.30"
+    },
+    {
+      "columns": "a CHAR(50)",
+      "width": 204,
+      "rows": 350,
+      "cost": "13.50"
+    },
+    {
+      "columns": "a TEXT, b BIGINT, c DATE",
+      "width": 44,
+      "rows": 1130,
+      "cost": "21.30"
+    },
+    {
+      "columns": "a SMALLINT, b REAL",
+      "width": 6,
+      "rows": 2400,
+      "cost": "34.00"
+    }
+  ]
+}

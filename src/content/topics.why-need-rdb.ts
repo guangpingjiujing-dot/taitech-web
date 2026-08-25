@@ -5,6 +5,11 @@ export type WhyNeedRdbTopic = {
   title: string;
   shortTitle: string;
   level: "basic" | "advanced";
+  /**
+   * 関連トピックを束ねるキー。RelatedTopics がこれで絞る。
+   * transaction = ACID の 4 特性 / constraint = 整合性制約 / recap = まとめ
+   */
+  group: "transaction" | "constraint" | "recap";
   summary: string;
   definition: string;
   keywords: string[];
@@ -22,6 +27,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "注文だけが残った夜 (原子性)",
     shortTitle: "原子性",
     level: "basic",
+    group: "transaction",
     summary:
       "受注時に「注文追加 → 在庫減算」の 2 段階マクロを実行する Excel で、途中で止まって注文は記録されたが在庫が減らないままの中途半端な状態が積み重なった。この事故から、RDB のトランザクションが提供する「原子性 (atomicity)」を体系的に理解する。",
     definition:
@@ -48,6 +54,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "2 人が同時に書いて修正が消えた (同時実行制御)",
     shortTitle: "同時実行制御",
     level: "basic",
+    group: "transaction",
     summary:
       "経理担当 A と担当 B が同じ売上シートを開いて別々の修正を保存した結果、後に保存した側が先の修正を上書きして消してしまった (Lost Update)。RDB のロックと分離レベルによる同時実行制御を、この事故から学ぶ。",
     definition:
@@ -79,6 +86,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "トランザクション分離レベルと 3 つの読み取り異常",
     shortTitle: "分離レベル",
     level: "advanced",
+    group: "transaction",
     summary:
       "READ UNCOMMITTED / READ COMMITTED / REPEATABLE READ / SERIALIZABLE の 4 段階が、ダーティリード・ノンリピータブルリード・ファントムリードのどれを防ぐのか。2 つのトランザクションをステップ実行し、分離レベルを切り替えると同じ操作列で見え方が変わる様子を確かめながら理解する。",
     definition:
@@ -106,6 +114,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "「山田太郎」の行が 4 つある (一意性)",
     shortTitle: "一意性",
     level: "basic",
+    group: "constraint",
     summary:
       "顧客管理シートに「山田太郎」の行が 4 つできてしまい、しかもそれぞれ違う連絡先。同一人物の再登録なのか、同姓同名の別人なのかシステム的に判定できない。この事故から、RDB の主キーと UNIQUE 制約による一意性の保証を理解する。",
     definition:
@@ -132,6 +141,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "顧客 ID が消えた注文シート (参照整合性)",
     shortTitle: "参照整合性",
     level: "basic",
+    group: "constraint",
     summary:
       "顧客シートで顧客 ID「C-999」の行を削除したのに、注文シートには「C-999」の注文が残ったまま。宛先が不明になった。この事故から、RDB の外部キー制約と CASCADE / RESTRICT / SET NULL の挙動を学ぶ。",
     definition:
@@ -158,6 +168,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "停電で全部消えた (永続性)",
     shortTitle: "永続性",
     level: "basic",
+    group: "transaction",
     summary:
       "深夜の停電から復電後、Excel を開くと当日の受注データがまるごと消えていた (最終保存は朝、以降 8 時間分が全滅)。この事故から、RDB の Write-Ahead Logging (WAL) と COMMIT 時のディスク同期による永続性を理解する。",
     definition:
@@ -186,6 +197,7 @@ export const whyNeedRdbTopics: WhyNeedRdbTopic[] = [
     title: "RDB が黙って守ってくれている 5 つの根本価値 (総括)",
     shortTitle: "RDB の 5 つの根本価値",
     level: "basic",
+    group: "recap",
     summary:
       "5 つの事故から見えた「Excel には無くて RDB には有る」5 つの根本価値 (原子性 / 同時実行制御 / 一意性 / 参照整合性 / 永続性) を横断的にまとめる。ACID と宣言的制約が「なぜ RDB なのか」の答えである。",
     definition:

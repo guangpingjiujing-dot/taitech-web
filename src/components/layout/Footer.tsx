@@ -41,8 +41,16 @@ export function Footer() {
     { href: "/joho1/dncl", label: "DNCL との違い" },
   ];
 
-  /** セクションの入口 + そのセクションのトピック */
-  const topicColumn = (key: "why-need-rdb" | "rdb-index" | "data-modeling") => ({
+  /**
+   * セクションの入口 + そのセクションのトピック。
+   *
+   * **`columns` は手書きの配列で、セクションを足しても tsc も E2E も落ちない。**
+   * 追加を忘れるとフッターから新セクションへの導線が 1 本も生えないので、
+   * `src/content/topic-coverage.test.ts` がソース文字列で列挙漏れを検査している。
+   */
+  const topicColumn = (
+    key: "why-need-rdb" | "rdb-index" | "query-plan" | "data-modeling",
+  ) => ({
     key,
     heading: sections[key].shortLabel,
     links: [
@@ -57,6 +65,7 @@ export function Footer() {
   const columns = [
     topicColumn("why-need-rdb"),
     topicColumn("rdb-index"),
+    topicColumn("query-plan"),
     topicColumn("data-modeling"),
     { key: "fe", heading: sections.fe.shortLabel, links: feLinks },
     { key: "joho1", heading: sections.joho1.shortLabel, links: joho1Links },
@@ -75,7 +84,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-10 grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6">
           {columns.map((column) => (
             <div key={column.key} className="min-w-0">
               <div className="text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">

@@ -17,6 +17,13 @@ const RDB_GROUP_LABEL = {
   related: "関連トピック",
 } as const;
 
+/** 実行計画セクションの段（読者の到達点で切っている。`topics.query-plan.ts` の `stage`） */
+const QUERY_PLAN_STAGE_LABEL = {
+  read: "読めるようになる",
+  find: "原因を指せるようになる",
+  deep: "数字の出どころ",
+} as const;
+
 export function TopicLayout({
   section,
   slug,
@@ -35,7 +42,9 @@ export function TopicLayout({
       ? RDB_GROUP_LABEL[topic.group]
       : topic.section === "data-modeling"
         ? dataModelingCategories[topic.category].label
-        : ""; // why-need-rdb は sub-classification なし
+        : topic.section === "query-plan"
+          ? QUERY_PLAN_STAGE_LABEL[topic.stage]
+          : ""; // why-need-rdb は sub-classification なし
 
   return (
     <Container size="wide" className="py-8 md:py-12">
@@ -92,7 +101,9 @@ export function TopicLayout({
                 ? "rdb-index"
                 : topic.section === "why-need-rdb"
                   ? "why-need-rdb"
-                  : topic.category
+                  : topic.section === "query-plan"
+                    ? "query-plan"
+                    : topic.category
             }
           />
           <BookSidebar topicSlug={slug} />

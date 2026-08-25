@@ -5,6 +5,7 @@ import {
   rdbTopics,
   dataModelingTopicsIn,
   whyNeedRdbTopics,
+  queryPlanTopicsInOrder,
   findTopic,
   type DataModelingTopic,
   type Topic,
@@ -61,6 +62,14 @@ function getOrderedTopics(
 ): Topic[] {
   if (section === "rdb-index") {
     return rdbTopics;
+  }
+  /*
+   * query-plan は順序を `stageOrder` に持たせている（手書きの slug 配列を作らない）。
+   * ここを足し忘れると未知の section が末尾の NORMALIZATION_ORDER に落ち、
+   * idx === -1 になって **全ページで前後ナビが消える**（why-need-rdb で実際に踏んだ事故）。
+   */
+  if (section === "query-plan") {
+    return queryPlanTopicsInOrder();
   }
   if (section === "why-need-rdb") {
     return WHY_NEED_RDB_ORDER

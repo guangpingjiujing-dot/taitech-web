@@ -1,0 +1,37 @@
+ Limit  (cost=196523.68..196523.70 rows=10 width=30) (actual time=2160.299..2160.379 rows=10.00 loops=1)
+   Buffers: shared hit=944213 read=72477, temp read=2082 written=2089
+   ->  Sort  (cost=196523.68..196526.29 rows=1046 width=30) (actual time=2160.293..2160.320 rows=10.00 loops=1)
+         Sort Key: (sum((i.price * i.qty))) DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=944213 read=72477, temp read=2082 written=2089
+         ->  GroupAggregate  (cost=196477.54..196501.07 rows=1046 width=30) (actual time=2090.929..2158.921 rows=20000.00 loops=1)
+               Group Key: c.name
+               Buffers: shared hit=944210 read=72477, temp read=2082 written=2089
+               ->  Sort  (cost=196477.54..196480.15 rows=1046 width=22) (actual time=2090.883..2131.767 rows=500000.00 loops=1)
+                     Sort Key: c.name
+                     Sort Method: external merge  Disk: 16656kB
+                     Buffers: shared hit=944210 read=72477, temp read=2082 written=2089
+                     ->  Nested Loop  (cost=597.43..196425.08 rows=1046 width=22) (actual time=3.118..1561.364 rows=500000.00 loops=1)
+                           Buffers: shared hit=944207 read=72477
+                           ->  Hash Join  (cost=597.00..57141.20 rows=523 width=18) (actual time=3.087..177.650 rows=250000.00 loops=1)
+                                 Hash Cond: (o.customer_code = c.code)
+                                 Buffers: shared read=16684
+                                 ->  Seq Scan on orders o  (cost=0.00..56537.00 rows=526 width=11) (actual time=0.129..127.002 rows=250000.00 loops=1)
+                                       Filter: ((ordered_at >= '2026-07-01'::date) AND (status = 'shipped'::text) AND (channel = 'web'::text) AND (payment = 'card'::text))
+                                       Rows Removed by Filter: 1750000
+                                       Buffers: shared read=16537
+                                 ->  Hash  (cost=347.00..347.00 rows=20000 width=21) (actual time=2.844..2.847 rows=20000.00 loops=1)
+                                       Buckets: 32768  Batches: 1  Memory Usage: 1309kB
+                                       Buffers: shared read=147
+                                       ->  Seq Scan on customers c  (cost=0.00..347.00 rows=20000 width=21) (actual time=0.053..1.144 rows=20000.00 loops=1)
+                                             Buffers: shared read=147
+                           ->  Index Scan using order_items_order_id_idx on order_items i  (cost=0.43..266.09 rows=23 width=12) (actual time=0.005..0.005 rows=2.00 loops=250000)
+                                 Index Cond: (order_id = o.id)
+                                 Filter: (qty = 3)
+                                 Rows Removed by Filter: 4
+                                 Index Searches: 250000
+                                 Buffers: shared hit=944207 read=55793
+ Planning:
+   Buffers: shared hit=254 read=43
+ Planning Time: 3.419 ms
+ Execution Time: 2162.557 ms

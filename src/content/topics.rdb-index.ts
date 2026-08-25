@@ -191,31 +191,43 @@ export const rdbTopics: RdbTopic[] = [
     section: "rdb-index",
     slug: "explain",
     path: "/rdb-index/explain",
-    title: "実行計画（EXPLAIN）の読み方",
-    shortTitle: "実行計画",
+    title: "インデックスが使われないときに何を見るか",
+    shortTitle: "使われない理由",
     level: "advanced",
     group: "related",
     summary:
-      "オプティマイザがどの方法で検索するかを示す実行計画の読み方を身につける。",
+      "貼ったはずのインデックスが使われない。実行計画での判定と、使われない 8 つの理由。",
     definition:
-      "実行計画（EXPLAIN）とは、クエリオプティマイザが選択したデータアクセス方法・結合順・見積り件数などを示す情報であり、パフォーマンスチューニングの起点になる。",
-    keywords: ["EXPLAIN", "実行計画", "オプティマイザ", "コスト"],
-    metaTitle: "実行計画 (EXPLAIN) の読み方｜図解でオプティマイザ理解",
+      "インデックスが使われているかは実行計画で判定できる。条件が Index Cond に乗っていれば読む前に効いており、Filter に残っていればテーブルを読んでから捨てている。使われない理由には、列への関数適用・暗黙の型変換・中間一致・複合インデックスの左端規則・対象行が多すぎる・統計が古いなどがある。",
+    keywords: [
+      "インデックス 使われない",
+      "インデックス 効かない",
+      "index 使われない postgresql",
+      "Index Cond Filter",
+      "インデックス 効かない 原因",
+    ],
+    metaTitle: "インデックスが使われない 8 つの理由｜実行計画で判定",
     metaDescription:
-      "EXPLAIN が示す実行計画の読み方を図解で解説。オプティマイザが選んだアクセス方法・結合順・見積り件数の読み方、パフォーマンスチューニングの起点として使うポイントまで。",
+      "貼ったはずのインデックスが使われないときに見るところを図解。実行計画での判定は 1 行で済む。関数適用・暗黙の型変換・中間一致・複合インデックスの左端規則・対象行が多すぎる・統計が古いなど、使われない 8 つの理由と直し方まで。",
   },
   {
     section: "rdb-index",
     slug: "statistics",
     path: "/rdb-index/statistics",
+    /*
+     * ★ MySQL 特化に倒しかけたが戻した（05-implementation-review.md F-1）。
+     * 倒すと `postgresql 統計情報` 系の需要を自ら捨てることになるうえ、
+     * 受け皿の `/query-plan/planner-statistics` は第 2 弾でまだ存在しない。
+     * **移設は planner-statistics が実在してから**。それまでは両方を扱う。
+     */
     title: "統計情報とオプティマイザ",
     shortTitle: "統計情報",
     level: "advanced",
     group: "related",
     summary:
-      "オプティマイザは統計情報を頼りにインデックス利用を判断する。仕組みと落とし穴を理解する。",
+      "統計情報が古いとインデックスが無視される。MySQL / PostgreSQL での更新タイミングと確認方法。",
     definition:
-      "統計情報とは、テーブルやカラムの行数・値の分布・NULL率などをオプティマイザが参照する要約データであり、これが古いと実行計画が最適でなくなる。",
+      "統計情報とは、テーブルやカラムの行数・値の分布・NULL 率などをオプティマイザが参照する要約データであり、これが古いとインデックスが選ばれなくなる。MySQL では InnoDB の推定値を ANALYZE TABLE で、PostgreSQL では pg_statistic を ANALYZE / autovacuum で更新する。",
     keywords: [
       "統計情報",
       "オプティマイザ",
@@ -225,10 +237,11 @@ export const rdbTopics: RdbTopic[] = [
       "PostgreSQL 統計情報",
       "pg_statistic",
       "innodb_stats",
+      "統計情報 インデックス 選ばれない",
     ],
-    metaTitle: "統計情報とオプティマイザ｜MySQL / PostgreSQL の仕組みを図解",
+    metaTitle: "統計情報とオプティマイザ｜MySQL / PostgreSQL の仕組み",
     metaDescription:
-      "オプティマイザが統計情報を頼りにインデックス利用を判断する仕組みを図解で解説。MySQL (innodb_stats / ANALYZE TABLE) と PostgreSQL (pg_statistic / ANALYZE / autovacuum) それぞれの更新タイミング、カーディナリティ・NULL率の役割、統計情報が古いときの落とし穴まで。",
+      "統計情報が古いとインデックスが無視される仕組みを図解。カーディナリティと NULL 率の役割、MySQL (innodb_stats / ANALYZE TABLE) と PostgreSQL (pg_statistic / autovacuum / default_statistics_target) の更新タイミング、統計を直しても速くならない場合まで。",
   },
   {
     section: "rdb-index",

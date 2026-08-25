@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -29,7 +30,11 @@ const faq = [
   },
   {
     q: "PostgreSQL の統計情報はどこに保存されている？",
-    a: "pg_statistic (システムカタログ) に保存され、pg_stats ビュー経由で参照できます。ANALYZE か autovacuum の一部として自動更新されます。",
+    a: "pg_statistic (システムカタログ) に保存され、pg_stats ビュー経由で参照できます。ANALYZE か autovacuum の一部として自動更新されます。サンプリング粒度は default_statistics_target (デフォルト 100) で決まり、列単位に ALTER TABLE ... SET STATISTICS で上書きできます。",
+  },
+  {
+    q: "統計を更新すれば必ず速くなりますか？",
+    a: "なりません。統計の更新は「見積りが直る」操作であって「速くなる」操作ではありません。見積りが直った結果、プランナが別の計画を選んでかえって遅くなることもあります。実測した例が実行計画のセクションにあります。",
   },
 ];
 
@@ -39,6 +44,12 @@ export default function Page() {
       <TopicJsonLd section="rdb-index" slug={slug} faq={faq} />
 
       <h2>インデックスを使うかどうかは統計情報が決める</h2>
+      <p>
+        このページは統計情報が<strong>インデックスの選択にどう効くか</strong>を、
+        MySQL / InnoDB と PostgreSQL の両方で扱う。
+        PostgreSQL のプランナ側（見積りがどう計算され、外れると何が起きるか）は
+        <Link href="/query-plan">実行計画の読み方</Link>にある。
+      </p>
       <p>
         DBの中では「クエリオプティマイザ」がSQLを見て、複数の実行計画候補の中からコスト最小のものを選びます。
         このコスト見積りは統計情報（各カラムの値の分布、行数、NULL率など）に基づきます。
@@ -91,35 +102,52 @@ export default function Page() {
 
       <h2>PostgreSQL の統計情報</h2>
       <p>
-        PostgreSQL の統計情報はシステムカタログ <code>pg_statistic</code> に格納される。
-        直接読むのは面倒なので、通常は <code>pg_stats</code> ビュー越しに参照する
-        (行数・NULL 率・最頻値 <code>most_common_vals</code>・ヒストグラム境界 <code>histogram_bounds</code>
+        PostgreSQL でも考え方は同じで、統計が古いとインデックスが選ばれなくなる。
+        違うのは保存先と更新の仕組みだ。統計はシステムカタログ{" "}
+        <code>pg_statistic</code> に格納される。直接読むのは面倒なので、通常は{" "}
+        <code>pg_stats</code> ビュー越しに参照する (行数・NULL 率・最頻値{" "}
+        <code>most_common_vals</code>・ヒストグラム境界 <code>histogram_bounds</code>{" "}
         などが人間可読な形で並ぶ)。
       </p>
-      <p>
-        更新のトリガーは 2 つ。
-      </p>
+      <p>更新のトリガーは 2 つ。</p>
       <ul>
         <li>
-          <strong>自動</strong>: <strong>autovacuum</strong> ワーカーが VACUUM とセットで ANALYZE も回す。
-          <code>autovacuum_analyze_scale_factor</code> (デフォルト 0.1) と
+          <strong>自動</strong>: <strong>autovacuum</strong> ワーカーが VACUUM とセットで
+          ANALYZE も回す。<code>autovacuum_analyze_scale_factor</code> (デフォルト 0.1) と
           <code>autovacuum_analyze_threshold</code> (デフォルト 50) で発火条件が決まる。
         </li>
         <li>
-          <strong>手動</strong>: <code>ANALYZE table_name;</code> または <code>VACUUM ANALYZE table_name;</code>。
-          後者は VACUUM も同時に実行する。バルクロード後は必ず手で打つのが安全。
+          <strong>手動</strong>: <code>ANALYZE table_name;</code> または{" "}
+          <code>VACUUM ANALYZE table_name;</code>。後者は VACUUM も同時に実行する。
+          バルクロード後は必ず手で打つのが安全。
         </li>
       </ul>
       <p>
         サンプリング粒度は <code>default_statistics_target</code> (デフォルト 100) で決まり、
-        列単位に <code>ALTER TABLE ... ALTER COLUMN col SET STATISTICS 1000;</code> で上書きできる。
-        偏りが大きいカラムはターゲット値を上げると <code>most_common_vals</code> の候補数と
-        ヒストグラム境界数が増え、見積り精度が改善する。
+        列単位に <code>ALTER TABLE ... ALTER COLUMN col SET STATISTICS 1000;</code>{" "}
+        で上書きできる。偏りが大きいカラムはターゲット値を上げると{" "}
+        <code>most_common_vals</code> の候補数とヒストグラム境界数が増え、見積り精度が改善する。
       </p>
       <p>
         <code>EXPLAIN ANALYZE</code> で「見積り行数」と「実際の行数」が大きくズレていたら、
         まず ANALYZE を疑うのが定石。
+        <strong>ただし、それで速くなるとは限らない。</strong>
       </p>
+      <p>
+        <strong>プランナ側の詳しい話は実行計画のセクションにまとめてある。</strong>
+      </p>
+      <ul>
+        <li>
+          <Link href="/query-plan/estimated-rows">見積り行数の内訳</Link> —
+          統計が無いテーブルで <code>rows=850</code> と出る理由を最後まで計算で追う。
+          <code>reltuples = -1</code> が「0 行」ではなく「未調査」の印である話も
+        </li>
+        <li>
+          <Link href="/query-plan/find-bottleneck">遅いノードの見つけ方</Link> —
+          見積りが 475 倍外れている実例と、
+          <strong>統計を直したら計画が別物になって遅くなった</strong>実測
+        </li>
+      </ul>
 
       <FAQ items={faq} />
     </TopicLayout>

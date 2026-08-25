@@ -3,6 +3,7 @@ import {
   rdbTopicsBy,
   dataModelingTopicsIn,
   whyNeedRdbTopics,
+  queryPlanTopicsInOrder,
 } from "@/content/topics";
 import { feLessons } from "@/content/fe/lessons";
 import { joho1Lessons } from "@/content/joho1/lessons";
@@ -11,6 +12,16 @@ import { sqlLessons } from "@/content/fe/sql/lessons";
 import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 import { cn } from "@/lib/utils";
+
+/**
+ * 実行計画セクションの段。**読者の到達点で切っている**（`topics.query-plan.ts` の `stage`）。
+ * ここは明示列挙が必要な箇所（`AGENTS.md` の既知の罠）。
+ */
+const QUERY_PLAN_STAGES = [
+  { key: "read", label: "読めるようになる" },
+  { key: "find", label: "原因を指せるようになる" },
+  { key: "deep", label: "数字の出どころ" },
+] as const;
 
 const RDB_GROUPS = [
   { key: "prereq", label: "前提知識" },
@@ -53,6 +64,12 @@ export function TopicNav({
               items: whyNeedRdbTopics,
             },
           ]
+        : section === "query-plan"
+          ? QUERY_PLAN_STAGES.map((st) => ({
+              key: st.key,
+              label: st.label,
+              items: queryPlanTopicsInOrder().filter((t) => t.stage === st.key),
+            }))
         : section === "fe"
           ? [
               /*

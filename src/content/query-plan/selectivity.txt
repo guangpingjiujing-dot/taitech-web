@@ -1,0 +1,8 @@
+# 4 条件それぞれを単独で EXPLAIN した見積り（§4-2a の表の一次情報）
+# 採取: hero-plan.json と同じ ANALYZE 状態。積が計画の rows と一致することを確認できる
+status = 'shipped'                 rows=252533
+ordered_at >= '2026-07-01'         rows=261536
+channel = 'web'                    rows=252533
+payment = 'card'                   rows=252533
+4 条件すべて                        rows=526
+# 総行数: 2000000

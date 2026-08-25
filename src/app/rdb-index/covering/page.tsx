@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -65,6 +66,14 @@ export default function Page() {
         <li>ソートや集約に使うカラムを含めておくと、そのままインデックスから結果が返せる</li>
         <li>大きなカラムを覆うとインデックスが膨らむので費用対効果を確認する</li>
       </ul>
+
+      <p>
+        <strong>効果を実測した例があります。</strong>
+        2.16 秒かかっていたクエリの内側にカバリングインデックスを足したところ、
+        <code>Index Only Scan</code> に変わって <code>Heap Fetches: 0</code> になり、
+        <strong>0.94 秒まで落ちました</strong>。実行計画つきで
+        <Link href="/query-plan/find-bottleneck">遅いノードの見つけ方</Link>に置いてあります。
+      </p>
 
       <FAQ items={faq} />
     </TopicLayout>

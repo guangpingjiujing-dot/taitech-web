@@ -3,6 +3,7 @@ import { site } from "@/lib/site";
 export type SectionKey =
   | "why-need-rdb"
   | "rdb-index"
+  | "query-plan"
   | "data-modeling"
   | "fe"
   | "joho1";
@@ -44,7 +45,29 @@ export const sections: Record<SectionKey, Section> = {
     ogImageAlt: "RDBインデックス図解",
     metaTitle: "RDBインデックスとは｜種類と仕組みを図解で一覧",
     metaDescription:
-      "RDB のインデックスの種類と仕組みを図解で一覧。B-tree・ハッシュ・クラスタ化・複合・カバリング・部分インデックスの違いと使い分けから、実行計画と統計情報の読み方まで、12 本の記事で体系的に理解できる。",
+      "RDB のインデックスの種類と仕組みを図解で一覧。B-tree・ハッシュ・クラスタ化・複合・カバリング・部分インデックスの違いと使い分けから、インデックスが効いているかの確認まで、12 本の記事で体系的に理解できる。",
+  },
+  "query-plan": {
+    key: "query-plan",
+    /*
+     * セクション名を `/explain` にしなかった理由: 中身の半分は「プランナ・統計・コストモデル」で
+     * EXPLAIN コマンドの解説ではない。配下に `explain-basics` を置けば EXPLAIN も自然に収まる。
+     * 「実行計画」という検索語は URL ではなく title / H1 / 本文で持つ。
+     */
+    label: "実行計画の読み方",
+    shortLabel: "実行計画の読み方",
+    path: "/query-plan",
+    description:
+      "PostgreSQL の実行計画（EXPLAIN）を、読み方の初歩から、遅い原因のノードを指せるところまで連れて行くセクション。読み方を知らなければ 1 行も読めない本物の実行計画を最初に出し、読み終わったときにそれが読めている状態を作る。",
+    ogImageAlt: "実行計画の読み方",
+    /*
+     * ★ metaTitle / metaDescription はここに置かない。
+     * このハブは `title: { absolute }` でブランド名を落とす設計なので
+     * `app/query-plan/page.tsx` が PAGE_TITLE / PAGE_DESCRIPTION を持っている。
+     * 両方に置くと同じページのタイトルが 2 文言で存在して片方が必ず腐る
+     * （06-content-review.md S2）。`description` は llms.txt と
+     * SectionHubJsonLd が読むのでここに残す。
+     */
   },
   "data-modeling": {
     key: "data-modeling",

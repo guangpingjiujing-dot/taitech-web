@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -67,6 +68,14 @@ export default function Page() {
         <li>主キーがランダム値（UUID など）の場合、挿入のたびに物理的な再配置が発生してコストが増大するので注意</li>
         <li>1つしか作れないので、「どの検索を最も速くしたいか」を吟味する</li>
       </ul>
+
+      <p>
+        <strong>行の並びが効く場面は実行計画にも出ます。</strong>
+        <code>Bitmap Heap Scan</code> が読むページ数を減らせるのは
+        <strong>該当行が固まって置かれているときだけ</strong>で、散らばっていると
+        全表スキャンと同じページ数を読みます。実測は
+        <Link href="/query-plan/scan-nodes">スキャンの種類</Link>に。
+      </p>
 
       <FAQ items={faq} />
     </TopicLayout>

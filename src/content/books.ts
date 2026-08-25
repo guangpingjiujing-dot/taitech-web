@@ -175,6 +175,13 @@ export const books: Book[] = [
       "durability",
       "concurrency",
       "isolation-levels",
+      // 実行計画セクション: 内部構造に踏み込むページ（見積り・コスト・ノードの仕組み）
+      "what-is",
+      "explain-basics",
+      "scan-nodes",
+      "join-nodes",
+      "sort-and-memory",
+      "estimated-rows",
     ],
   },
   {
@@ -284,6 +291,15 @@ export const books: Book[] = [
       "btree",
       "composite",
       "covering",
+      // 実行計画セクション: 「なぜこの書き方が速いか」を実行計画から説明する本なので、
+      // 読み方〜原因特定の実務寄りのページに付ける
+      "what-is",
+      "read-tree",
+      "explain-basics",
+      "explain-analyze",
+      "find-bottleneck",
+      "index-cond-vs-filter",
+      "join-nodes",
     ],
   },
 

@@ -1,0 +1,56 @@
+{
+  "total": 500000,
+  "note": "capture-lessons.sh が生成。手で書き換えない",
+  "rows": [
+    {
+      "cond": "age < 21",
+      "rows": 8683,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 25",
+      "rows": 41100,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 30",
+      "rows": 83633,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 40",
+      "rows": 165400,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 45",
+      "rows": 207800,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 50",
+      "rows": 250550,
+      "node": "Bitmap Heap Scan"
+    },
+    {
+      "cond": "age < 52",
+      "rows": 267083,
+      "node": "Seq Scan"
+    },
+    {
+      "cond": "age < 55",
+      "rows": 292933,
+      "node": "Seq Scan"
+    },
+    {
+      "cond": "age < 60",
+      "rows": 334517,
+      "node": "Seq Scan"
+    },
+    {
+      "cond": "age < 80",
+      "rows": 500000,
+      "node": "Seq Scan"
+    }
+  ]
+}

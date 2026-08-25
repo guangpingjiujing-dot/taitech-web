@@ -132,7 +132,9 @@ DELETE FROM customers WHERE id = 'C-999';
         </li>
       </ul>
 
-      <h2>関連トピック</h2>
+      {/* ★ 見出しを「関連トピック」にしない。TopicLayout が同名の見出しで
+          同一セクションの関連トピックを出すので、同じ見出しが 2 つ並ぶ */}
+      <h2>他セクションの関連ページ</h2>
       <p>
         キー設計そのものは
         <Link href="/data-modeling/normalization/keys"> キーの階層 </Link>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -66,6 +67,13 @@ export default function Page() {
         <li>複合ユニーク: (user_id, role_id) のような組み合わせで一意にしたいペア</li>
         <li>論理削除がある場合は「未削除の中で一意」にしたいことが多く、部分ユニークが検討候補</li>
       </ul>
+
+      <p>
+        実行計画で<strong>条件がどちら側に出ているか</strong>（読む前に効く
+        <code>Index Cond</code> か、読んでから捨てる <code>Filter</code> か）は、
+        <Link href="/query-plan/index-cond-vs-filter">Index Cond と Filter の違い</Link>で
+        実出力を並べて確かめられます。
+      </p>
 
       <FAQ items={faq} />
     </TopicLayout>

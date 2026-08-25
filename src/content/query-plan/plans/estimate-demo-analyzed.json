@@ -1,0 +1,16 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "estimate_demo",
+      "Alias": "estimate_demo",
+      "Startup Cost": 0.00,
+      "Total Cost": 1.03,
+      "Plan Rows": 3,
+      "Plan Width": 14,
+      "Disabled": false
+    }
+  }
+]

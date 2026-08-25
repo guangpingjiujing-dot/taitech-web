@@ -251,6 +251,24 @@ page.locator('[role="alert"]:not(#__next-route-announcer__)') // 代替
 
 手順と判定基準は skill **`/taitech-doc-lifecycle`**（kickoff / harvest の 2 モード）。
 
+### 公開済みの URL を動かすとき
+
+**308 リダイレクトを置いただけでは、新 URL はインデックスに戻らない。**
+`/fe` 再編 (2026-08-15) で、移設前はインデックスされていた 29 URL が、
+**移設後 6 日経っても新 URL では 30 件中 2 件しか入っていなかった** (6.7%)。
+一方で、**インデックス登録リクエストを出したセクションは 93〜100% 入っている**
+(実測は `analytics/reports/review-2026-08-21.md` §2)。
+
+以下の 2 点だけ守れば、詳細は skill が持つ。
+
+1. **移設直後に、新 URL の インデックス登録リクエストを GSC UI から出す**。
+   これは API に無いので手作業になる（Indexing API は `JobPosting` / `BroadcastEvent` 専用）。
+   日次上限は 10〜20 件。順序はハブ → PV 実績の高い順
+2. **308 を置くときに削除トリガーと最終期限を決め、`roadmap.md` の優先アクション表に積む**。
+   「いつか消す」は永久負債になる（前例: roadmap #47）
+
+手順は skill **`/taitech-url-migration`**（plan / aftercare の 2 モード）。
+
 Qiita / Zenn 記事の SSoT はこのリポジトリではない (下の各節を参照)。
 
 # Zenn 記事のドラフト依頼

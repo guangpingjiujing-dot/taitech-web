@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -118,7 +119,7 @@ VALUES (...);
       <h2>「貼りすぎ」を防ぐ実務チェックリスト</h2>
       <ol>
         <li>
-          <strong>本当に使われているか</strong>：<a href="/rdb-index/explain">EXPLAIN</a> でインデックスが選ばれているか確認。使われていないインデックスは削除候補
+          <strong>本当に使われているか</strong>：<Link href="/rdb-index/explain">インデックスが使われないときに何を見るか</Link> でインデックスが選ばれているか確認。使われていないインデックスは削除候補
         </li>
         <li>
           <strong>重複していないか</strong>：<code>(A)</code> と <code>(A, B)</code> がある場合、前者は後者で代替できることが多いので削除できる

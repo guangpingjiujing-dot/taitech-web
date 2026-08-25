@@ -1,0 +1,15 @@
+# 選択率を上げていくと Index → Bitmap → Seq に切り替わる（scan-nodes ページ用）
+# 採取: 2026-08-22 / postgres:18 / 500,000 行の members / age は 20〜79 の一様分布
+# ★ これは生成物。capture-lessons.sh が作る
+
+条件                       見積り行数 選ばれたスキャン
+age < 21                     8683           Bitmap Heap Scan
+age < 25                     41100          Bitmap Heap Scan
+age < 30                     83633          Bitmap Heap Scan
+age < 40                     165400         Bitmap Heap Scan
+age < 45                     207800         Bitmap Heap Scan
+age < 50                     250550         Bitmap Heap Scan
+age < 52                     267083         Seq Scan on
+age < 55                     292933         Seq Scan on
+age < 60                     334517         Seq Scan on
+age < 80                     500000         Seq Scan on

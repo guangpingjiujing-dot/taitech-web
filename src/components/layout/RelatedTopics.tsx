@@ -22,6 +22,12 @@ export function RelatedTopics({
       if (current.section === "data-modeling" && t.section === "data-modeling") {
         return t.category === current.category;
       }
+      if (current.section === "query-plan" && t.section === "query-plan") {
+        return t.stage === current.stage;
+      }
+      if (current.section === "why-need-rdb" && t.section === "why-need-rdb") {
+        return t.group === current.group;
+      }
       return false;
     })
     .slice(0, 3);
