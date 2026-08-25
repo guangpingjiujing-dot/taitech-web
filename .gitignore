@@ -49,6 +49,10 @@ yarn-error.log*
 /analytics/snapshots
 /analytics/reports
 
+# python: analytics/scripts を実行すると生成される。中身はバイトコードなので追跡しない
+__pycache__/
+*.py[cod]
+
 # MCP: 絶対パス + サービスアカウント参照を含むためローカル専用
 /.mcp.json
 
