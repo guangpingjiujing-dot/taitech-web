@@ -22,6 +22,47 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | `NEXT_PUBLIC_GA_ID` | Google Analytics 4 測定 ID。空なら GA タグは挿入されない。 |
 | `BING_WEBMASTER_API_KEY` | Bing Webmaster Tools の API キー。`postbuild` の `scripts/bing-submit.mjs` が URL 送信に使う。**認証情報なので公開ファイルに出さない**（IndexNow のキーとは性質が違う）。未設定ならスキップするだけでビルドは通る。 |
 
+## デプロイ後の確認（push したら必ずやる）
+
+**ビルドが緑 = 成功、ではない。** このリポジトリの後処理（`postbuild` など）は
+**失敗しても exit 0 で通す**設計にしてある。送信系や通知系のために本番デプロイが
+止まるほうが損だからで、これ自体は正しい。**その代償として、失敗はビルドログの中にしか出ない。**
+
+```bash
+npm run check:deploy              # 直近の本番デプロイ
+npm run check:deploy -- <url>     # 特定のデプロイ
+```
+
+これが出すのは 2 つ。**両方を見る。**
+
+1. **後処理のログ** — `[name] ...` の行を全部。「0 件でした」と「そもそも動いていない」は
+   別物なので、件数が 0 でも行が出ているかを確認する
+2. **失敗の形に一致した行** — `Not failing the build` / `HTTP 4xx・5xx` / `FAILED` /
+   `unexpected error` / 接続エラー。1 件でもあれば exit 1
+
+**ログが綺麗でも終わりではない。** 「ビルドが通った」と「意図した出力になっている」は別問題。
+**変更したページやファイルを本番に `curl` して中身を確かめる**ところまでがデプロイ後の確認。
+
+### なぜこれを明文化したか（2026-08-28 に発覚した事故）
+
+IndexNow への URL 送信が、**2026-07-26 の実装以来ほぼ 1 ヶ月、1 件も送れていなかった**。
+毎回 `403` を返していたが `Not failing the build` で握りつぶされ、**ビルドは緑のまま**。
+誰も気付かないまま `docs/strategy/roadmap.md` には「IndexNow は効いている」と書かれ、
+**それを前提にした判断（Bing のインデックス増加の帰属）まで積み上がっていた**。
+
+**IndexNow 固有の問題ではない。** 同じ形の後処理を足せば同じことが起きる。
+実際 `check:deploy` は導入直後の初回実行で、**その日に入れたばかりの
+`bing-submit.mjs` がクォータを無駄遣いする不具合を検出した**。
+
+### 新しく「失敗しても続行する」処理を足すときの規約
+
+この検知が効き続けるために、**両方守る**。
+
+- **ログの先頭に `[name]` を付ける**（`[bing]` のように）。`check:deploy` はこれを拾って
+  「動いたのか / 動いていないのか」を見せる
+- **握りつぶすときは必ず `Not failing the build` という語をログに含める**。
+  `check:deploy` の検出語彙になっている。独自の言い回しにすると検知から漏れる
+
 ## DNS / routing notes
 
 - apex (`taitech.dev`) と `www.taitech.dev` の両方を Vercel に登録済み。
@@ -39,6 +80,12 @@ vercel project ls | grep rdb-index
 
 # 手動プロダクションデプロイ（普通は git push で十分）
 vercel --prod --yes
+
+# デプロイ後の確認（push したら必ず。上の「デプロイ後の確認」を参照）
+npm run check:deploy
+
+# 生ログを直接見る
+vercel inspect --logs <deployment-url>   # ★ ログは stderr に出る
 
 # 環境変数の追加
 printf "value" | vercel env add NAME production
@@ -60,6 +107,8 @@ vercel domains inspect taitech.dev
 - **やること**: `main` で commit → `git push` → Vercel が本番デプロイを自動発火
 - 検証は PR のチェックではなく**ローカルで push 前に**行う（`npx tsc --noEmit` /
   `npm run test:unit` / `npm run test:e2e` / `npm run build`）
+- **push した後も終わりではない**。`npm run check:deploy` でビルドログを見て、
+  握りつぶされた失敗が無いかを確認する（上の「デプロイ後の確認」節）
 - commit / push はユーザーが依頼したときだけ。勝手に push しない（push = 即本番デプロイ）
 
 **なぜこれを明文化したか（2026-08-07 の事故）**: title 短縮 (#29/#30) を PR #1 に積んだまま

@@ -26,13 +26,22 @@
  * 毎デプロイで全 144 URL を投げると **月 3 回のデプロイで枯れる**。しかも
  * 変わっていないページを送り直す意味が無い。
  *
- * 判定には **sitemap の `<lastmod>`** を使う。これは `content/page-dates.ts` の
- * `updated` がそのまま出ているので、「コンテンツを実質的に変えたときだけ上げる」
- * という運用ルールと自動的に噛み合う。**通常のデプロイでは 0 件になるのが正常。**
+ * 対象は **「このデプロイで lastmod が変わった URL」**。判定は
+ * **本番の sitemap（= postbuild の時点ではまだ 1 つ前のデプロイを配信している）と、
+ * いまビルドした sitemap の差分**で取る。ステートを持たずに「今回変わったもの」だけが出る。
+ *
+ * lastmod は `content/page-dates.ts` の `updated` がそのまま出ているので、
+ * 「コンテンツを実質的に変えたときだけ上げる」という運用ルールと自動的に噛み合う。
+ * **通常のデプロイでは 0 件になるのが正常。**
+ *
+ * **単純な「直近 N 日」フィルタでは駄目**だった。同じ URL を N 日間、毎デプロイ
+ * 送り直してクォータを溶かす (実装直後に `check:deploy` が
+ * `quota limits this run to 0/23 URLs` を出して発覚した)。
+ * 本番 sitemap が取れないときだけ、保険としてその方式にフォールバックする。
  *
  * ## 使い方
  *
- *   node scripts/bing-submit.mjs           # postbuild。直近 7 日以内に更新された URL
+ *   node scripts/bing-submit.mjs           # postbuild。今回のデプロイで lastmod が変わった URL
  *   node scripts/bing-submit.mjs --all     # 手動。全 URL (初回バックフィル用)
  *   node scripts/bing-submit.mjs --dry-run # 送信せず対象だけ出す
  *
@@ -50,8 +59,8 @@ const SITEMAP_BODY_PATH = resolve(
   ".next/server/app/sitemap.xml.body",
 );
 
-/** これより新しい lastmod を持つ URL だけ送る。デプロイ間隔より十分長く取る */
-const RECENT_DAYS = 7;
+/** 本番 sitemap が取れなかったときのフォールバック窓。通常は使われない */
+const FALLBACK_RECENT_DAYS = 7;
 
 const args = new Set(process.argv.slice(2));
 const SUBMIT_ALL = args.has("--all");
@@ -81,7 +90,45 @@ function isRecent(lastmod) {
   if (!lastmod) return false;
   const t = Date.parse(lastmod);
   if (Number.isNaN(t)) return false;
-  return Date.now() - t <= RECENT_DAYS * 24 * 60 * 60 * 1000;
+  return Date.now() - t <= FALLBACK_RECENT_DAYS * 24 * 60 * 60 * 1000;
+}
+
+/**
+ * いま配信されている sitemap を取る。**postbuild の時点では、これは 1 つ前の
+ * デプロイの内容**（新しいデプロイはまだ promote されていない）。
+ * これと今回のビルド結果を比べれば「今回変わった URL」がステート無しで出る。
+ */
+async function fetchLiveLastmods() {
+  const res = await fetch(`${SITE_URL}/sitemap.xml`, {
+    headers: { "cache-control": "no-cache" },
+  });
+  if (!res.ok) throw new Error(`live sitemap HTTP ${res.status}`);
+  const xml = await res.text();
+  const map = new Map();
+  const re = /<url>([\s\S]*?)<\/url>/g;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const loc = /<loc>([^<]+)<\/loc>/.exec(m[1])?.[1]?.trim();
+    const lastmod = /<lastmod>([^<]+)<\/lastmod>/.exec(m[1])?.[1]?.trim();
+    if (loc) map.set(loc, lastmod ?? "");
+  }
+  if (map.size === 0) throw new Error("live sitemap had no <url> entries");
+  return map;
+}
+
+/** 今回のデプロイで新しくなった / 増えた URL */
+async function pickChanged(entries) {
+  let live;
+  try {
+    live = await fetchLiveLastmods();
+  } catch (err) {
+    console.warn(
+      `[bing] 本番 sitemap を取得できなかった (${err.message}). ` +
+        `直近 ${FALLBACK_RECENT_DAYS} 日フィルタにフォールバックする`,
+    );
+    return entries.filter((e) => isRecent(e.lastmod));
+  }
+  return entries.filter((e) => live.get(e.loc) !== (e.lastmod ?? ""));
 }
 
 async function getQuota(key) {
@@ -126,11 +173,11 @@ async function main() {
     return;
   }
 
-  const targets = SUBMIT_ALL ? entries : entries.filter((e) => isRecent(e.lastmod));
+  const targets = SUBMIT_ALL ? entries : await pickChanged(entries);
   if (targets.length === 0) {
     console.log(
-      `[bing] no URLs updated within ${RECENT_DAYS} days — nothing to submit. ` +
-        `(page-dates.ts の updated を上げたページだけが対象)`,
+      "[bing] no URLs changed in this deploy — nothing to submit. " +
+        "(page-dates.ts の updated を上げたページだけが対象。0 件は正常)",
     );
     return;
   }
@@ -143,7 +190,13 @@ async function main() {
     return;
   }
 
-  // 日次・月次のどちらか小さい方まで。超過分は次回に回る (lastmod は変わらないので)
+  /*
+   * 日次・月次のどちらか小さい方まで。**超過分は次回に自動では回らない。**
+   * 差分判定は「本番 sitemap vs 今回のビルド」なので、このデプロイが promote された
+   * 時点で本番側の lastmod も新しくなり、次のデプロイでは差分に出てこない。
+   * 100 件を超える変更を一度に出したときは、翌日に手で流す:
+   *   BING_WEBMASTER_API_KEY=... node scripts/bing-submit.mjs --all
+   */
   const cap = Math.min(quota.daily, quota.monthly);
   const urlList = targets.slice(0, cap).map((e) => e.loc);
   if (urlList.length < targets.length) {
