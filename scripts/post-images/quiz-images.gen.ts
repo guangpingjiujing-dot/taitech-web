@@ -46,9 +46,12 @@ function askLine(quiz: FeQuizMeta): string {
 }
 
 /**
- * 投稿本文ドラフト。docs/x-posts/README.md の方針に従う:
- * 出題側は URL を入れない (外部リンクはリーチが落ちるため)、絵文字なし、
- * ハッシュタグは 4〜5 個まで。
+ * 投稿本文ドラフト。docs/x-posts/README.md の方針に従う: 絵文字なし、ハッシュタグ 0〜2 個。
+ *
+ * 注意 (2026-08-28): 1 日 1 問の運用そのものが終了しているので、このドラフトは
+ * 現行方針に沿っていない (出題側の URL 省略は「リンクはリーチを落とす」という
+ * 誤った前提に基づいていた)。生成器は資産として残すが、再開する場合は
+ * docs/x-posts/README.md の投稿方針から書き直すこと。
  */
 function postMarkdown(quiz: FeQuizMeta): string {
   const no = String(quiz.order).padStart(2, "0");
@@ -95,7 +98,10 @@ images:
 
 ## 1 投目 — 出題 (画像: question.png)
 
-URL は貼らない。外部リンク付き投稿はリーチが落ちるため、出題側はテキストと画像だけで完結させる。
+> **2026-08-28: 1 日 1 問の運用は終了。このドラフトは投稿しない。**
+> 出題側に URL を入れていないのは「外部リンク付き投稿はリーチが落ちる」という前提によるが、
+> **その前提は誤り**だった (X の For You 実装にリンク罰則は無い)。
+> 現行方針は \`docs/x-posts/README.md\` の投稿方針。
 
 \`\`\`
 ${questionText}
