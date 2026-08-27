@@ -1,4 +1,5 @@
 import { site } from "@/lib/site";
+import { findPageDates } from "@/content/page-dates";
 import type { Book } from "@/content/books";
 import {
   findTopic,
@@ -12,9 +13,25 @@ import {
   type DataModelingCategoryKey,
 } from "@/content/sections";
 
-// ビルド時 (SSG) に確定するタイムスタンプ。デプロイ = このページを一度に生成し直したという事実の反映。
-// LLM/AI エンジンが「新鮮度」を weight する用途 (Perplexity / Bing Chat / Copilot 等) を狙う。
-const BUILD_DATE = new Date().toISOString();
+/**
+ * 日付は **`content/page-dates.ts` が唯一の正**。
+ *
+ * 以前はここに `BUILD_DATE = new Date()` を置いて全ページに配っていたが、
+ * それだと**ビルドするたび 144 URL 全部が「今日更新」**になり、実際の更新頻度が失われる。
+ * 可視表示 (`ArticleMeta`) と sitemap も同じレジストリを読むので、
+ * 「構造化データと可視情報が一致している」状態が構造的に保たれる。
+ *
+ * 登録が無い path では日付キーごと落とす。**嘘の日付を出すよりよい**
+ * (漏れ自体は `page-dates.test.ts` が sitemap と突き合わせて落とす)。
+ */
+function articleDates(path: string): {
+  datePublished?: string;
+  dateModified?: string;
+} {
+  const d = findPageDates(path);
+  if (!d) return {};
+  return { datePublished: d.published, dateModified: d.updated };
+}
 
 const AUTHOR_PERSON = {
   "@type": "Person" as const,
@@ -85,7 +102,7 @@ function buildFaqPage({
     "@context": "https://schema.org",
     "@type": "FAQPage",
     inLanguage: "ja-JP",
-    dateModified: BUILD_DATE,
+    ...articleDates(new URL(pageUrl).pathname),
     about: { "@type": "Thing", name: aboutName },
     audience: LEARNER_AUDIENCE,
     mainEntityOfPage: pageUrl,
@@ -297,6 +314,7 @@ export function SectionHubJsonLd({
       author,
       publisher: PUBLISHER_ORG,
       mainEntityOfPage: `${site.url}${sectionMeta.path}`,
+      ...articleDates(sectionMeta.path),
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: ["h1", "[data-speakable='definition']"],
@@ -614,6 +632,7 @@ export function FeLessonJsonLd({
       keywords: keywords.join(", "),
       author: AUTHOR_PERSON,
       publisher: PUBLISHER_ORG,
+      ...articleDates(path),
       isPartOf: {
         "@type": "CollectionPage",
         name: sections.fe.label,
@@ -702,6 +721,7 @@ export function Joho1PageJsonLd({
       keywords: keywords.join(", "),
       author: AUTHOR_PERSON,
       publisher: PUBLISHER_ORG,
+      ...articleDates(path),
       isPartOf: {
         "@type": "CollectionPage",
         name: sections.joho1.label,
@@ -801,7 +821,7 @@ export function QuizJsonLd({
       keywords: keywords.join(", "),
       author: AUTHOR_PERSON,
       publisher: PUBLISHER_ORG,
-      dateModified: BUILD_DATE,
+      ...articleDates(path),
       isPartOf: {
         "@type": "CollectionPage",
         name: sectionMeta.label,
@@ -894,6 +914,7 @@ export function TopicJsonLd({
       mainEntityOfPage: `${site.url}${topic.path}`,
       keywords: topic.keywords.join(", "),
       abstract: topic.definition,
+      ...articleDates(topic.path),
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: ["h1", "[data-speakable='definition']"],
@@ -956,7 +977,7 @@ export function BooksPageJsonLd({
       url: pageUrl,
       description,
       inLanguage: "ja-JP",
-      dateModified: BUILD_DATE,
+      ...articleDates(path),
       audience: LEARNER_AUDIENCE,
       author: AUTHOR_PERSON,
       publisher: PUBLISHER_ORG,

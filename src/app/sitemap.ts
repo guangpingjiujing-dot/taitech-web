@@ -8,9 +8,9 @@ import { sqlLessons } from "@/content/fe/sql/lessons";
 import { sqlQuizzes } from "@/content/fe/sql/quiz";
 import { joho1Lessons } from "@/content/joho1/lessons";
 import { joho1Quizzes } from "@/content/joho1/quiz";
+import { findPageDates } from "@/content/page-dates";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
   const staticPaths = ["/", "/about", "/books", "/privacy", "/terms", "/contact"];
   const sectionHubs = Object.values(sections).map((s) => s.path);
   const categoryHubs = Object.values(dataModelingCategories).map((c) => c.path);
@@ -60,7 +60,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...joho1ExtraPaths,
   ].map((p) => ({
     url: `${site.url}${p}`,
-    lastModified: now,
+    /*
+     * **`new Date()` に戻さないこと。** 以前はここが `now` だったので、
+     * ビルドするたび全 URL の lastmod が「今日」になり、実際に何が更新されたかを
+     * クローラに伝えられなかった (docs/wip/20260828-seo-aeo-review/00-review.md §4)。
+     * 日付は `content/page-dates.ts` が正で、JSON-LD・可視表示と同じ値を使う。
+     */
+    lastModified: findPageDates(p)?.updated,
     changeFrequency: "monthly",
     priority: priorityFor(p),
   }));
