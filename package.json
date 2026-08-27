@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "node scripts/index-now.mjs",
+    "postbuild": "node scripts/bing-submit.mjs",
     "start": "next start",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
