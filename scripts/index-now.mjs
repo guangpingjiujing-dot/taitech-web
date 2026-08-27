@@ -12,7 +12,15 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const KEY = "21abcdd4711642b992fd80436d1daf1f";
+/*
+ * **キーは Bing Webmaster Tools の IndexNow 画面で発行したものを使う。**
+ * 2026-07-26 に自前生成したキー (21abcdd47…) は **一度も通っておらず、
+ * 全デプロイで HTTP 403 UserForbiddedToAccessSite を返していた**
+ * (キーファイルは 200 で引けて中身も正しかったのに、手で POST しても 403)。
+ * 仕様上は自前生成でよいはずだが実際には通らなかったので、BWT 発行キーに切り替えた。
+ * **キーを変えるときは BWT で再発行し、public/<key>.txt も同時に差し替える。**
+ */
+const KEY = "069e9cc1b5a745b5877bb85a797ad6dc";
 const HOST = "taitech.dev";
 const SITE_URL = `https://${HOST}`;
 const KEY_LOCATION = `${SITE_URL}/${KEY}.txt`;
