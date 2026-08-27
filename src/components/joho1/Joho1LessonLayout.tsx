@@ -4,6 +4,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { FAQ } from "@/components/layout/FAQ";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
@@ -56,6 +57,8 @@ export function Joho1LessonLayout({
         <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
           {lesson.title}
         </h1>
+
+        <ArticleMeta path={`/joho1/lessons/${lesson.slug}`} className="mt-3" />
 
         <DefinitionBox className="mt-6">{lesson.definition}</DefinitionBox>
 

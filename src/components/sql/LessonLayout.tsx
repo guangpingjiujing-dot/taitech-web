@@ -28,6 +28,7 @@ export function SqlLessonLayout({
 
   return (
     <LessonLayoutView
+      path={`/fe/sql/lessons/${lesson.slug}`}
       breadcrumb={[
         { href: "/", label: "ホーム" },
         { href: sectionMeta.path, label: sectionMeta.shortLabel },

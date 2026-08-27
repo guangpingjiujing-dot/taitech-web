@@ -8,6 +8,7 @@ import { PrevNext } from "@/components/layout/PrevNext";
 import { SeriesNav } from "@/components/layout/SeriesNav";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { findTopic } from "@/content/topics";
 import { sections, dataModelingCategories, type SectionKey } from "@/content/sections";
 
@@ -80,6 +81,8 @@ export function TopicLayout({
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
             {topic.title}
           </h1>
+
+          <ArticleMeta path={topic.path} className="mt-3" />
 
           <DefinitionBox className="mt-6">{topic.definition}</DefinitionBox>
 

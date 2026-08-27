@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { QuizCard } from "@/components/joho1/QuizCard";
@@ -107,6 +108,8 @@ export default async function Joho1QuizPage({
             <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
               {quiz.shortTitle}
             </h1>
+
+            <ArticleMeta path={`/joho1/quiz/${quiz.slug}`} className="mt-3" />
             {lesson && (
               <p className="mt-3 text-sm text-[var(--muted-foreground)]">
                 関連レッスン:{" "}

@@ -6,6 +6,7 @@ import { MentorCTA } from "@/components/cta/MentorCTA";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { FAQ } from "@/components/layout/FAQ";
 import type { BookDomain } from "@/content/books";
 
@@ -27,6 +28,7 @@ export interface LessonNextAction {
 }
 
 export function LessonLayoutView({
+  path,
   breadcrumb,
   eyebrow,
   title,
@@ -45,6 +47,8 @@ export function LessonLayoutView({
   mentorVariant,
   sidebar,
 }: {
+  /** 著者行の更新日を `content/page-dates.ts` から引くのに使う */
+  path: string;
   breadcrumb: { href?: string; label: string }[];
   eyebrow: string;
   title: string;
@@ -74,6 +78,8 @@ export function LessonLayoutView({
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
             {title}
           </h1>
+
+          <ArticleMeta path={path} className="mt-3" />
 
           <DefinitionBox className="mt-6">{definition}</DefinitionBox>
 

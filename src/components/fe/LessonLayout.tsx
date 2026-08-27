@@ -28,6 +28,7 @@ export function FeLessonLayout({
 
   return (
     <LessonLayoutView
+      path={`/fe/algorithm/lessons/${lesson.slug}`}
       breadcrumb={[
         { href: "/", label: "ホーム" },
         { href: sectionMeta.path, label: sectionMeta.shortLabel },

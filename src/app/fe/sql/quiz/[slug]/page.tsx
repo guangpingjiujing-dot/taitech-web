@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { PrevNextCards } from "@/components/layout/PrevNext";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
@@ -104,6 +105,8 @@ export default async function SqlQuizPage({
             <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
               {quiz.title}
             </h1>
+
+            <ArticleMeta path={`/fe/sql/quiz/${quiz.slug}`} className="mt-3" />
 
             <div className="mt-8">
               <SqlQuizCard quiz={quiz} />
