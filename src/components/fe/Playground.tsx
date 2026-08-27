@@ -16,6 +16,10 @@ import {
   PseudoParseError,
 } from "@/lib/pseudo";
 import { Button } from "@/components/ui/Button";
+import {
+  EditorFallback,
+  EditorFallbackProvider,
+} from "@/components/playground/EditorFallback";
 
 const EDITOR_HEIGHT = "460px";
 // モバイル (≤900px) の高さは globals.css の .fe-playground-grid 側で
@@ -30,28 +34,13 @@ const FE_EDITOR_EXTENSIONS = [lineNumbers(), pseudoLanguage];
 
 const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
-  { ssr: false, loading: () => <EditorSkeleton /> },
+  {
+    ssr: false,
+    // 初期コードをそのまま出す。ここが空だと擬似言語が初期 HTML に一切残らず、
+    // JS を実行しない AI クローラーから教材が見えない (EditorFallback の説明を参照)
+    loading: () => <EditorFallback height="var(--fe-editor-height)" />,
+  },
 );
-
-function EditorSkeleton() {
-  return (
-    <div
-      style={{
-        height: "var(--fe-editor-height)",
-        border: "1px solid var(--color-border, #e5e7eb)",
-        borderRadius: "8px",
-        background: "var(--color-muted, #f9fafb)",
-        padding: "12px",
-        color: "var(--color-muted-foreground, #9ca3af)",
-        fontFamily:
-          "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace",
-        fontSize: "0.9rem",
-      }}
-    >
-      エディタを読み込み中…
-    </div>
-  );
-}
 
 export interface PlaygroundProps {
   initialCode?: string;
@@ -75,8 +64,10 @@ export function Playground({
 }: PlaygroundProps) {
   return (
     <PlaygroundStoreProvider initialCode={initialCode ?? DEFAULT_CODE}>
-      {children}
-      <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} compact={compact} />
+      <EditorFallbackProvider code={initialCode ?? DEFAULT_CODE}>
+        {children}
+        <PlaygroundInner showOpenInFullEditor={showOpenInFullEditor} compact={compact} />
+      </EditorFallbackProvider>
     </PlaygroundStoreProvider>
   );
 }

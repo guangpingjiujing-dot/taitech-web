@@ -12,6 +12,10 @@ import {
 
 import { lineNumbers } from "@codemirror/view";
 import { pseudoLanguage } from "./pseudoLanguage";
+import {
+  EditorFallback,
+  EditorFallbackProvider,
+} from "@/components/playground/EditorFallback";
 
 // 言語定義と行番号は言語ごとに違うのでエディタ本体から出してある
 // (`/joho1` は `(01)` 形式の行番号 + ブロック罫線)
@@ -21,18 +25,10 @@ const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
   {
     ssr: false,
-    loading: () => (
-      <div
-        style={{
-          minHeight: "380px",
-          border: "1px solid var(--color-border, #e5e7eb)",
-          borderRadius: "8px",
-          padding: "12px",
-        }}
-      >
-        エディタを読み込み中…
-      </div>
-    ),
+    // 変換元の擬似言語を初期 HTML に残す。ここが空だと、変換結果の Python / TypeScript
+    // だけが HTML にあって入力が無いという状態になり、このページの主題が
+    // AI から読めなくなる (docs/wip/20260828-seo-aeo-review/00-review.md §2)
+    loading: () => <EditorFallback height="380px" />,
   },
 );
 
@@ -105,6 +101,7 @@ export function TranspileComparison() {
   }, [code]);
 
   return (
+    <EditorFallbackProvider code={DEFAULT_CODE}>
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Snippet toolbar sits ABOVE the 3-column grid so the three code panes
           always line up horizontally regardless of how many snippet buttons
@@ -166,6 +163,7 @@ export function TranspileComparison() {
         }
       `}</style>
     </div>
+    </EditorFallbackProvider>
   );
 }
 

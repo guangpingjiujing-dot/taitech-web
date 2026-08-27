@@ -14,10 +14,21 @@ import { JOHO1_EDITOR_EXTENSIONS } from "./joho1Language";
 import { formatJoho1Value } from "./formatValue";
 import { normalizePasteExtension } from "./pasteExtension";
 import { Joho1PlaygroundDeepLink } from "./Joho1PlaygroundDeepLink";
+import {
+  EditorFallback,
+  EditorFallbackProvider,
+} from "@/components/playground/EditorFallback";
 
 const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
-  { ssr: false, loading: () => <EditorSkeleton /> },
+  {
+    ssr: false,
+    // 初期コードをそのまま出す。以前は空の aria-hidden な箱だったため、
+    // /joho1 配下はプログラム表記が初期 HTML に一切残っていなかった
+    // (docs/wip/20260828-seo-aeo-review/00-review.md §2)。
+    // minHeight は下の <CodeEditor> と同じ値にする (CLS 対策)
+    loading: () => <EditorFallback minHeight="320px" />,
+  },
 );
 
 /** 令和8年度本試験 図2 と同じ題材を、空欄なしで書いたもの */
@@ -70,11 +81,15 @@ export function Joho1Playground({
       initialCode={(initialCode ?? DEFAULT_CODE).replace(/\n+$/, "")}
       adapter={adapter}
     >
-      <Panel
-        indexBaseRef={indexBaseRef}
-        initialIndexBase={initialIndexBase}
-        enableDeepLink={enableDeepLink}
-      />
+      <EditorFallbackProvider
+        code={(initialCode ?? DEFAULT_CODE).replace(/\n+$/, "")}
+      >
+        <Panel
+          indexBaseRef={indexBaseRef}
+          initialIndexBase={initialIndexBase}
+          enableDeepLink={enableDeepLink}
+        />
+      </EditorFallbackProvider>
     </PlaygroundStoreProvider>
   );
 }
@@ -299,12 +314,3 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-[var(--muted-foreground)]">{children}</p>;
 }
 
-function EditorSkeleton() {
-  return (
-    <div
-      className="border border-[var(--border)]"
-      style={{ minHeight: "320px" }}
-      aria-hidden
-    />
-  );
-}

@@ -17,20 +17,23 @@ import {
 } from "./sqlPlaygroundStore";
 import { ResultTableView, ValueCell } from "./ResultTableView";
 import { DiffTableView } from "./DiffTableView";
+import {
+  EditorFallback,
+  EditorFallbackProvider,
+} from "@/components/playground/EditorFallback";
 
 const EDITOR_EXTENSIONS = [lineNumbers(), sqlLanguage];
 
-function EditorSkeleton() {
-  return (
-    <div className="h-[300px] rounded-lg border border-[var(--border)] bg-[var(--muted)] p-3 font-mono text-sm text-[var(--muted-foreground)]">
-      エディタを読み込み中…
-    </div>
-  );
-}
-
 const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
-  { ssr: false, loading: () => <EditorSkeleton /> },
+  {
+    ssr: false,
+    // 初期 SQL をそのまま出す。ここが空だと、レッスン本文が「試す: …」と
+    // 指している当の SQL が初期 HTML に残らない
+    // (docs/wip/20260828-seo-aeo-review/00-review.md §2)。
+    // minHeight は下の <CodeEditor> と同じ値にする (CLS 対策)
+    loading: () => <EditorFallback minHeight="180px" />,
+  },
 );
 
 export function SqlPlayground({
@@ -48,8 +51,10 @@ export function SqlPlayground({
 }) {
   return (
     <SqlPlaygroundProvider initialSql={initialSql} datasetKey={datasetKey}>
-      {children}
-      <SqlPlaygroundInner compact={compact} />
+      <EditorFallbackProvider code={initialSql}>
+        {children}
+        <SqlPlaygroundInner compact={compact} />
+      </EditorFallbackProvider>
     </SqlPlaygroundProvider>
   );
 }

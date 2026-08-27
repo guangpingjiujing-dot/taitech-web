@@ -6,10 +6,20 @@ import { parse } from "@/lib/joho1/parser";
 import { transpileJoho1ToPython } from "@/lib/joho1/transpiler/python";
 import { PseudoLexError, PseudoParseError } from "@/lib/pseudo/errors";
 import { JOHO1_EDITOR_EXTENSIONS } from "./joho1Language";
+import {
+  EditorFallback,
+  EditorFallbackProvider,
+} from "@/components/playground/EditorFallback";
 
 const CodeEditor = dynamic(
   () => import("@/components/playground/CodeEditor").then((m) => m.CodeEditor),
-  { ssr: false, loading: () => <EditorSkeleton /> },
+  {
+    ssr: false,
+    // 変換元のプログラム表記を初期 HTML に残す。以前は空の aria-hidden な箱で、
+    // 変換結果の Python (静的な <pre>) だけが HTML にある状態だった
+    // (docs/wip/20260828-seo-aeo-review/00-review.md §2)
+    loading: () => <EditorFallback minHeight={EDITOR_HEIGHT} />,
+  },
 );
 
 /** 繰り返し・配列・外部関数がひととおり入った題材。授業の Python と対応が付きやすい形 */
@@ -42,6 +52,7 @@ export function Joho1TranspileComparison() {
   }, [code, indexBase]);
 
   return (
+    <EditorFallbackProvider code={DEFAULT_CODE}>
     <div className="not-prose @container/tp flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-[var(--muted-foreground)]">配列の添字</span>
@@ -98,6 +109,7 @@ export function Joho1TranspileComparison() {
         </div>
       )}
     </div>
+    </EditorFallbackProvider>
   );
 }
 
@@ -118,12 +130,3 @@ function Pane({
   );
 }
 
-function EditorSkeleton() {
-  return (
-    <div
-      className="border border-[var(--border)]"
-      style={{ minHeight: EDITOR_HEIGHT }}
-      aria-hidden
-    />
-  );
-}
