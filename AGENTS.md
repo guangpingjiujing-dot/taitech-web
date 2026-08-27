@@ -20,6 +20,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | `sitemap.xml` / `robots.txt` / OGP / canonical の base URL。本番は `https://taitech.dev`。 |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics 4 測定 ID。空なら GA タグは挿入されない。 |
+| `BING_WEBMASTER_API_KEY` | Bing Webmaster Tools の API キー。`postbuild` の `scripts/bing-submit.mjs` が URL 送信に使う。**認証情報なので公開ファイルに出さない**（IndexNow のキーとは性質が違う）。未設定ならスキップするだけでビルドは通る。 |
 
 ## DNS / routing notes
 
