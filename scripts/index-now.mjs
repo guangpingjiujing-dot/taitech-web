@@ -20,7 +20,7 @@ import { resolve } from "node:path";
  * 仕様上は自前生成でよいはずだが実際には通らなかったので、BWT 発行キーに切り替えた。
  * **キーを変えるときは BWT で再発行し、public/<key>.txt も同時に差し替える。**
  */
-const KEY = "069e9cc1b5a745b5877bb85a797ad6dc";
+const KEY = "2f135f445ca84cbb860664ca43a82e72";
 const HOST = "taitech.dev";
 const SITE_URL = `https://${HOST}`;
 const KEY_LOCATION = `${SITE_URL}/${KEY}.txt`;
