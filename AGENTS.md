@@ -277,9 +277,10 @@ page.locator('[role="alert"]:not(#__next-route-announcer__)') // 代替
 
 | パス | 中身 |
 |---|---|
-| `docs/strategy/` | `roadmap.md` (現状ステータス・優先タスクの一次情報源) / `growth.md` (認知獲得) / `seo.md` / `ideas.md` |
+| `docs/strategy/` | `status.md` (**現状・KPI・ブロッカー。まずここ**) / `roadmap.md` (未完了タスク) / `growth.md` (認知獲得) / `seo.md` / `ideas.md` |
+| `docs/log/` | **起きたことの記録**。1 デプロイ 1 ファイル (`YYYY-MM-DD-<slug>.md`)、追記専用 |
 | `docs/site/` | `design.md` (セクション横断のアーキテクチャ・カラーパレット・SEO 実装パターン) / `operations.md` (アカウント・DNS・GA4 の非公開ディテール) |
-| `docs/sections/` | セクション別の設計判断。1 セクション 1 ファイル (`rdb-index` / `data-modeling` / `er-diagram` / `why-need-rdb` / `fe-playground`) |
+| `docs/sections/` | セクション別の設計判断。1 セクション 1 ファイル |
 | `docs/wip/` | **使い捨て**。開発中の設計書・進捗ログ・レビュー。完了後に harvest して削除する |
 | `docs/x-posts/` | X 投稿のドラフト・投稿済みアーカイブ・画像・デザインガイド |
 | `analytics/reports/*.md` | GA4/GSC の月次データレビュー (docs 外) |
@@ -288,18 +289,19 @@ page.locator('[role="alert"]:not(#__next-route-announcer__)') // 代替
 `src/content/` と実装が一次情報で、docs に写すと必ず腐る。docs が持つのは
 「決定の背景」「外部の状態」「残タスク」の 3 つだけ。
 
-### 作業ドキュメントの置き場とライフサイクル
+### ドキュメントの置き場とライフサイクル
 
-新セクション開発などで生まれる設計書・進捗ログは腐る。**`docs/` 直下や `docs/sections/` に
-直接置かない**。以下の 3 点だけ守れば、詳細は skill が持つ。
+**規約の SSoT は skill `/taitech-doc-lifecycle`。** docs に何かを書き足す前に開くこと
+（置き場の決定表・各ファイルの制約・harvest の判定基準・月次レビューは全部そちらにある）。
+ここには、skill を開かずに事故を起こしうる 4 点だけ置く。
 
-1. 使い捨ては `docs/wip/<YYYYMMDD>-<slug>/` に置く。永続化するのは `docs/sections/<name>.md` だけ
-2. `wip/` を作ったら、**同時に `docs/strategy/roadmap.md` の優先アクション表へ harvest タスクを積む**
-   (`/taitech-doc-lifecycle harvest wip/<slug>`)。圧縮の契機はこの表でしか担保されない
-3. **「このファイルは stale」と注記して延命しない**。そう書きたくなったら harvest のタイミングを
+1. **使い捨ては `docs/wip/<YYYYMMDD>-<slug>/`**。`docs/` 直下や `docs/sections/` に直接置かない
+2. `wip/` を作ったら、**同時に `docs/strategy/roadmap.md` へ harvest タスクを積む**。
+   圧縮の契機はこの表でしか担保されない
+3. **デプロイしたら `docs/log/YYYY-MM-DD-<slug>.md` を書く**（日付は **push した日**）。
+   roadmap は未完了タスクだけを持ち、**完了した行は削除する**（打ち消し線で残さない）
+4. **「このファイルは stale」と注記して延命しない**。そう書きたくなったら harvest のタイミングを
    過ぎているという意味。annotate ではなく harvest して消す
-
-手順と判定基準は skill **`/taitech-doc-lifecycle`**（kickoff / harvest の 2 モード）。
 
 ### 公開済みの URL を動かすとき
 
