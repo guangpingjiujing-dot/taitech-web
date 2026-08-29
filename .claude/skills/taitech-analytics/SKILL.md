@@ -1,6 +1,6 @@
 ---
 name: taitech-analytics
-description: GA4 と GSC の MCP から taitech.dev の実データを取得し、analytics/data/analytics.sqlite に冪等 upsert する。集めたデータに対して SQL でアドホック分析・定型レビューを実行するデータドリブン意思決定のワークフロー。Amazon アソシエイト / AdSense 準備 / 記事改善判断に使う。
+description: GA4 と GSC から taitech.dev の実データを取得し、analytics/data/analytics.sqlite に冪等 upsert する。集めたデータに対して SQL でアドホック分析・定型レビューを実行するデータドリブン意思決定のワークフロー。Amazon アソシエイト / AdSense 準備 / 記事改善判断に使う。
 ---
 
 # taitech-analytics
@@ -44,7 +44,7 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 |---|---|---|
 | GA4 (page / source / event) | `analytics/scripts/pull_ga.py` | **なし** |
 | GSC URL Inspection | `analytics/scripts/inspect_urls.py` | **なし** |
-| GSC Search Analytics | MCP → snapshot → `load.py` | あり |
+| GSC Search Analytics | `analytics/scripts/pull_gsc.py` → `load.py` | **なし** |
 | GSC サイトマップ | MCP → snapshot → `load.py` | あり |
 
 `load.py` はファイル名の prefix でソースを判定する（`gsc_search_*.json`, `gsc_sitemap_*.json`,
@@ -66,13 +66,24 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
 
 2. **GSC を取得**（query × page × device × 日）
 
-   `mcp__gsc__get_search_analytics` を呼ぶ。
-   - `site_url`: `sc-domain:taitech.dev`
-   - `dimensions`: `"date,query,page,device"`
-   - `days`: 決定した日数
-   - `row_limit`: 500（不足なら日別に分けて再呼び出し）
+   ```bash
+   uv run analytics/scripts/pull_gsc.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>
+   python3 analytics/scripts/load.py analytics/snapshots/$(date +%F)
+   ```
 
-   返却された各行を `gsc_search_daily` に UPSERT。country は現行 MCP から取得できないので空文字で保存する。
+   **MCP (`mcp__gsc__get_search_analytics`) は使わない**。GA4 と同じ理由で、
+   レスポンスがエージェントの文脈を経由するため数百行を snapshot JSON へ**手で書き写す工程**が
+   入る。加えて MCP は `row_limit` が max 500 でページングが無く、`dataState` も指定できない。
+   スクリプトは startRow を回して全件取り、**`dataState=final`（確定分のみ）で保存する**。
+
+   **DB に入れるのは確定値だけ。** 未確定の直近数日を見たいときは
+   `--data-state all --out <一時ディレクトリ>` で別に取り、**`load.py` には流さない**。
+   混ぜると、後から「遅延だったのか実変動だったのか」を DB から切り分けられなくなる
+   （2026-08-29 はこの 2 本を突き合わせて、変化が 08-22 起点の実変動だと確定させた）。
+
+   `country` は dimensions に入れない。`gsc_search_daily` の PK は
+   `(date, query, page, device, country)` で既存行は `country=''`。ここで country を足すと
+   同じ実績が別行として二重に入る。
 
 3. **GA4 を取得**（page / source / event をまとめて）
 
@@ -108,7 +119,8 @@ GA4 と GSC の生データを SQLite に蓄積し、SQL でクエリする。
    uv run analytics/scripts/inspect_urls.py     # live sitemap.xml の全 URL
    ```
 
-   MCP ではなくサービスアカウントで URL Inspection API を直接叩く（72 URL で約 5 分）。
+   MCP ではなくサービスアカウントで URL Inspection API を直接叩く
+   （2026-08-29 時点で 144 URL・約 10 分）。
    MCP の `mcp__gsc__inspect_url_enhanced` は 1 URL ずつなので全件収集には使わない
    （個別の深掘りには有用）。
 
@@ -145,8 +157,12 @@ DDL は `analytics/schema.sql`（`CREATE TABLE IF NOT EXISTS` のみ）。スキ
 - `mcp__ga__run_report` の `dimensions` / `metrics` は **文字列の配列**。`{"name": "..."}` のオブジェクト形式は `Input validation error` になる。
 - `sessionCampaign` は無効な dimension。**`sessionCampaignName`** を使う（`sessionCampaignId` も存在する）。
 - `order_bys` は snake_case protobuf 形式が求められる。挙動が不安定なので **付けない**。SQL 側でソートする。
-- `mcp__gsc__get_search_analytics` の `row_limit` は max 500。500 件で足りない期間は日別に分けて複数回呼ぶ。
 - GSC は 2〜3 日遅れて確定するため、最新 3 日分は必ず再取得する。
+  **確定境界は推測せず `dataState=final` に判定させる。** `pull_gsc.py`（final）の返す最大日付が
+  確定境界そのもの。2026-08-29 の実測では確定は 08-26 まで（08-27/28 は未確定、08-29 は行なし）で、
+  未確定込みだと 08-27 が 35 imp あった。**UI で「直近数日が動いた」ように見えるのはこの層**。
+- `mcp__gsc__get_search_analytics` は探索用にのみ使う（`row_limit` max 500・ページング無し・
+  `dataState` 指定不可）。DB に入れる取得には使わない。
 - `mcp__gsc__get_sitemap_details` の `submitted` / `indexed` は **Google が最後にサイトマップをクロールした時点** の値。ライブ sitemap.xml と乖離することがある（`last_downloaded` で確認）。乖離したら GSC 側の再送信を検討。
 - 同 API の `indexed` は **常に 0 が返る**（2026-07-14 / 07-24 / 08-06 の 3 回とも 0）。API 側の欠測であって未インデックスではない。`sitemap_status.indexed_urls` を根拠に「インデックスされていない」と結論しないこと。インデックス状態は `url_index_status`（手順 5）を見る。
 
