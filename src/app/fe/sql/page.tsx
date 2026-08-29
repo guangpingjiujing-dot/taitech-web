@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
 import { FAQ } from "@/components/layout/FAQ";
@@ -14,6 +15,7 @@ import { site } from "@/lib/site";
 import { findDataset, initialSql, defaultDatasetKey } from "@/content/fe/sql/datasets";
 import { sqlLessons } from "@/content/fe/sql/lessons";
 import { sqlQuizzes } from "@/content/fe/sql/quiz";
+import { primarySources } from "@/content/primary-sources";
 
 const sectionMeta = sections.fe;
 
@@ -117,7 +119,7 @@ SQL をブラウザで動かして、わかりやすく理解する
                   それぞれの時点の表が 1 つずつ表示されます。
                 </p>
                 <p className="text-xs">
-                  IPA シラバス Ver.9.2「データ操作」の範囲に対応。処理はすべてブラウザ内で完結します。
+                  IPA <ExternalLink href={primarySources.ipaFeSyllabus.url}>シラバス Ver.9.2</ExternalLink>（PDF）「データ操作」の範囲に対応。処理はすべてブラウザ内で完結します。
                 </p>
               </div>
             </header>
@@ -214,7 +216,7 @@ SQL をブラウザで動かして、わかりやすく理解する
                 className="mt-3 text-sm text-[var(--muted-foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}
               >
-                IPA シラバス Ver.9.2 の中分類「データ操作」に挙げられている用語のうち、
+                IPA <ExternalLink href={primarySources.ipaFeSyllabus.url}>シラバス Ver.9.2</ExternalLink>（PDF）の中分類「データ操作」に挙げられている用語のうち、
                 SQL に関わるものです。
               </p>
               <div className="mt-4 overflow-x-auto">

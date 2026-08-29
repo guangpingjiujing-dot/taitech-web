@@ -157,7 +157,12 @@ export function AuthorJsonLd({
       "IPAデータベーススペシャリスト",
       "AWS認定",
     ],
-    sameAs: [site.author.mentorUrl],
+    /**
+     * **同一エンティティであることの申告。** `site.author.profiles` が唯一の正で、
+     * `/about` の可視リンクと同じ配列を読んでいる (構造化データと可視情報の一致)。
+     * ここにだけ URL を足さないこと。
+     */
+    sameAs: [site.author.mentorUrl, ...site.author.profiles.map((p) => p.url)],
   };
   const data: object[] = [
     {
@@ -209,7 +214,9 @@ export function SiteJsonLd() {
     author: {
       "@type": "Person",
       name: site.author.name,
+      url: `${site.url}/about`,
       description: site.author.bio,
+      sameAs: [site.author.mentorUrl, ...site.author.profiles.map((p) => p.url)],
     },
   };
   return (

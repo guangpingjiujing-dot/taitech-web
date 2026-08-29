@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Suspense } from "react";
 import { Playground } from "@/components/fe/Playground";
 import { PlaygroundDeepLink } from "@/components/fe/PlaygroundDeepLink";
@@ -13,6 +14,7 @@ import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { feLessons } from "@/content/fe/lessons";
 import { feQuizzes } from "@/content/fe/quiz";
+import { primarySources } from "@/content/primary-sources";
 
 const sectionMeta = sections.fe;
 
@@ -103,7 +105,7 @@ export default function FeTopPage() {
                   一行ずつ実行して変数の変化を追い、Python / TypeScript に変換して読み比べられます。
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  IPA 公表の擬似言語仕様 Ver.5.1 (FE 部分) に準拠。
+                  IPA 公表の<ExternalLink href={primarySources.ipaPseudoLanguage.url}>擬似言語仕様 Ver.5.1</ExternalLink>（PDF）の基本情報技術者試験 (FE) 部分に準拠。
                 </p>
               </div>
             </header>
@@ -149,7 +151,7 @@ export default function FeTopPage() {
                 className="mt-2 text-sm text-[var(--muted-foreground)]"
                 style={{ textWrap: "pretty" }}
               >
-                IPA 公式仕様書の表記に沿った、主要な構文をまとめます。
+                IPA の<ExternalLink href={primarySources.ipaPseudoLanguage.url}>公式仕様書</ExternalLink>（{primarySources.ipaPseudoLanguage.label}・PDF）の表記に沿った、主要な構文をまとめます。
               </p>
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full border-collapse text-sm">

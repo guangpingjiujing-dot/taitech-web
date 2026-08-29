@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -97,13 +98,9 @@ export default function Page() {
       </p>
       <p>
         この作業メモリの大きさを決めているのが{" "}
-        <Link
-          href="https://www.postgresql.org/docs/18/runtime-config-resource.html#GUC-WORK-MEM"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <ExternalLink href="https://www.postgresql.org/docs/18/runtime-config-resource.html#GUC-WORK-MEM">
           <code>work_mem</code>
-        </Link>
+        </ExternalLink>
         （公式ドキュメント）です。増やして、同じクエリをもう一度実行します。
       </p>
       <pre>{`SET work_mem = '128MB';`}</pre>

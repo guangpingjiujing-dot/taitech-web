@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { FAQ } from "@/components/layout/FAQ";
 import { AuthorJsonLd } from "@/components/seo/JsonLd";
@@ -169,6 +170,27 @@ export default function AboutPage() {
             <p className="mt-1 text-sm text-[var(--muted-foreground)] leading-relaxed">
               {e.body}
             </p>
+          </li>
+        ))}
+      </ul>
+
+      {/*
+        外部プロフィール。**`site.author.profiles` が唯一の正**で、
+        `AuthorJsonLd` / `SiteJsonLd` の `sameAs` が同じ配列を読んでいる。
+        ここにベタ書きすると構造化データと可視情報がずれる (guide.md §4-4)。
+      */}
+      <h2 className="mt-16 text-xs font-bold tracking-wider uppercase text-[var(--muted-foreground)]">
+        外部での発信
+      </h2>
+      <ul className="mt-4 border-y border-[var(--border)] divide-y divide-[var(--border)]">
+        {site.author.profiles.map((p) => (
+          <li key={p.url} className="flex flex-wrap items-baseline gap-x-3 py-4">
+            <ExternalLink href={p.url} className="font-bold">
+              {p.label}
+            </ExternalLink>
+            <span className="text-sm text-[var(--muted-foreground)]">
+              {p.handle}
+            </span>
           </li>
         ))}
       </ul>

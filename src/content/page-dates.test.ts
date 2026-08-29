@@ -50,8 +50,16 @@ describe("日付の形式と前後関係", () => {
   });
 
   it("未来の日付が入っていない", () => {
-    // 「今日更新」を装うのをやめたのがこの仕組みの主旨なので、未来日は明確な誤り
-    const today = new Date().toISOString().slice(0, 10);
+    /*
+     * 「今日更新」を装うのをやめたのがこの仕組みの主旨なので、未来日は明確な誤り。
+     *
+     * **JST で判定する。** `toISOString()` は UTC なので、そのまま比べると
+     * **JST の 00:00〜09:00 に「今日」を登録すると落ちる**（UTC ではまだ前日）。
+     * 日付は JST で書いているので、比較も JST に揃える。
+     */
+    const today = new Date(Date.now() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
     const bad = Object.entries(pageDates)
       .filter(([, d]) => d.updated > today)
       .map(([p]) => p);

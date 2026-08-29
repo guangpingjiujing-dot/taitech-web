@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -100,13 +101,9 @@ export default function Page() {
       </p>
       <p className="text-sm">
         定数の一覧と既定値は{" "}
-        <Link
-          href="https://www.postgresql.org/docs/18/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <ExternalLink href="https://www.postgresql.org/docs/18/runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS">
           PostgreSQL 公式ドキュメント Planner Cost Constants
-        </Link>
+        </ExternalLink>
         にあります。
       </p>
 

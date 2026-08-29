@@ -20,6 +20,25 @@ export const site = {
     role: "エンジニア講師 / データエンジニア",
     bio: "Web系自社開発企業のデータエンジニア。AWS認定全冠保持経験、IPAデータベーススペシャリスト、応用情報技術者ほかIPA系資格を多数保有。AIエージェント自作・AIプロダクト開発の実務経験もあり。個別指導でSQL・データベース・クラウド・AI活用を教えている。",
     mentorUrl: "https://menta.work/plan/17058",
+    /*
+     * 外部で同一人物として運用しているプロフィール。
+     *
+     * **`AuthorJsonLd` / `SiteJsonLd` の `sameAs` と `/about` の可視リンクが
+     * 両方ここを読む。** 片方だけに足すと構造化データと可視情報がずれる
+     * (guide.md §4-4)。**増やすときは必ずここに足す。**
+     *
+     * なぜ要るか: Qiita / Zenn / X を運用しているのに、サイトからも構造化データからも
+     * 1 本も繋がっていなかった。検索エンジンから見て同一の発信者として束ねる手掛かりが
+     * 無い状態で、これは E-E-A-T の Authoritativeness に直接効く
+     * (guide.md §5-1: ブランドウェブ言及 0.664 / 被リンク 0.218)。
+     *
+     * **リンク切れは逆効果**なので、追加時に必ず 200 を確認する。
+     */
+    profiles: [
+      { label: "X", handle: "@taitech_dev", url: "https://x.com/taitech_dev" },
+      { label: "Qiita", handle: "@taitech_dev", url: "https://qiita.com/taitech_dev" },
+      { label: "Zenn", handle: "@taitech", url: "https://zenn.dev/taitech" },
+    ],
   },
   contact: {
     email: "guangpingjiujing@gmail.com",

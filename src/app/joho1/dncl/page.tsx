@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
 import { sections } from "@/content/sections";
+import { primarySources } from "@/content/primary-sources";
 import { Joho1PageJsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/lib/site";
 
@@ -99,9 +101,15 @@ export default function Joho1DnclPage() {
               </tr>
               <tr>
                 <th scope="row">仕様</th>
-                <td>大学入試センターが説明資料を公開</td>
                 <td>
-                  <strong>まとまった仕様書は無い</strong>。試作問題などに例示のみ
+                  大学入試センターが
+                  <ExternalLink href={primarySources.dncDncl.url}>説明資料</ExternalLink>
+                  （PDF）を公開
+                </td>
+                <td>
+                  <strong>まとまった仕様書は無い</strong>。
+                  <ExternalLink href={primarySources.dncJoho1Sample.url}>試作問題</ExternalLink>
+                  などに例示のみ
                 </td>
               </tr>
               <tr>
@@ -217,7 +225,9 @@ export default function Joho1DnclPage() {
           <h2>「仕様書が無い」ことをどう受け止めるか</h2>
           <p>
             情報Iのプログラム表記には、参照できる仕様書がありません。
-            試作問題の資料にも、記法をまとめて説明したページはなく、
+            大学入試センターが公開している
+            <ExternalLink href={primarySources.dncJoho1Sample.url}>試作問題の資料</ExternalLink>
+            にも、記法をまとめて説明したページはなく、
             プログラムの例が載っているだけです。しかも
             「問題文中では簡潔にするため異なる形式を使うことがある」と断られています。
           </p>

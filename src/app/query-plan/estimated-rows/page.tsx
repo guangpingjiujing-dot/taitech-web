@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { buildTopicMetadata } from "@/lib/metadata";
 import { TopicLayout } from "@/components/layout/TopicLayout";
 import { TopicJsonLd } from "@/components/seo/JsonLd";
@@ -140,13 +141,9 @@ EXPLAIN SELECT * FROM estimate_demo;`}</pre>
       <div className="not-prose my-6 border-l-2 border-[var(--foreground)] pl-5">
         <p className="text-[15px] leading-relaxed">
           この計算は PostgreSQL 本体の{" "}
-          <Link
-            href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/backend/optimizer/util/plancat.c"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <ExternalLink href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/backend/optimizer/util/plancat.c">
             <code>estimate_rel_size()</code>（<code>src/backend/optimizer/util/plancat.c</code>）
-          </Link>
+          </ExternalLink>
           がやっていることを、そのままなぞったものです。
           ソースを読める人は、そこを見ると同じ式が書いてあります。
         </p>

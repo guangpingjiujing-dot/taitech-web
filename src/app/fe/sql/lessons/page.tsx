@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { FeSidebar } from "@/components/fe/FeSidebar";
@@ -10,6 +11,7 @@ import { FaqJsonLd } from "@/components/seo/JsonLd";
 import { sections } from "@/content/sections";
 import { site } from "@/lib/site";
 import { sqlLessons } from "@/content/fe/sql/lessons";
+import { primarySources } from "@/content/primary-sources";
 
 const PAGE_TITLE = "基本情報のSQLをわかりやすく解説｜レッスン一覧";
 const PAGE_DESCRIPTION =
@@ -144,7 +146,7 @@ export default function SqlLessonsIndexPage() {
                 className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}
               >
-                シラバス「データ操作」の範囲を 12 のテーマに分けて、
+                IPA <ExternalLink href={primarySources.ipaFeSyllabus.url}>シラバス Ver.9.2</ExternalLink>（PDF）「データ操作」の範囲を 12 のテーマに分けて、
                 初学者の方がつまずきやすい順に解説します。
                 各レッスンには実行できるエディタが節ごとに埋め込まれているので、
                 読んだ内容をその場で確かめられます。
