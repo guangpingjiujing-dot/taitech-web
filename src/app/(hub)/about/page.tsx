@@ -30,7 +30,11 @@ const experiences = [
   },
   {
     title: "IPAデータベーススペシャリスト（2023年）",
-    body: "ほかに応用情報技術者（2022年）、基本情報技術者（2021年）、OSS-DB Silver（2024年）。IPA試験に有効期限は無い。Azure / Power Platform / LPICレベル1〜3 / G検定 / Python3エンジニア認定なども含め、IT資格は計30種以上。",
+    body: "ほかに応用情報技術者（2022年）、基本情報技術者（2021年）、OSS-DB Silver（2024年）。データベース領域の資格はこの4つ。",
+  },
+  {
+    title: "そのほかの認定 18種",
+    body: "Microsoft Azure 7種（AZ-104 / AZ-500 / AZ-900 / AI-900 / DP-900 / MS-900 / SC-900）、Power Platform 5種（PL-100 / 200 / 300 / 400 / 900）、LPICレベル1〜3、Python3エンジニア認定（基礎・データ分析）、G検定。上記と合わせてIT資格は計34種。",
   },
   {
     title: "AIエージェント / AIプロダクト開発",
