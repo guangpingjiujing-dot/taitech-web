@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
 import { Joho1TranspileComparison } from "@/components/joho1/Joho1TranspileComparison";
@@ -75,6 +76,8 @@ export default function Joho1TranspilePage() {
               <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
                 プログラム表記と Python を並べて読む
               </h1>
+
+              <ArticleMeta path="/joho1/transpile" className="mt-3" />
               <p
                 className="mt-3 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed"
                 style={{ textWrap: "pretty" }}

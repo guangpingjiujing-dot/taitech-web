@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -55,6 +56,8 @@ export default function Joho1LessonsPage() {
         <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
           構文別レッスン {joho1Lessons.length} 本
         </h1>
+
+        <ArticleMeta path="/joho1/lessons" className="mt-3" />
         <p className="mt-4 text-[var(--muted-foreground)] leading-relaxed">
           共通テストのプログラム表記には仕様書がなく、記法は過去の出題からしか分かりません。
           このレッスンでは

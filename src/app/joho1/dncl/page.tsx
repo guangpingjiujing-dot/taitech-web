@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ExternalLink } from "@/components/ui/ExternalLink";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DefinitionBox } from "@/components/layout/DefinitionBox";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -64,6 +65,8 @@ export default function Joho1DnclPage() {
         <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
           情報Iの擬似言語は DNCL ではない — 違いを整理する
         </h1>
+
+        <ArticleMeta path="/joho1/dncl" className="mt-3" />
 
         <DefinitionBox className="mt-6">
           DNCL は「情報関係基礎」で使われる言語で、大学入試センターが仕様を公開している。

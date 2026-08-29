@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -100,6 +101,8 @@ export default function QueryPlanHub() {
       <h1 className="mt-3 text-3xl md:text-4xl font-bold leading-tight">
         この実行計画の、どこが遅いか指せますか。
       </h1>
+
+      <ArticleMeta path="/query-plan" className="mt-3" />
 
       <div className="prose-jp mt-8 max-w-none">
         <p>

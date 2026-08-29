@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { LevelBadge } from "@/components/ui/Badge";
 import { MentorCTA } from "@/components/cta/MentorCTA";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -114,6 +115,9 @@ export default function WhyNeedRdbHub() {
                 あなたには、この Excel の何が壊れているかわかりますか？
               </span>
             </h1>
+
+            <ArticleMeta path="/why-need-rdb" className="mt-5" />
+
             <p className="mt-8 text-base md:text-lg text-[var(--foreground)]/90 leading-relaxed">
               下に、架空 EC サイトの受注管理 Excel があります。仕込まれているのは
               <span className="whitespace-nowrap">7 つ</span>の明らかにおかしい箇所。

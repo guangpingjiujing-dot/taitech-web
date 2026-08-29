@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { Joho1Playground } from "@/components/joho1/Joho1Playground";
 import { Joho1Sidebar } from "@/components/joho1/Joho1Sidebar";
 import { AffiliateBooks } from "@/components/cta/AffiliateBooks";
@@ -90,6 +91,8 @@ export default function Joho1Page() {
       <h1 className="mt-2 text-2xl md:text-4xl font-bold tracking-tight">
         プログラム表記 実行シミュレーター
       </h1>
+
+      <ArticleMeta path="/joho1" className="mt-3" />
       <p className="mt-4 max-w-2xl text-[var(--muted-foreground)] leading-relaxed">
         共通テスト「情報I」のプログラムを、ブラウザで 1 行ずつ動かせます。
         変数の値がどう変わるかを見ながら読むと、繰り返しと条件分岐の追い方が身につきます。

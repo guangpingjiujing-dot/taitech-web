@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
+import { ArticleMeta } from "@/components/layout/ArticleMeta";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -13,6 +14,13 @@ export default function PrivacyPage() {
     <Container size="narrow" className="py-12 md:py-16">
       <article className="prose-jp max-w-none">
         <h1>プライバシーポリシー</h1>
+        {/* 規約系は著者ではなく改定日が要る。名義は運営者なので著者行は出さない */}
+        <ArticleMeta
+          path="/privacy"
+          className="not-prose"
+          showAuthor={false}
+          dateLabel="最終改定"
+        />
         <p>
           {site.name}
           （以下「本サイト」といいます）における個人情報の取り扱い、および利用するサービスについて明記します。
